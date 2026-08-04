@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- ============================================================
-     CARS Operator Application (cloud)
+     CARS Operator Application (cloud) — v2
      © Polyfill Microns Pvt. Ltd. Sole and exclusive property.
      Unauthorised copying, modification or distribution prohibited.
      ============================================================ -->
@@ -20,78 +20,121 @@
 <style>
 :root{--panel:#10141d;--panel2:#171d29;--panel3:#1e2735;--ink:#e9eef6;--ink-dim:#8f9db1;--ink-faint:#5f6c81;
 --work:#eef1f5;--card:#fff;--wink:#1a2230;--wink-dim:#5a6678;--acid:#f2820c;--acid-deep:#c9640a;--chrome:#ffb84d;
---ok:#22ab57;--warn:#f0a41c;--alarm:#e53a3a;--teal:#2ba6a4;--violet:#8b7bd8;--line-l:#dde3ea;--line-d:rgba(255,255,255,.09)}
+--ok:#22ab57;--warn:#f0a41c;--alarm:#e53a3a;--idle:#55617a;--teal:#2ba6a4;--violet:#8b7bd8;--line-l:#dde3ea;--line-d:rgba(255,255,255,.09)}
 *{box-sizing:border-box}html,body{margin:0}
 body{font-family:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--work);color:var(--wink);font-size:14px;line-height:1.45}
 .mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
-.hide{display:none!important}
-button{font:inherit;cursor:pointer}
-input,select{font:inherit}
+.hide{display:none!important}button{font:inherit;cursor:pointer}input,select,textarea{font:inherit}
 /* login */
 #login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--panel);padding:20px}
-.lcard{background:var(--card);border-radius:16px;padding:28px 26px;width:min(400px,94vw);box-shadow:0 20px 60px rgba(0,0,0,.35)}
-.lcard h1{margin:0 0 3px;font-size:19px}
-.lcard .sub{color:var(--wink-dim);font-size:12.5px;margin-bottom:20px}
-.lcard label{display:block;font-size:12px;color:var(--wink-dim);margin:12px 0 5px}
+.lcard{background:var(--card);border-radius:16px;padding:28px 26px;width:min(400px,94vw);box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center}
+.lcard img{width:64px;height:64px;margin-bottom:10px}
+.lcard h1{margin:0 0 3px;font-size:19px}.lcard .sub{color:var(--wink-dim);font-size:12.5px;margin-bottom:16px}
+.lcard label{display:block;text-align:left;font-size:12px;color:var(--wink-dim);margin:12px 0 5px}
 .lcard input{width:100%;padding:11px;border:1px solid var(--line-l);border-radius:9px;background:#fafbfc}
 .lcard input:focus{outline:none;border-color:var(--acid)}
 .lbtn{width:100%;margin-top:18px;padding:12px;border:0;border-radius:9px;background:var(--acid);color:#fff;font-weight:600;font-size:15px}
-.lbtn:disabled{opacity:.6}
-.lerr{color:var(--alarm);font-size:12.5px;margin-top:12px;min-height:16px}
-.lbrand{font-weight:700;color:var(--acid-deep);font-size:12px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:14px}
+.lbtn:disabled{opacity:.6}.lerr{color:var(--alarm);font-size:12.5px;margin-top:12px;min-height:16px}
+.lbrand{font-weight:700;color:var(--acid-deep);font-size:12px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:10px}
 /* shell */
-header{background:var(--panel);color:var(--ink);padding:11px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:2px solid var(--acid);padding-top:max(11px,env(safe-area-inset-top))}
-header .b1{font-weight:700;font-size:15px}
-header .b2{font-size:10.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.4px}
+header{background:var(--panel);color:var(--ink);padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:2px solid var(--acid);padding-top:max(10px,env(safe-area-inset-top))}
+.ctx{line-height:1.25}.ctx .c1{font-weight:700;font-size:14px}.ctx .c2{font-size:11px;color:var(--ink-dim)}
 .sp{flex:1}
-.who{text-align:right;font-size:12px;color:var(--ink-dim);line-height:1.3}
-.who b{color:var(--ink);display:block}
+.brandR{display:flex;align-items:center;gap:9px}
+.brandR img{width:34px;height:34px}
+.brandR .bt{line-height:1.15;text-align:right}.brandR .bt b{font-size:13px}.brandR .bt span{display:block;font-size:9.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.5px}
+.who{text-align:right;font-size:11.5px;color:var(--ink-dim);line-height:1.25}.who b{color:var(--ink);display:block}
 .ghost{background:var(--panel2);color:var(--ink-dim);border:1px solid var(--line-d);padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600}
 nav.tabs{background:var(--panel2);display:flex;gap:4px;padding:6px 12px;overflow-x:auto}
 nav.tabs button{background:transparent;border:0;color:var(--ink-dim);padding:8px 14px;border-radius:7px;font-weight:600;font-size:13px;white-space:nowrap}
 nav.tabs button.on{background:var(--acid);color:#1a1206}
-main{max-width:1180px;margin:0 auto;padding:18px}
+main{max-width:1200px;margin:0 auto;padding:16px}
+/* dark board */
+.board{background:var(--panel);color:var(--ink);border-radius:14px;padding:16px 16px 18px;margin-bottom:16px}
+.board h3{font-size:11px;letter-spacing:1.3px;text-transform:uppercase;color:var(--ink-dim);margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.board h3::before{content:"";width:18px;height:2px;background:var(--acid)}
+.trainsel{display:inline-flex;gap:5px;background:var(--panel2);padding:5px;border-radius:9px;margin-bottom:10px}
+.trainsel button{background:transparent;border:0;color:var(--ink-dim);padding:6px 14px;border-radius:6px;font-weight:600;font-size:13px}
+.trainsel button.on{background:var(--acid);color:#1a1206}
+.rail{display:flex;background:var(--panel2);border-radius:11px;padding:6px;overflow-x:auto}
+.step{flex:1 0 auto;min-width:96px;cursor:pointer;padding:10px 11px 12px;border-radius:8px;border:1px solid transparent}
+.step:hover{background:var(--panel3)}.step .n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint)}
+.step .m{font-weight:600;font-size:12px;color:var(--ink-dim);margin-top:2px}.step .d{font-size:9.5px;color:var(--ink-faint);margin-top:2px}
+.step.done .n{color:var(--ok)}.step.active{background:linear-gradient(180deg,#3a2a0e,#241a09);border-color:var(--acid)}
+.step.active .m{color:var(--chrome)}.step.active .n{color:var(--acid)}
+.railnav{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.railnav button{border:0;border-radius:7px;padding:8px 15px;font-weight:600;font-size:13px}
+.np{background:var(--panel3);color:var(--ink-dim)}.nn{background:var(--acid);color:#1a1206}.rl{color:var(--ink-dim);font-size:12px}
+.rgrid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-top:14px}@media(max-width:820px){.rgrid{grid-template-columns:1fr}}
+.rc{background:var(--panel2);border-radius:11px;padding:14px}
+.rc .t{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-faint);margin-bottom:9px}
+.inrow{display:flex;gap:9px;flex-wrap:wrap}.fieldd{flex:1;min-width:104px}
+.fieldd label{display:block;font-size:10.5px;color:var(--ink-dim);margin-bottom:4px}
+.fieldd input{width:100%;font-family:'IBM Plex Mono',monospace;font-size:15px;background:var(--panel);border:1px solid var(--line-d);color:var(--ink);padding:9px;border-radius:7px}
+.fieldd input:focus{outline:none;border-color:var(--acid)}.fieldd .u{font-size:10px;color:var(--ink-faint)}
+.impb{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}@media(max-width:520px){.impb{grid-template-columns:1fr}}
+.impc{background:var(--panel);border:1px solid var(--line-d);border-radius:9px;padding:10px}
+.impc .it{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-faint);display:block;margin-bottom:8px}
+.improw{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-dim)}
+.simp{width:58px;font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--panel2);border:1px solid var(--line-d);color:var(--ink);padding:6px;border-radius:6px}
+.imptot{font-family:'IBM Plex Mono',monospace;color:var(--chrome);font-weight:600}
+.prog{margin-top:12px}.prog .pl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-dim);margin-bottom:5px}
+.pbar{height:9px;background:var(--panel);border-radius:6px;overflow:hidden}.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--acid),var(--chrome))}
+.cue{border-radius:9px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start;background:var(--panel);border:1px solid var(--line-d)}
+.cue .dot{width:11px;height:11px;border-radius:50%;margin-top:4px;flex:none;background:var(--idle)}
+.cue.go .dot{background:var(--ok);box-shadow:0 0 0 4px rgba(34,171,87,.18)}
+.cue.stop .dot{background:var(--alarm);box-shadow:0 0 0 4px rgba(229,58,58,.18)}
+.cue.hold .dot{background:var(--warn);box-shadow:0 0 0 4px rgba(240,164,28,.18)}
+.cue b{display:block;font-size:13.5px;margin-bottom:2px;color:var(--ink)}.cue span{font-size:12px;color:var(--ink-dim);line-height:1.45}
+.tanks{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:9px;margin-top:6px}
+.tank{background:var(--panel2);border-radius:10px;padding:10px;position:relative;cursor:pointer}.tank:hover{background:var(--panel3)}
+.tank .tk{font-weight:600;font-size:12px;color:var(--ink)}.tank .td{font-size:9.5px;color:var(--ink-faint);height:22px;line-height:1.1}
+.tvis{height:38px;border-radius:6px;background:var(--panel);margin:7px 0 5px;position:relative;overflow:hidden;border:1px solid var(--line-d)}
+.tvis i{position:absolute;left:0;right:0;bottom:0}.tank .tval{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-dim)}.tank .tval b{color:var(--ink)}
+.tflag{position:absolute;top:8px;right:8px;font-size:8.5px;font-weight:700;padding:2px 5px;border-radius:5px}
+.tflag.hi{background:rgba(229,58,58,.16);color:#ff8f8f}.tflag.lo{background:rgba(240,164,28,.16);color:#f8c15f}
+/* light cards */
 .card{background:var(--card);border:1px solid var(--line-l);border-radius:13px;padding:16px 18px;margin-bottom:16px}
 .card h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#7a8699;margin:0 0 14px;display:flex;align-items:center;gap:8px}
 .card h2::before{content:"";width:20px;height:2px;background:var(--acid-deep)}
-.grid{display:grid;gap:11px 12px}
-.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.grid{display:grid;gap:11px 12px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
 @media(max-width:640px){.g3,.g4{grid-template-columns:1fr 1fr}}
 .f label{display:block;font-size:11px;color:var(--wink-dim);margin-bottom:4px}
-.f input,.f select{width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc}
-.f input:focus,.f select:focus{outline:none;border-color:var(--acid)}
+.f input,.f select,.f textarea{width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;font-family:'IBM Plex Mono',monospace}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--acid)}
 .f input[readonly]{background:#eef1f4;color:var(--acid-deep);font-weight:600}
 .sec{grid-column:1/-1;margin-top:8px;font-weight:600;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--acid-deep);border-bottom:1px solid var(--line-l);padding-bottom:5px}
 .sec em{font-weight:400;text-transform:none;letter-spacing:0;color:var(--wink-dim)}
 .btn{padding:11px 18px;border:0;border-radius:9px;font-weight:600;font-size:14px}
 .btn.primary{background:var(--acid);color:#fff}.btn.primary:hover{background:var(--acid-deep)}
-.btn.done{background:var(--ok);color:#fff}
-.btn.g{background:#eef0f3;color:var(--wink-dim)}
+.btn.done{background:var(--ok);color:#fff}.btn.g{background:#eef0f3;color:var(--wink-dim)}.btn.danger{background:#fdecec;color:#c62828}
 .btn.sm{padding:7px 12px;font-size:12.5px;border-radius:7px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
-.pill.draft{background:rgba(240,164,28,.16);color:#a9700a}
-.pill.done{background:rgba(34,171,87,.14);color:#1a8f47}
+.pill.draft{background:rgba(240,164,28,.16);color:#a9700a}.pill.done{background:rgba(34,171,87,.14);color:#1a8f47}
+.pill.off{background:#eceef1;color:#77808d}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--wink-dim);padding:7px 8px;border-bottom:1.5px solid var(--line-l)}
-td{padding:8px;border-bottom:1px solid #eef1f4}
-td.m,th.m{font-family:'IBM Plex Mono',monospace;text-align:right}
-tr.clk{cursor:pointer}tr.clk:hover td{background:#fafbfc}
-.tanks{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
-.tank{background:#fafbfc;border:1px solid var(--line-l);border-radius:10px;padding:10px}
-.tank .tk{font-weight:600;font-size:12.5px}.tank .td{font-size:10px;color:var(--wink-dim);height:22px}
-.tank input{width:100%;margin-top:5px;padding:6px;border:1px solid var(--line-l);border-radius:6px;background:#fff}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
-.kpi{border-left:3px solid var(--acid);padding-left:11px}
-.kpi .v{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600}
-.kpi .l{font-size:10.5px;color:var(--wink-dim);text-transform:uppercase;letter-spacing:.4px}
+td{padding:8px;border-bottom:1px solid #eef1f4}td.m,th.m{font-family:'IBM Plex Mono',monospace;text-align:right}
+tr.clk{cursor:pointer}tr.clk:hover td{background:#fafbfc}.hwrap{overflow-x:auto}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
+.kpi{border-left:3px solid var(--acid);padding-left:11px}.kpi .v{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600}
+.kpi .l{font-size:10px;color:var(--wink-dim);text-transform:uppercase;letter-spacing:.4px}
+.kpi.a2{border-color:var(--teal)}.kpi.a3{border-color:var(--violet)}.kpi.a4{border-color:var(--ok)}
+.rem{display:flex;flex-direction:column;gap:10px}
+.rmi{border-radius:11px;padding:12px 14px;border:1px solid var(--line-l);background:#fafbfc;position:relative;overflow:hidden}
+.rmi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+.rmi.ok::before{background:var(--ok)}.rmi.warn::before{background:var(--warn)}.rmi.alarm::before{background:var(--alarm)}
+.rmi .rh{display:flex;justify-content:space-between;gap:8px;margin-bottom:5px}.rmi .rt{font-weight:600;font-size:13px}
+.rmi .rg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase}
+.rg.ok{background:rgba(34,171,87,.12);color:#1a8f47}.rg.warn{background:rgba(240,164,28,.14);color:#a9700a}.rg.alarm{background:rgba(229,58,58,.12);color:#c62828}
+.rmi .rb{font-size:12px;color:var(--wink-dim);line-height:1.45}.rmi .rb b{color:var(--wink);font-family:'IBM Plex Mono',monospace}
 .note{font-size:12px;color:var(--wink-dim);background:#fafbfc;border:1px solid var(--line-l);border-radius:9px;padding:10px 12px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel);color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.3);z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
 .modal{position:fixed;inset:0;background:rgba(10,14,22,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:18px}
-.modal .mc{background:#fff;border-radius:14px;padding:22px;width:min(440px,94vw)}
-.modal h3{margin:0 0 6px}
-.modal p{color:var(--wink-dim);font-size:13.5px;margin:0 0 18px}
+.modal .mc{background:#fff;border-radius:14px;padding:22px;width:min(460px,94vw);max-height:90vh;overflow:auto}
+.modal h3{margin:0 0 6px}.modal p{color:var(--wink-dim);font-size:13.5px;margin:0 0 16px}
 footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-height:1.6}
 </style>
 </head>
@@ -99,6 +142,7 @@ footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-
 
 <div id="login">
   <div class="lcard">
+    <img src="logo.svg" alt="Polyfill Microns">
     <div class="lbrand">Polyfill Microns Pvt. Ltd.</div>
     <h1>CARS Operator Portal</h1>
     <div class="sub">Chromic Acid Recycling · sign in to continue</div>
@@ -111,17 +155,15 @@ footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-
 
 <div id="app" class="hide">
   <header>
-    <div><div class="b1" id="hClient">CARS</div><div class="b2" id="hLoc"></div></div>
-    <div class="sp"></div>
+    <div class="ctx"><div class="c1" id="hCtx1">CARS</div><div class="c2" id="hCtx2"></div></div>
     <div class="who"><b id="hName">—</b><span id="hRole"></span></div>
+    <div class="sp"></div>
+    <div class="brandR"><img src="logo.svg" alt="Polyfill Microns"><div class="bt"><b>Polyfill Microns Pvt Ltd</b><span>Recycling &amp; pollution control</span></div></div>
     <button class="ghost" id="hOut">Sign out</button>
   </header>
   <nav class="tabs" id="tabs"></nav>
   <main id="main"></main>
-  <footer>
-    <strong>Polyfill Microns Pvt. Ltd.</strong> · CARS · RWRS · CARWARS — cloud operator application.<br>
-    <span id="copy"></span>
-  </footer>
+  <footer><strong>Polyfill Microns Pvt Ltd</strong> · CARS · RWRS · CARWARS operator application.<br><span id="copy"></span></footer>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -131,502 +173,526 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const CFG = window.CARS_CONFIG;
 const sb = createClient(CFG.url, CFG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true } });
 
-const $ = s => document.querySelector(s);
-const el = (t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
-const num = v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
-const fmt = (n,d=1)=>Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
-const esc = v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const today = ()=>new Date().toISOString().slice(0,10);
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+const $=s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
+const fmt=(n,d=1)=>Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
+const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const today=()=>new Date().toISOString().slice(0,10);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);}
 
-const DEFAULTS = {
-  feedFlowLPH:1500, feedCrO3:250, feedFe:13, feedCr3:6, workingCapKg:5,
+const DEFAULTS={
+  feedFlowLPH:1500, regenFlowLPH:750, bedL:500, voidL:150,
+  feedCrO3:250, feedFe:13, feedCr3:6, workingCapKg:5,
   diluteCutL:150, ct2TargetL:500, ct2TargetCrO3:220,
-  regenBV:2, regenPct:15, chromeRinseCond:5, h2so4RinseCond:8,
-  acidStockPct:50,
+  regenBV:2, regenPct:15, condUnit:'mS/cm', chromeRinseCond:5, h2so4RinseCond:8,
+  bathCeilingFe:0, acidStockPct:50,
   h2so4_density:[[5,1.032],[10,1.066],[15,1.102],[20,1.139],[25,1.178],[30,1.219],[35,1.260],[40,1.303],[50,1.395]],
   naoh_density:[[5,1.054],[10,1.109],[15,1.164],[20,1.219],[25,1.274],[30,1.328],[40,1.430],[50,1.525]],
-  tanks:['CT1A','CT1B','CT2A','CT2B','CT3','CT4','WT1','DM']
+  tankCaps:{CT1A:1000,CT1B:1000,CT2A:1000,CT2B:1000,CT3:3000,CT4:1000,WT1:3000,DM:2000,H2:1000,SP:1000}
 };
-const STEPS=['Acid load','Dilute cut','Recover acid','Water push','Chrome rinse','H₂SO₄ regen','Overnight soak','H₂SO₄ rinse','Void drain'];
+const TANKS=[['CT1A','Spent chromic · Etching','#e4571b'],['CT1B','Spent chromic · Plating','#e4571b'],
+ ['CT2A','Treated ~220 · Etching','#f2820c'],['CT2B','Treated ~220 · Plating','#f2820c'],
+ ['CT3','Dilute → CARWARS','#ffb84d'],['CT4','Recovered chromic acid','#ffcf7a'],
+ ['WT1','Sulphate rinse → RWRS','#2ba6a4'],['DM','DM water (RWRS out)','#4d9de0'],
+ ['H2','H₂SO₄ regenerant store','#8b7bd8'],['SP','Spent H₂SO₄ (reuse)','#a78b4a']];
+const STEPS=[
+ {m:'Acid load',d:'spent acid · bottom→top',ep:'feed',route:'Feeding column'},
+ {m:'Dilute cut',d:'displaced water → CT3',ep:'dilute',route:'Outlet → CT3'},
+ {m:'Recover acid',d:'treated acid → CT2',ep:'ct2',route:'Outlet → CT2'},
+ {m:'Water push',d:'displace void',ep:'void',route:'Balancing CT2'},
+ {m:'Chrome rinse',d:'wash Cr⁶⁺ → CT3',ep:'cond',route:'Outlet → CT3',sp:'chromeRinseCond'},
+ {m:'H₂SO₄ regen',d:'acid · top→bottom',ep:'regen',route:'Drain / reuse tank'},
+ {m:'Overnight soak',d:'hold last BV',ep:'manual',route:'Column standing'},
+ {m:'H₂SO₄ rinse',d:'sulphate → WT1',ep:'cond',route:'Outlet → WT1',sp:'h2so4RinseCond'},
+ {m:'Void drain',d:'air purge',ep:'manual',route:'Column emptying'}];
 
-let ME=null, SETTINGS=Object.assign({},DEFAULTS), CUR=null, TAB=null;
+let ME=null, SETTINGS=Object.assign({},DEFAULTS), CUR=null, INV=[];
 
-function rho(table, c){
-  if(!c) return 1; const t=(table||[]).slice().sort((a,b)=>a[0]-b[0]);
-  if(!t.length) return 1;
-  if(c<=t[0][0]) return t[0][1];
-  if(c>=t[t.length-1][0]) return t[t.length-1][1];
-  for(let i=0;i<t.length-1;i++){if(c>=t[i][0]&&c<=t[i+1][0]){const [x0,y0]=t[i],[x1,y1]=t[i+1];return y0+(y1-y0)*(c-x0)/(x1-x0);}}
-  return 1;
-}
-const h2so4_50 = (c,v)=> (c>0&&v>0) ? v*rho(SETTINGS.h2so4_density,c)*(c/100)/((SETTINGS.acidStockPct||50)/100) : 0;
-const naoh_100 = (c,v)=> (c>0&&v>0) ? v*rho(SETTINGS.naoh_density,c)*(c/100) : 0;
+function rho(tb,c){if(!c)return 1;const t=(tb||[]).slice().sort((a,b)=>a[0]-b[0]);if(!t.length)return 1;
+ if(c<=t[0][0])return t[0][1];if(c>=t[t.length-1][0])return t[t.length-1][1];
+ for(let i=0;i<t.length-1;i++){if(c>=t[i][0]&&c<=t[i+1][0]){const[x0,y0]=t[i],[x1,y1]=t[i+1];return y0+(y1-y0)*(c-x0)/(x1-x0);}}return 1;}
+const h2so4_50=(c,v)=>(c>0&&v>0)?v*rho(SETTINGS.h2so4_density,c)*(c/100)/((SETTINGS.acidStockPct||50)/100):0;
+const naoh_100=(c,v)=>(c>0&&v>0)?v*rho(SETTINGS.naoh_density,c)*(c/100):0;
 
-/* ---------------- auth ---------------- */
-$('#liBtn').onclick = doLogin;
+/* ---- auth ---- */
+$('#liBtn').onclick=doLogin;
 $('#liPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 async function doLogin(){
-  const email=$('#liEmail').value.trim(), password=$('#liPass').value;
-  $('#liErr').textContent=''; $('#liBtn').disabled=true; $('#liBtn').textContent='Signing in…';
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  $('#liBtn').disabled=false; $('#liBtn').textContent='Sign in';
-  if(error){ $('#liErr').textContent = error.message || 'Sign-in failed'; }
+  const email=$('#liEmail').value.trim(),password=$('#liPass').value;
+  $('#liErr').textContent='';$('#liBtn').disabled=true;$('#liBtn').textContent='Signing in…';
+  const {error}=await sb.auth.signInWithPassword({email,password});
+  $('#liBtn').disabled=false;$('#liBtn').textContent='Sign in';
+  if(error)$('#liErr').textContent=error.message||'Sign-in failed';
 }
-$('#hOut').onclick = async ()=>{
-  if(CUR && CUR.id && CUR.status==='draft'){
-    const go = await confirmComplete();
-    if(go==='cancel') return;
-    if(go==='complete'){ await saveCurrent(true); }
-    else { await saveCurrent(false); }
-  }
+$('#hOut').onclick=async()=>{
+  if(CUR&&CUR.id&&CUR.status==='draft'){const g=await confirmComplete();if(g==='cancel')return;if(g==='complete'){await saveCurrent(true);}else{await saveCurrent(false);}}
   await sb.auth.signOut();
 };
-
-sb.auth.onAuthStateChange(async (_e, session)=>{
-  if(session && session.user){ await boot(session.user); }
-  else { $('#app').classList.add('hide'); $('#login').classList.remove('hide'); ME=null; CUR=null; }
+sb.auth.onAuthStateChange(async(_e,session)=>{
+  if(session&&session.user){await boot(session.user);}
+  else{$('#app').classList.add('hide');$('#login').classList.remove('hide');ME=null;CUR=null;}
 });
-
 async function boot(user){
-  const { data: prof, error } = await sb.from('profiles')
-    .select('id, full_name, role, active, client_id, location_id, clients(name,address), locations(name)')
-    .eq('id', user.id).single();
-  if(error || !prof){ $('#liErr').textContent='Profile not found. Contact admin.'; await sb.auth.signOut(); return; }
-  if(!prof.active){ $('#liErr').textContent='Your account is deactivated. Contact admin.'; await sb.auth.signOut(); return; }
-  ME = {
-    id:prof.id, role:prof.role, name:prof.full_name||user.email, email:user.email,
-    client_id:prof.client_id, location_id:prof.location_id,
-    clientName:prof.clients?.name||'', clientAddress:prof.clients?.address||'', locationName:prof.locations?.name||''
-  };
-  // settings for this client (technician). Admin loads per-client in its screen.
-  if(ME.client_id){
-    const { data:s } = await sb.from('settings').select('data').eq('client_id',ME.client_id).maybeSingle();
-    SETTINGS = Object.assign({}, DEFAULTS, s?.data||{});
-  }
-  $('#login').classList.add('hide'); $('#app').classList.remove('hide');
-  $('#hClient').textContent = ME.clientName || 'CARS';
-  $('#hLoc').textContent = ME.locationName || (ME.role==='admin'?'Administrator':'');
-  $('#hName').textContent = ME.name; $('#hRole').textContent = ME.role;
-  $('#copy').textContent = '© '+new Date().getFullYear()+' Polyfill Microns Pvt. Ltd. — sole and exclusive property. Unauthorised copying, modification or distribution prohibited.';
+  const {data:prof,error}=await sb.from('profiles').select('id,full_name,role,active,client_id,location_id,clients(name,address),locations(name)').eq('id',user.id).single();
+  if(error||!prof){$('#liErr').textContent='Profile not found. Contact admin.';await sb.auth.signOut();return;}
+  if(!prof.active){$('#liErr').textContent='Your account is deactivated. Contact admin.';await sb.auth.signOut();return;}
+  ME={id:prof.id,role:prof.role,name:prof.full_name||user.email,email:user.email,client_id:prof.client_id,location_id:prof.location_id,
+      clientName:prof.clients?.name||'',clientAddress:prof.clients?.address||'',locationName:prof.locations?.name||''};
+  if(ME.client_id){const {data:s}=await sb.from('settings').select('data').eq('client_id',ME.client_id).maybeSingle();SETTINGS=Object.assign({},DEFAULTS,s?.data||{});
+    const {data:inv}=await sb.from('inventory').select('*').eq('client_id',ME.client_id).eq('location_id',ME.location_id);INV=inv||[];}
+  $('#login').classList.add('hide');$('#app').classList.remove('hide');
+  $('#hCtx1').textContent=ME.role==='admin'?'Administrator':(ME.clientName||'CARS');
+  $('#hCtx2').textContent=ME.role==='admin'?'Console':(ME.locationName||'');
+  $('#hName').textContent=ME.name;$('#hRole').textContent=ME.role;
+  $('#copy').textContent='© '+new Date().getFullYear()+' Polyfill Microns Pvt Ltd — sole and exclusive property. Unauthorised copying, modification or distribution prohibited.';
   buildTabs();
 }
-
 function buildTabs(){
-  const tabs = ME.role==='admin'
-    ? [['reports','Reports'],['techs','Technicians'],['company','Company & stock'],['settings','Settings']]
-    : [['cycle','Current cycle'],['mine','My cycles']];
-  const nav=$('#tabs'); nav.innerHTML='';
-  tabs.forEach(([k,label],i)=>{ const b=el('button',null,label); b.onclick=()=>go(k,b); nav.appendChild(b); if(i===0) b.classList.add('on'); });
-  go(tabs[0][0], nav.firstChild);
+  const tabs=ME.role==='admin'
+    ?[['reports','Reports'],['techs','Technicians'],['locations','Locations'],['company','Companies & stock'],['settings','Settings']]
+    :[['cycle','Current cycle'],['mine','My cycles']];
+  const nav=$('#tabs');nav.innerHTML='';
+  tabs.forEach(([k,l],i)=>{const b=el('button',null,l);b.onclick=()=>go(k,b);nav.appendChild(b);if(i===0)b.classList.add('on');});
+  go(tabs[0][0],nav.firstChild);
 }
-function go(tab, btn){
-  TAB=tab; document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('on')); if(btn) btn.classList.add('on');
-  const m=$('#main'); m.innerHTML='';
-  if(tab==='cycle') screenCycle(m);
-  if(tab==='mine') screenMine(m);
-  if(tab==='reports') screenReports(m);
-  if(tab==='techs') screenTechs(m);
-  if(tab==='company') screenCompany(m);
-  if(tab==='settings') screenSettings(m);
-}
+function go(tab,btn){document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
+  const m=$('#main');m.innerHTML='';
+  ({cycle:screenCycle,mine:screenMine,reports:screenReports,techs:screenTechs,locations:screenLocations,company:screenCompany,settings:screenSettings})[tab](m);}
 
-/* ---------------- technician: current cycle ---------------- */
-function blankData(){
-  return { train:'Etching', cycle_date:today(),
-    flow:'',vol:'',cond:'', spentFe:'',spentCr3:'', treatFe:'',treatCr3:'',
-    feedVol:'',feedCrO3:'',feedFe:'',feedCr3:'',feedCu:'',
-    ct2:'',treatCrO3:'',treatFeL:'',treatCr3L:'',treatCu:'',
-    carsPct:'',carsVol:'', cw1Pct:'',cw1Vol:'', cwAnPct:'',cwAnVol:'', cw2Pct:'',cw2Vol:'',
-    rwCatPct:'',rwCatVol:'', rwAnPct:'',rwAnVol:'',
-    bathFe:'', notes:'', tanks:{} };
-}
+/* ---- technician: dashboard cycle ---- */
+function blankData(){return{train:'Etching',step:0,cycle_date:today(),
+ flow:'',vol:'',cond:'',spentFe:'',spentCr3:'',treatFe:'',treatCr3:'',
+ feedVol:'',feedCrO3:'',feedFe:'',feedCr3:'',feedCu:'',ct2:'',treatCrO3:'',treatFeL:'',treatCr3L:'',treatCu:'',
+ carsPct:'',carsVol:'',recyc:'',cw1Pct:'',cw1Vol:'',cwAnPct:'',cwAnVol:'',cw2Pct:'',cw2Vol:'',rwCatPct:'',rwCatVol:'',rwAnPct:'',rwAnVol:'',
+ bathFe:'',reuseCount:'',notes:'',tanks:{}};}
 async function screenCycle(m){
-  if(!CUR){
-    const { data } = await sb.from('cars_cycles').select('*').eq('technician_id',ME.id).eq('status','draft').order('updated_at',{ascending:false}).limit(1);
-    if(data && data.length){ CUR = { id:data[0].id, status:'draft', data:Object.assign(blankData(),data[0].data||{}) }; }
-    else { CUR = { id:null, status:'draft', data:blankData() }; }
-  }
-  const d=CUR.data;
-  m.appendChild(renderCycleForm(d));
+  if(!CUR){const {data}=await sb.from('cars_cycles').select('*').eq('technician_id',ME.id).eq('status','draft').order('updated_at',{ascending:false}).limit(1);
+    CUR=(data&&data.length)?{id:data[0].id,status:'draft',data:Object.assign(blankData(),data[0].data||{})}:{id:null,status:'draft',data:blankData()};}
+  renderCycle(m);
 }
-function renderCycleForm(d){
-  const wrap=el('div');
-  const banner = CUR.id ? `<span class="pill draft">Draft</span> saved cycle in progress` : `New cycle — press Save to start the draft`;
-  wrap.appendChild(el('div','note', banner+` · logged as <b>${esc(ME.name)}</b> · ${esc(ME.clientName)} / ${esc(ME.locationName)}`));
-
-  // live readings
-  const lr=el('div','card'); lr.innerHTML='<h2>Live readings</h2>';
-  const g=el('div','grid g4');
-  g.appendChild(field('Active train', selectField(['Etching','Plating'], d.train, v=>d.train=v)));
-  g.appendChild(field('Cycle date', inputField('date', d.cycle_date, v=>d.cycle_date=v)));
-  g.appendChild(field('Flow (LPH)', inputField('number', d.flow, v=>d.flow=v)));
-  g.appendChild(field('Outlet conductivity', inputField('number', d.cond, v=>d.cond=v)));
-  g.appendChild(field('Spent Fe (g/L)', inputField('number', d.spentFe, v=>{d.spentFe=v; syncFe(d);})));
-  g.appendChild(field('Spent Cr³⁺ (g/L)', inputField('number', d.spentCr3, v=>{d.spentCr3=v; syncFe(d);})));
-  g.appendChild(field('Treated Fe (g/L)', inputField('number', d.treatFe, v=>{d.treatFe=v; syncFe(d);})));
-  g.appendChild(field('Treated Cr³⁺ (g/L)', inputField('number', d.treatCr3, v=>{d.treatCr3=v; syncFe(d);})));
-  lr.appendChild(g);
-  // step rail (informational)
-  const rail=el('div','row'); rail.style.marginTop='12px';
-  STEPS.forEach((s,i)=>{ const p=el('span','pill'); p.style.background='#eef1f4'; p.style.color='#5f6c81'; p.textContent=(i+1)+'. '+s; rail.appendChild(p); });
-  lr.appendChild(rail);
-  wrap.appendChild(lr);
-
-  // cycle log
-  const lc=el('div','card'); lc.innerHTML='<h2>Cycle log</h2>';
+function cd(){return CUR.data;}
+function impurity(){const v=num(cd().spentFe)+num(cd().spentCr3);return v||(SETTINGS.feedFe+SETTINGS.feedCr3);}
+function feedTarget(){const i=impurity();return i>0?SETTINGS.workingCapKg*1000/i:0;}
+function stepTarget(i){const c=SETTINGS,s=STEPS[i];switch(s.ep){case'feed':return feedTarget();case'dilute':return c.diluteCutL;case'ct2':return c.ct2TargetL;case'void':return c.voidL;case'regen':return c.regenBV*c.bedL;default:return c.bedL;}}
+function renderCycle(m){
+  const d=cd();
+  m.appendChild(el('div','note',(CUR.id?'<span class="pill draft">Draft</span> saved cycle in progress':'New cycle — press Save to start the draft')+` · <b>${esc(ME.name)}</b> · ${esc(ME.clientName)} / ${esc(ME.locationName)}`));
+  // board
+  const b=el('div','board');
+  const ts=el('div','trainsel');['Etching','Plating'].forEach(tr=>{const bb=el('button',d.train===tr?'on':'',tr);bb.onclick=()=>{d.train=tr;renderCycle(m);};ts.appendChild(bb);});
+  b.appendChild(el('h3',null,'CARS cycle — '+esc(d.train)));b.appendChild(ts);
+  // rail
+  const rail=el('div','rail');
+  STEPS.forEach((s,i)=>{const st=el('div','step '+(i<d.step?'done':'')+(i===d.step?' active':''),`<div class="n">${String(i+1).padStart(2,'0')}</div><div class="m">${s.m}</div><div class="d">${s.d}</div>`);st.onclick=()=>{d.step=i;renderCycle(m);};rail.appendChild(st);});
+  b.appendChild(rail);
+  const rn=el('div','railnav');
+  const bp=el('button','np','‹ Previous');bp.onclick=()=>{d.step=Math.max(0,d.step-1);renderCycle(m);};
+  const bnx=el('button','nn','Advance step ›');bnx.onclick=()=>{d.step=Math.min(STEPS.length-1,d.step+1);renderCycle(m);};
+  rn.append(bp,bnx,el('span','rl',`Step ${d.step+1} of ${STEPS.length} · ${STEPS[d.step].route}`));b.appendChild(rn);
+  // readings + cue
+  const rg=el('div','rgrid');
+  const rc1=el('div','rc');rc1.innerHTML='<div class="t">Live readings — this step</div>';
+  const ir=el('div','inrow');
+  ir.appendChild(ddField('Flow (LPH)','flow',()=>upd(),`target <b id="tFlow">${fmt(d.step===5?SETTINGS.regenFlowLPH:SETTINGS.feedFlowLPH,0)}</b>`));
+  ir.appendChild(ddField('Volume this step','vol',()=>upd(),`target <b id="tVol">—</b>`));
+  ir.appendChild(ddField('Outlet conductivity','cond',()=>upd(),SETTINGS.condUnit));
+  rc1.appendChild(ir);
+  const ib=el('div','impb');
+  ib.appendChild(impCol('Spent acid impurity',['spentFe','spentCr3'],'spentImp','Fe + Cr³⁺ sizes the feed batch'));
+  ib.appendChild(impCol('Treated acid impurity',['treatFe','treatCr3'],'treatImp','measured in CT2 recovered acid'));
+  rc1.appendChild(ib);
+  rc1.appendChild(el('div','prog','<div class="pl"><span id="progName">Progress</span><span class="mono" id="progTxt">0 / 0 L</span></div><div class="pbar"><i id="progBar" style="width:0%"></i></div>'));
+  const rc2=el('div','rc');rc2.innerHTML='<div class="t">Operator action</div><div class="cue" id="cue"><span class="dot"></span><div><b id="cueT">—</b><span id="cueS"></span></div></div>';
+  rg.append(rc1,rc2);b.appendChild(rg);
+  // tanks
+  b.appendChild(el('h3',null,'Tank board — tap a tank to set level'));
+  const tk=el('div','tanks');
+  TANKS.forEach(([k,desc,color])=>{const cap=SETTINGS.tankCaps[k]||1000,lvl=num(d.tanks[k]),pct=cap>0?Math.min(100,lvl/cap*100):0;
+    const flag=pct>=95?'<span class="tflag hi">HIGH</span>':(pct<=5&&lvl>0?'<span class="tflag lo">LOW</span>':'');
+    const t=el('div','tank',`${flag}<div class="tk">${k==='H2'?'H₂SO₄':(k==='SP'?'Spent H₂SO₄':k)}</div><div class="td">${desc}</div><div class="tvis"><i style="height:${pct}%;background:${color}"></i></div><div class="tval"><b>${fmt(lvl,0)}</b> / ${fmt(cap,0)} L</div>`);
+    t.onclick=()=>{const v=prompt(`${k} — ${desc}\nLevel (L), capacity ${cap}:`,lvl);if(v!==null){d.tanks[k]=Math.max(0,Math.min(cap,num(v)));renderCycle(m);}};
+    tk.appendChild(t);});
+  b.appendChild(tk);
+  m.appendChild(b);
+  // log card
+  const lc=el('div','card');lc.innerHTML='<h2>Cycle log</h2>';
   const lg=el('div','grid g3');
-  add(lg,'sec','Feed (spent) — chromic acid & impurities');
-  lg.appendChild(field('Chromic acid processed (L)', inputField('number', d.feedVol, v=>d.feedVol=v, 'auto from impurity')));
-  lg.appendChild(field('Feed CrO₃ (g/L)', inputField('number', d.feedCrO3, v=>d.feedCrO3=v)));
-  lg.appendChild(field('Feed Cu (g/L)', inputField('number', d.feedCu, v=>d.feedCu=v)));
-  lg.appendChild(field('Feed Fe (g/L)', inputField('number', d.feedFe, v=>d.feedFe=v, 'from live reading')));
-  lg.appendChild(field('Feed Cr³⁺ (g/L)', inputField('number', d.feedCr3, v=>d.feedCr3=v, 'from live reading')));
+  add(lg,'sec','Header');
+  lg.appendChild(field('Cycle date',inp2('date','cycle_date')));
+  lg.appendChild(field('Train',sel2(['Etching','Plating'],'train')));
+  lg.appendChild(field('Chromic acid processed (L)',inp2('number','feedVol','auto from impurity')));
+  add(lg,'sec','Feed (spent) — chromic acid &amp; impurities');
+  lg.appendChild(field('Feed CrO₃ (g/L)',inp2('number','feedCrO3')));
+  lg.appendChild(field('Feed Fe (g/L)',inp2('number','feedFe','from live reading')));
+  lg.appendChild(field('Feed Cr³⁺ (g/L)',inp2('number','feedCr3','from live reading')));
+  lg.appendChild(field('Feed Cu (g/L)',inp2('number','feedCu')));
   add(lg,'sec','Treated (CT2)');
-  lg.appendChild(field('CT2 recovered (L)', inputField('number', d.ct2, v=>d.ct2=v)));
-  lg.appendChild(field('Treated CrO₃ (g/L)', inputField('number', d.treatCrO3, v=>d.treatCrO3=v)));
-  lg.appendChild(field('Treated Cu (g/L)', inputField('number', d.treatCu, v=>d.treatCu=v)));
-  lg.appendChild(field('Treated Fe (g/L)', inputField('number', d.treatFeL!==''?d.treatFeL:d.treatFe, v=>d.treatFeL=v, 'from live reading')));
-  lg.appendChild(field('Treated Cr³⁺ (g/L)', inputField('number', d.treatCr3L!==''?d.treatCr3L:d.treatCr3, v=>d.treatCr3L=v, 'from live reading')));
-
+  lg.appendChild(field('CT2 recovered (L)',inp2('number','ct2')));
+  lg.appendChild(field('Treated CrO₃ (g/L)',inp2('number','treatCrO3')));
+  lg.appendChild(field('Treated Cu (g/L)',inp2('number','treatCu')));
+  lg.appendChild(field('Treated Fe (g/L)',inp2('number','treatFeL','from live reading')));
+  lg.appendChild(field('Treated Cr³⁺ (g/L)',inp2('number','treatCr3L','from live reading')));
   add(lg,'sec','CARS regeneration — H₂SO₄ <em>(qty auto = 50% stock)</em>');
-  acidTriple(lg, 'CARS H₂SO₄', d,'carsPct','carsVol','h2so4');
+  acidTriple(lg,'CARS H₂SO₄','carsPct','carsVol','h2so4');
+  lg.appendChild(field('H₂SO₄ recycled this cycle (L)',inp2('number','recyc')));
   add(lg,'sec','CARWARS regeneration <em>(blank if not done)</em>');
-  acidTriple(lg,'Cation-1 H₂SO₄', d,'cw1Pct','cw1Vol','h2so4');
-  acidTriple(lg,'Anion NaOH', d,'cwAnPct','cwAnVol','naoh');
-  acidTriple(lg,'Cation-2 H₂SO₄', d,'cw2Pct','cw2Vol','h2so4');
+  acidTriple(lg,'Cation-1 H₂SO₄','cw1Pct','cw1Vol','h2so4');
+  acidTriple(lg,'Anion NaOH','cwAnPct','cwAnVol','naoh');
+  acidTriple(lg,'Cation-2 H₂SO₄','cw2Pct','cw2Vol','h2so4');
   add(lg,'sec','RWRS regeneration <em>(blank if not done)</em>');
-  acidTriple(lg,'Cation H₂SO₄', d,'rwCatPct','rwCatVol','h2so4');
-  acidTriple(lg,'WBA anion NaOH', d,'rwAnPct','rwAnVol','naoh');
+  acidTriple(lg,'Cation H₂SO₄','rwCatPct','rwCatVol','h2so4');
+  acidTriple(lg,'WBA anion NaOH','rwAnPct','rwAnVol','naoh');
   add(lg,'sec','Other');
-  lg.appendChild(field('Bath Fe (g/L)', inputField('number', d.bathFe, v=>d.bathFe=v)));
-  const notesF=field('Observations / notes', inputField('text', d.notes, v=>d.notes=v)); notesF.style.gridColumn='span 2'; lg.appendChild(notesF);
+  lg.appendChild(field('Bath Fe (g/L)',inp2('number','bathFe')));
+  lg.appendChild(field('H₂SO₄ regenerant reuse #',inp2('number','reuseCount')));
+  const nf=field('Observations / notes',inp2('text','notes'));nf.style.gridColumn='span 3';lg.appendChild(nf);
   lc.appendChild(lg);
-
-  // totals preview
-  const tot=el('div','kpis'); tot.style.marginTop='14px'; tot.id='cycTot'; lc.appendChild(tot);
-  const rowB=el('div','row'); rowB.style.marginTop='16px';
-  const bSave=el('button','btn primary','Save draft'); bSave.onclick=()=>saveCurrent(false);
-  const bDone=el('button','btn done','Mark cycle complete'); bDone.onclick=async()=>{ if(confirm('Mark this cycle Completed? It will lock and cannot be edited.')) saveCurrent(true); };
-  rowB.appendChild(bSave); rowB.appendChild(bDone);
-  lc.appendChild(rowB);
-  wrap.appendChild(lc);
-
-  setTimeout(()=>updateTotals(),0);
-  return wrap;
+  const tot=el('div','kpis');tot.id='cycTot';tot.style.marginTop='14px';lc.appendChild(tot);
+  const rb=el('div','row');rb.style.marginTop='16px';
+  const bs=el('button','btn primary','Save draft');bs.onclick=()=>saveCurrent(false);
+  const bd=el('button','btn done','Mark cycle complete');bd.onclick=()=>completeFlow();
+  rb.append(bs,bd);lc.appendChild(rb);
+  m.appendChild(lc);
+  // reminders
+  m.appendChild(remindersCard());
+  upd();
+  function upd(){updateBoard(m);}
 }
-function syncFe(d){ if(d.feedFe===''||d.feedFe==null) d.feedFe=d.spentFe; if(d.feedCr3===''||d.feedCr3==null) d.feedCr3=d.spentCr3; updateTotals(); }
+function ddField(label,key,on,unit){const w=el('div','fieldd');w.appendChild(el('label',null,label));
+  const i=document.createElement('input');i.className='mono';i.value=cd()[key]||'';i.oninput=()=>{cd()[key]=i.value;on();};w.appendChild(i);
+  if(unit)w.appendChild(el('span','u',unit));return w;}
+function impCol(title,keys,totId,hint){const c=el('div','impc');c.innerHTML=`<span class="it">${title}</span>`;
+  const r=el('div','improw');const labels=['Fe','Cr³⁺'];
+  keys.forEach((k,idx)=>{if(idx)r.appendChild(document.createTextNode(' + '));r.appendChild(document.createTextNode(labels[idx]+' '));
+    const i=document.createElement('input');i.className='simp';i.value=cd()[k]||'';i.oninput=()=>{cd()[k]=i.value;syncFe();updateBoard();};r.appendChild(i);});
+  r.appendChild(document.createTextNode(' = '));const tsp=el('span','imptot');tsp.id=totId;r.appendChild(tsp);
+  c.appendChild(r);c.appendChild(el('div',null,`<small style="color:var(--ink-faint);font-size:10px">${hint}</small>`));return c;}
+function syncFe(){const d=cd();if(!d.feedFe)d.feedFe=d.spentFe;if(!d.feedCr3)d.feedCr3=d.spentCr3;if(!d.treatFeL)d.treatFeL=d.treatFe;if(!d.treatCr3L)d.treatCr3L=d.treatCr3;}
+function updateBoard(m){
+  const d=cd(),i=d.step,s=STEPS[i],tv=stepTarget(i);
+  const si=num(d.spentFe)+num(d.spentCr3),ti=num(d.treatFe)+num(d.treatCr3);
+  if($('#spentImp'))$('#spentImp').textContent=(si?fmt(si,1):'—')+' g/L';
+  if($('#treatImp'))$('#treatImp').textContent=(ti?fmt(ti,1):'—')+' g/L';
+  if($('#tVol'))$('#tVol').textContent=tv?fmt(tv,0):'—';
+  if($('#tFlow'))$('#tFlow').textContent=fmt(i===5?SETTINGS.regenFlowLPH:SETTINGS.feedFlowLPH,0);
+  const vol=num(d.vol),pct=tv>0?Math.min(100,vol/tv*100):0;
+  if($('#progTxt'))$('#progTxt').textContent=`${fmt(vol,0)} / ${fmt(tv,0)} L`;
+  if($('#progBar'))$('#progBar').style.width=pct+'%';
+  if($('#progName'))$('#progName').textContent=s.ep==='manual'?'Manual step':(s.ep==='cond'?'Rinsing — watch conductivity':'Progress');
+  renderCue();
+  // acid calc readouts + totals
+  document.querySelectorAll('[data-calc]').forEach(sp=>{const[type,pk,vk]=sp.dataset.calc.split('|');const c=num(cd()[pk]),v=num(cd()[vk]);const kg=type==='h2so4'?h2so4_50(c,v):naoh_100(c,v);sp.value=(c>0&&v>0)?fmt(kg,2):'';});
+  const mm=metrics(d),box=$('#cycTot');if(box)box.innerHTML=
+    `<div class="kpi"><div class="v mono">${fmt(mm.feedVol,0)}</div><div class="l">Chromic L</div></div>
+     <div class="kpi a2"><div class="v mono">${fmt(mm.cro3rec,1)}</div><div class="l">CrO₃ rec kg</div></div>
+     <div class="kpi a3"><div class="v mono">${fmt(mm.feRem,1)}</div><div class="l">Fe removed kg</div></div>
+     <div class="kpi a4"><div class="v mono">${fmt(mm.recov,0)}%</div><div class="l">Recovery</div></div>
+     <div class="kpi"><div class="v mono">${fmt(mm.h2so4_50_kg,1)}</div><div class="l">H₂SO₄ 50% kg</div></div>
+     <div class="kpi a2"><div class="v mono">${fmt(mm.naoh_100_kg,1)}</div><div class="l">NaOH kg</div></div>`;
+}
+function renderCue(){
+  const d=cd(),i=d.step,s=STEPS[i],cue=$('#cue');if(!cue)return;const tv=stepTarget(i),cond=num(d.cond),vol=num(d.vol);
+  cue.className='cue';let cls='go',t=s.route,x='';
+  if(s.ep==='feed'){const im=impurity();if(vol>=tv&&tv>0){cls='stop';t='Batch complete';x=`${fmt(vol,0)} L processed. For ${fmt(im,1)} g/L impurity the batch is ${fmt(tv,0)} L. Advance.`;}else{cls='go';t=`Load ${fmt(tv,0)} L this batch`;x=`Sized from impurity: ${fmt(SETTINGS.workingCapKg,1)} kg ÷ ${fmt(im,1)} g/L. ${fmt(Math.max(0,tv-vol),0)} L remaining.`;}}
+  else if(s.ep==='dilute'){if(vol>=tv&&tv>0){cls='stop';t='Switch outlet CT3 → CT2';x=`Dilute cut of ${fmt(tv,0)} L collected. Divert to CT2 and advance.`;}else{cls='go';t='Collect dilute cut → CT3';x=`Send first ${fmt(tv,0)} L to CT3. ${fmt(Math.max(0,tv-vol),0)} L to go.`;}}
+  else if(s.ep==='ct2'){if(vol>=tv&&tv>0){cls='stop';t='CT2 target reached';x=`${fmt(vol,0)} L recovered to CT2. Advance.`;}else{cls='go';t='Recover treated acid → CT2';x=`Collect ~${fmt(tv,0)} L. ${fmt(Math.max(0,tv-vol),0)} L remaining.`;}}
+  else if(s.ep==='void'){if(vol>=tv&&tv>0){cls='stop';t='Void displaced';x='CT2 balanced. Advance.';}else{cls='go';t='Water push · bottom';x=`Push ~${fmt(tv,0)} L. ${fmt(Math.max(0,tv-vol),0)} L remaining.`;}}
+  else if(s.ep==='cond'){const sp=SETTINGS[s.sp];if(cond>0&&cond<=sp){cls='stop';t='STOP — endpoint reached';x=`Conductivity ${fmt(cond,1)} ≤ ${fmt(sp,1)} ${SETTINGS.condUnit}. Stop and advance.`;}else{cls='go';t=i===4?'Continue chrome rinse':'Continue sulphuric rinse';x=`Conductivity ${cond>0?fmt(cond,1):'—'} > ${fmt(sp,1)} ${SETTINGS.condUnit}. Keep rinsing.`;}}
+  else if(s.ep==='regen'){if(vol>=tv&&tv>0){cls='stop';t='Regeneration volume done';x=`${fmt(vol,0)} L of ${fmt(SETTINGS.regenPct,0)}% H₂SO₄ passed. Soak overnight next.`;}else{cls='go';t=`Regenerate — ${fmt(SETTINGS.regenPct,0)}% H₂SO₄`;x=`Pass ${fmt(tv,0)} L (${fmt(SETTINGS.regenBV,1)} BV). ${fmt(Math.max(0,tv-vol),0)} L remaining.`;}}
+  else{cls='hold';t=s.m;x=i===6?'Hold the last bed volume overnight, then advance.':'Purge the void with air from the top; column ready for next batch.';}
+  cue.classList.add(cls);$('#cueT').textContent=t;$('#cueS').textContent=x;
+}
 function metrics(d){
   const imp=(num(d.feedFe)+num(d.feedCr3))||(SETTINGS.feedFe+SETTINGS.feedCr3);
   const feedVol=num(d.feedVol)||(imp>0?SETTINGS.workingCapKg*1000/imp:0);
   const feedCrO3=num(d.feedCrO3)||SETTINGS.feedCrO3;
-  const ct2=num(d.ct2)||SETTINGS.ct2TargetL, treatCrO3=num(d.treatCrO3)||SETTINGS.ct2TargetCrO3;
+  const ct2=num(d.ct2)||SETTINGS.ct2TargetL,treatCrO3=num(d.treatCrO3)||SETTINGS.ct2TargetCrO3;
   const treatFe=num(d.treatFeL!==''?d.treatFeL:d.treatFe);
-  const cro3rec=ct2*treatCrO3/1000;
-  const feRem=Math.max(0, feedVol*num(d.feedFe)/1000 - ct2*treatFe/1000);
-  const feedCrO3kg=feedVol*feedCrO3/1000;
-  const recov=feedCrO3kg>0?Math.min(100,cro3rec/feedCrO3kg*100):0;
-  const h2 = h2so4_50(num(d.carsPct),num(d.carsVol)) + h2so4_50(num(d.cw1Pct),num(d.cw1Vol)) + h2so4_50(num(d.cw2Pct),num(d.cw2Vol)) + h2so4_50(num(d.rwCatPct),num(d.rwCatVol));
-  const oh = naoh_100(num(d.cwAnPct),num(d.cwAnVol)) + naoh_100(num(d.rwAnPct),num(d.rwAnVol));
-  return { feedVol, feedCrO3, cro3rec, feRem, recov, h2so4_50_kg:h2, naoh_100_kg:oh };
+  const cro3rec=ct2*treatCrO3/1000,feRem=Math.max(0,feedVol*num(d.feedFe)/1000-ct2*treatFe/1000);
+  const crkg=feedVol*feedCrO3/1000,recov=crkg>0?Math.min(100,cro3rec/crkg*100):0;
+  const h2=h2so4_50(num(d.carsPct),num(d.carsVol))+h2so4_50(num(d.cw1Pct),num(d.cw1Vol))+h2so4_50(num(d.cw2Pct),num(d.cw2Vol))+h2so4_50(num(d.rwCatPct),num(d.rwCatVol));
+  const oh=naoh_100(num(d.cwAnPct),num(d.cwAnVol))+naoh_100(num(d.rwAnPct),num(d.rwAnVol));
+  return{feedVol,feedCrO3,cro3rec,feRem,recov,h2so4_50_kg:h2,naoh_100_kg:oh};
 }
-function updateTotals(){
-  const d=CUR.data, mm=metrics(d), box=$('#cycTot'); if(!box) return;
-  box.innerHTML=`
-   <div class="kpi"><div class="v mono">${fmt(mm.feedVol,0)}</div><div class="l">Chromic processed L</div></div>
-   <div class="kpi"><div class="v mono">${fmt(mm.cro3rec,1)}</div><div class="l">CrO₃ recovered kg</div></div>
-   <div class="kpi"><div class="v mono">${fmt(mm.feRem,1)}</div><div class="l">Fe removed kg</div></div>
-   <div class="kpi"><div class="v mono">${fmt(mm.recov,0)}%</div><div class="l">Recovery</div></div>
-   <div class="kpi"><div class="v mono">${fmt(mm.h2so4_50_kg,1)}</div><div class="l">H₂SO₄ (50%) kg</div></div>
-   <div class="kpi"><div class="v mono">${fmt(mm.naoh_100_kg,1)}</div><div class="l">NaOH (100%) kg</div></div>`;
-  document.querySelectorAll('[data-calc]').forEach(sp=>{
-    const [type,pk,vk]=sp.dataset.calc.split('|');
-    const c=num(CUR.data[pk]), v=num(CUR.data[vk]);
-    const kg = type==='h2so4'? h2so4_50(c,v) : naoh_100(c,v);
-    sp.value = (c>0&&v>0)? fmt(kg,2) : '';
-  });
+function remindersCard(){
+  const c=el('div','card');c.innerHTML='<h2>Reminders &amp; flags</h2>';const box=el('div','rem');
+  const h2=INV.find(x=>x.chemical==='H2SO4_50'),na=INV.find(x=>x.chemical==='NaOH_100');
+  function stock(x,label){if(!x)return;const lo=x.on_hand_kg<=x.low_limit_kg;box.appendChild(el('div','rmi '+(lo?'warn':'ok'),`<div class="rh"><span class="rt">${label} stock</span><span class="rg ${lo?'warn':'ok'}">${lo?'Reorder':'OK'}</span></div><div class="rb">On hand <b>${fmt(x.on_hand_kg,0)} kg</b> · alert at ${fmt(x.low_limit_kg,0)} kg. Completing a cycle deducts what it uses.</div>`));}
+  stock(h2,'H₂SO₄ (50%)');stock(na,'NaOH (100%)');
+  const bf=num(cd().bathFe),ceil=SETTINGS.bathCeilingFe;
+  if(ceil>0&&bf>0){const over=bf>ceil;box.appendChild(el('div','rmi '+(over?'alarm':'ok'),`<div class="rh"><span class="rt">Bath iron control</span><span class="rg ${over?'alarm':'ok'}">${over?'Above ceiling':'In range'}</span></div><div class="rb">Bath Fe <b>${fmt(bf,1)} g/L</b> vs ceiling <b>${fmt(ceil,1)} g/L</b>.</div>`));}
+  const rc=num(cd().reuseCount);
+  box.appendChild(el('div','rmi '+(rc>=5?'alarm':(rc>=4?'warn':'ok')),`<div class="rh"><span class="rt">H₂SO₄ regenerant reuse</span><span class="rg ${rc>=5?'alarm':'ok'}">${rc>=5?'Bleed now':(rc?'Reuse #'+rc:'Fresh')}</span></div><div class="rb">Recorded reuse count <b>${rc||0}</b>. Bleed to ETP and make a fresh batch by reuse #5 (metal-sulphate build-up).</div>`));
+  c.appendChild(box);return c;}
+function completeFlow(){
+  const d=cd(),miss=[];
+  if(!d.cycle_date)miss.push('cycle date');if(!d.train)miss.push('train');
+  const mm=metrics(d);if(mm.feedVol<=0)miss.push('feed (impurity or chromic processed)');
+  if(miss.length){toast('Cannot complete — missing: '+miss.join(', '));return;}
+  if(confirm('Mark this cycle Completed?\n\nChromic '+fmt(mm.feedVol,0)+' L · CrO₃ rec '+fmt(mm.cro3rec,1)+' kg · H₂SO₄ '+fmt(mm.h2so4_50_kg,1)+' kg · NaOH '+fmt(mm.naoh_100_kg,1)+' kg.\n\nIt will lock and cannot be edited.'))saveCurrent(true);
 }
 async function saveCurrent(complete){
-  const d=CUR.data, mm=metrics(d);
-  d.technician_name = ME.name;
-  const row = {
-    technician_id: ME.id, client_id: ME.client_id, location_id: ME.location_id,
-    status: complete?'completed':'draft', train:d.train, cycle_date:d.cycle_date||today(),
-    chromic_processed_l: mm.feedVol, cro3_recovered_kg: mm.cro3rec, fe_removed_kg: mm.feRem,
-    recovery_pct: mm.recov, h2so4_50_kg: mm.h2so4_50_kg, naoh_100_kg: mm.naoh_100_kg,
-    data: d, notes: d.notes||null
-  };
+  const d=cd(),mm=metrics(d);d.technician_name=ME.name;
+  const row={technician_id:ME.id,client_id:ME.client_id,location_id:ME.location_id,status:complete?'completed':'draft',
+    train:d.train,cycle_date:d.cycle_date||today(),chromic_processed_l:mm.feedVol,cro3_recovered_kg:mm.cro3rec,fe_removed_kg:mm.feRem,
+    recovery_pct:mm.recov,h2so4_50_kg:mm.h2so4_50_kg,naoh_100_kg:mm.naoh_100_kg,data:d,notes:d.notes||null};
   let res;
-  if(CUR.id){ res = await sb.from('cars_cycles').update(row).eq('id',CUR.id).select().single(); }
-  else if(complete){
-    const ins = await sb.from('cars_cycles').insert(Object.assign({},row,{status:'draft'})).select().single();
-    if(ins.error){ toast('Save failed: '+ins.error.message); return; }
-    CUR.id = ins.data.id;
-    res = await sb.from('cars_cycles').update({status:'completed'}).eq('id',CUR.id).select().single();
-  }
-  else { res = await sb.from('cars_cycles').insert(row).select().single(); }
-  if(res.error){ toast('Save failed: '+res.error.message); return; }
-  CUR.id = res.data.id;
-  if(complete){ toast('Cycle completed and locked'); CUR=null; go('mine', document.querySelectorAll('#tabs button')[1]); }
-  else { CUR.status='draft'; toast('Draft saved'); updateTotals(); }
+  if(CUR.id){res=await sb.from('cars_cycles').update(row).eq('id',CUR.id).select().single();}
+  else if(complete){const ins=await sb.from('cars_cycles').insert(Object.assign({},row,{status:'draft'})).select().single();if(ins.error){toast('Save failed: '+ins.error.message);return;}CUR.id=ins.data.id;res=await sb.from('cars_cycles').update({status:'completed'}).eq('id',CUR.id).select().single();}
+  else{res=await sb.from('cars_cycles').insert(row).select().single();}
+  if(res.error){toast('Save failed: '+res.error.message);return;}
+  CUR.id=res.data.id;
+  if(complete){toast('Cycle completed and locked');CUR=null;go('mine',document.querySelectorAll('#tabs button')[1]);}
+  else{CUR.status='draft';toast('Draft saved');}
 }
-function confirmComplete(){
-  return new Promise(resolve=>{
-    const mod=el('div','modal'); mod.innerHTML=`<div class="mc"><h3>Mark this cycle as complete?</h3>
-      <p>You have an open cycle. Completing it saves the latest data, records the completion time and locks it.</p>
-      <div class="row" style="justify-content:flex-end">
-        <button class="btn g" id="mCont">Continue editing</button>
-        <button class="btn done" id="mDone">Mark cycle as complete</button></div></div>`;
-    document.body.appendChild(mod);
-    mod.querySelector('#mCont').onclick=()=>{mod.remove();resolve('continue');};
-    mod.querySelector('#mDone').onclick=()=>{mod.remove();resolve('complete');};
-  });
-}
+function confirmComplete(){return new Promise(r=>{const md=el('div','modal');md.innerHTML=`<div class="mc"><h3>Mark this cycle as complete?</h3><p>You have an open cycle. Completing saves the latest data, records the completion time and locks it.</p><div class="row" style="justify-content:flex-end"><button class="btn g" id="mc1">Continue editing</button><button class="btn done" id="mc2">Mark cycle as complete</button></div></div>`;document.body.appendChild(md);md.querySelector('#mc1').onclick=()=>{md.remove();r('continue');};md.querySelector('#mc2').onclick=()=>{md.remove();r('complete');};});}
 
-/* ---------------- technician: my cycles ---------------- */
+/* ---- technician: my cycles ---- */
 async function screenMine(m){
-  const c=el('div','card'); c.innerHTML='<h2>My cycles</h2>';
-  const { data, error } = await sb.from('cars_cycles').select('*').eq('technician_id',ME.id).order('created_at',{ascending:false});
-  if(error){ c.appendChild(el('div','note','Could not load: '+error.message)); m.appendChild(c); return; }
-  if(!data.length){ c.appendChild(el('div','note','No cycles yet. Start one in Current cycle.')); m.appendChild(c); return; }
-  c.appendChild(cycleTable(data, true));
-  m.appendChild(c);
+  const c=el('div','card');c.innerHTML='<h2>My cycles</h2>';
+  const {data,error}=await sb.from('cars_cycles').select('*').eq('technician_id',ME.id).order('created_at',{ascending:false});
+  if(error){c.appendChild(el('div','note',esc(error.message)));m.appendChild(c);return;}
+  if(!data.length){c.appendChild(el('div','note','No cycles yet. Start one in Current cycle.'));m.appendChild(c);return;}
+  c.appendChild(cycleTable(data,true));m.appendChild(c);
 }
-function cycleTable(rows, mine){
-  const t=el('table'); t.innerHTML='<thead><tr><th>Date</th><th>Train</th><th>Status</th><th class="m">Chromic L</th><th class="m">CrO₃ rec</th><th class="m">Fe rem</th><th class="m">H₂SO₄ 50%</th><th class="m">NaOH</th><th></th></tr></thead>';
+function cycleTable(rows,mine){
+  const w=el('div','hwrap'),t=el('table');
+  t.innerHTML='<thead><tr><th>Date</th><th>Train</th><th>Status</th><th class="m">Chromic L</th><th class="m">CrO₃ rec</th><th class="m">Fe rem</th><th class="m">Recovery</th><th class="m">H₂SO₄ 50%</th><th class="m">NaOH</th><th></th></tr></thead>';
   const tb=el('tbody');
-  rows.forEach(r=>{
-    const tr=el('tr','clk');
-    tr.innerHTML=`<td>${r.cycle_date||''}</td><td>${esc(r.train||'')}</td>
-      <td><span class="pill ${r.status==='completed'?'done':'draft'}">${r.status}</span></td>
-      <td class="m">${fmt(r.chromic_processed_l,0)}</td><td class="m">${fmt(r.cro3_recovered_kg,1)}</td>
-      <td class="m">${fmt(r.fe_removed_kg,1)}</td><td class="m">${fmt(r.h2so4_50_kg,1)}</td><td class="m">${fmt(r.naoh_100_kg,1)}</td>
-      <td>${r.status==='draft'&&mine?'<span class="btn sm g">Resume</span>':'<span class="btn sm g">View</span>'}</td>`;
-    tr.onclick=()=>{
-      if(r.status==='draft'&&mine){ CUR={id:r.id,status:'draft',data:Object.assign(blankData(),r.data||{})}; go('cycle', document.querySelectorAll('#tabs button')[0]); }
-      else htmlReport([r]);
-    };
-    tb.appendChild(tr);
-  });
-  t.appendChild(tb); return t;
+  rows.forEach(r=>{const tr=el('tr','clk');
+    tr.innerHTML=`<td>${r.cycle_date||''}</td><td>${esc(r.train||'')}</td><td><span class="pill ${r.status==='completed'?'done':'draft'}">${r.status}</span></td>
+      <td class="m">${fmt(r.chromic_processed_l,0)}</td><td class="m">${fmt(r.cro3_recovered_kg,1)}</td><td class="m">${fmt(r.fe_removed_kg,1)}</td><td class="m">${fmt(r.recovery_pct,0)}%</td><td class="m">${fmt(r.h2so4_50_kg,1)}</td><td class="m">${fmt(r.naoh_100_kg,1)}</td>
+      <td><span class="btn sm g">${r.status==='draft'&&mine?'Resume':'View'}</span></td>`;
+    tr.onclick=()=>{if(r.status==='draft'&&mine){CUR={id:r.id,status:'draft',data:Object.assign(blankData(),r.data||{})};go('cycle',document.querySelectorAll('#tabs button')[0]);}else htmlReport([r]);};
+    tb.appendChild(tr);});
+  t.appendChild(tb);w.appendChild(t);return w;
 }
 
-/* ---------------- admin: reports ---------------- */
+/* ---- admin: reports ---- */
 function screenReports(m){
-  const c=el('div','card'); c.innerHTML='<h2>Reports</h2>';
+  const c=el('div','card');c.innerHTML='<h2>Reports</h2>';
   const ctl=el('div','row');
-  const range=selectField(['Today','This week','This month','Custom'],'This month',v=>{from.value=defFrom(v);to.value=today();load();});
-  const from=document.createElement('input'); from.type='date'; from.className='fdt'; from.value=defFrom('This month');
-  const to=document.createElement('input'); to.type='date'; to.value=today();
-  from.style.cssText=to.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
-  const bLoad=el('button','btn sm primary','Load'); bLoad.onclick=load;
-  ctl.append(labelWrap('Range',range), labelWrap('From',from), labelWrap('To',to), bLoad);
-  c.appendChild(ctl);
-  const out=el('div'); out.id='repOut'; out.style.marginTop='14px'; c.appendChild(out);
-  m.appendChild(c);
-  function defFrom(r){const d=new Date();if(r==='Today')return today();if(r==='This week'){d.setDate(d.getDate()-6);return d.toISOString().slice(0,10);}if(r==='This month')return today().slice(0,8)+'01';return today();}
+  const from=document.createElement('input');from.type='date';from.value=today().slice(0,8)+'01';
+  const to=document.createElement('input');to.type='date';to.value=today();
+  [from,to].forEach(x=>x.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
+  const range=document.createElement('select');['Today','This week','This month','Custom'].forEach(o=>range.append(opt(o,o)));range.value='This month';range.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
+  range.onchange=()=>{const d=new Date();if(range.value==='Today')from.value=today();else if(range.value==='This week'){d.setDate(d.getDate()-6);from.value=d.toISOString().slice(0,10);}else if(range.value==='This month')from.value=today().slice(0,8)+'01';to.value=today();load();};
+  const bLoad=el('button','btn sm primary','Load');bLoad.onclick=load;
+  ctl.append(lw('Range',range),lw('From',from),lw('To',to),bLoad);c.appendChild(ctl);
+  const out=el('div');out.id='repOut';out.style.marginTop='14px';c.appendChild(out);m.appendChild(c);
   async function load(){
     out.innerHTML='<div class="note">Loading…</div>';
-    const { data, error } = await sb.from('cars_cycles').select('*, clients(name), locations(name)').gte('cycle_date',from.value).lte('cycle_date',to.value).order('cycle_date',{ascending:false});
-    if(error){ out.innerHTML='<div class="note">'+esc(error.message)+'</div>'; return; }
-    out.innerHTML='';
-    const sum=(f)=>data.reduce((a,x)=>a+(+f(x)||0),0);
-    const kp=el('div','kpis');
-    kp.innerHTML=`
-      <div class="kpi"><div class="v mono">${data.length}</div><div class="l">Cycles</div></div>
-      <div class="kpi"><div class="v mono">${fmt(data.filter(x=>x.status==='completed').length,0)}</div><div class="l">Completed</div></div>
-      <div class="kpi"><div class="v mono">${fmt(sum(x=>x.chromic_processed_l),0)}</div><div class="l">Chromic L</div></div>
-      <div class="kpi"><div class="v mono">${fmt(sum(x=>x.cro3_recovered_kg),0)}</div><div class="l">CrO₃ rec kg</div></div>
-      <div class="kpi"><div class="v mono">${fmt(sum(x=>x.fe_removed_kg),1)}</div><div class="l">Fe removed kg</div></div>
-      <div class="kpi"><div class="v mono">${fmt(sum(x=>x.h2so4_50_kg),0)}</div><div class="l">H₂SO₄ 50% kg</div></div>
-      <div class="kpi"><div class="v mono">${fmt(sum(x=>x.naoh_100_kg),0)}</div><div class="l">NaOH kg</div></div>`;
+    const {data,error}=await sb.from('cars_cycles').select('*, clients(name), locations(name)').gte('cycle_date',from.value).lte('cycle_date',to.value).order('cycle_date',{ascending:false});
+    if(error){out.innerHTML='<div class="note">'+esc(error.message)+'</div>';return;}
+    out.innerHTML='';const sum=f=>data.reduce((a,x)=>a+(+f(x)||0),0);
+    const kp=el('div','kpis');kp.innerHTML=
+      `<div class="kpi"><div class="v mono">${data.length}</div><div class="l">Cycles</div></div>
+       <div class="kpi a4"><div class="v mono">${data.filter(x=>x.status==='completed').length}</div><div class="l">Completed</div></div>
+       <div class="kpi"><div class="v mono">${fmt(sum(x=>x.chromic_processed_l),0)}</div><div class="l">Chromic L</div></div>
+       <div class="kpi a2"><div class="v mono">${fmt(sum(x=>x.cro3_recovered_kg),0)}</div><div class="l">CrO₃ rec kg</div></div>
+       <div class="kpi a3"><div class="v mono">${fmt(sum(x=>x.fe_removed_kg),1)}</div><div class="l">Fe removed kg</div></div>
+       <div class="kpi"><div class="v mono">${fmt(sum(x=>x.h2so4_50_kg),0)}</div><div class="l">H₂SO₄ 50% kg</div></div>
+       <div class="kpi a2"><div class="v mono">${fmt(sum(x=>x.naoh_100_kg),0)}</div><div class="l">NaOH kg</div></div>`;
     out.appendChild(kp);
-    const exp=el('div','row'); exp.style.margin='14px 0';
-    const b1=el('button','btn sm g','HTML report'); b1.onclick=()=>htmlReport(data, from.value, to.value);
-    const b2=el('button','btn sm g','Excel export'); b2.onclick=()=>excelExport(data, from.value, to.value);
-    const b3=el('button','btn sm g','JSON export'); b3.onclick=()=>jsonExport(data, from.value, to.value);
-    exp.append(b1,b2,b3); out.appendChild(exp);
-    const t=el('table'); t.innerHTML='<thead><tr><th>Date</th><th>Technician</th><th>Location</th><th>Train</th><th>Status</th><th class="m">Chromic L</th><th class="m">CrO₃ rec</th><th class="m">Fe rem</th><th class="m">H₂SO₄ 50%</th><th class="m">NaOH</th></tr></thead>';
+    const ex=el('div','row');ex.style.margin='14px 0';
+    const b1=el('button','btn sm g','HTML report');b1.onclick=()=>htmlReport(data,from.value,to.value);
+    const b2=el('button','btn sm g','Print / PDF');b2.onclick=()=>htmlReport(data,from.value,to.value,true);
+    const b3=el('button','btn sm g','Excel export');b3.onclick=()=>excelExport(data,from.value,to.value);
+    const b4=el('button','btn sm g','JSON export');b4.onclick=()=>jsonExport(data,from.value,to.value);
+    ex.append(b1,b2,b3,b4);out.appendChild(ex);
+    const w=el('div','hwrap'),t=el('table');
+    t.innerHTML='<thead><tr><th>Date</th><th>Technician</th><th>Company</th><th>Location</th><th>Train</th><th>Status</th><th class="m">Chromic L</th><th class="m">CrO₃ rec</th><th class="m">Fe rem</th><th class="m">H₂SO₄ 50%</th><th class="m">NaOH</th></tr></thead>';
     const tb=el('tbody');
-    data.forEach(r=>{ const tr=el('tr','clk'); tr.innerHTML=`<td>${r.cycle_date||''}</td><td>${esc(r.data?.technician_name||'')}</td><td>${esc(r.locations?.name||'')}</td><td>${esc(r.train||'')}</td><td><span class="pill ${r.status==='completed'?'done':'draft'}">${r.status}</span></td><td class="m">${fmt(r.chromic_processed_l,0)}</td><td class="m">${fmt(r.cro3_recovered_kg,1)}</td><td class="m">${fmt(r.fe_removed_kg,1)}</td><td class="m">${fmt(r.h2so4_50_kg,1)}</td><td class="m">${fmt(r.naoh_100_kg,1)}</td>`; tr.onclick=()=>htmlReport([r]); tb.appendChild(tr); });
-    t.appendChild(tb); out.appendChild(t);
+    data.forEach(r=>{const tr=el('tr','clk');tr.innerHTML=`<td>${r.cycle_date||''}</td><td>${esc(r.data?.technician_name||'')}</td><td>${esc(r.clients?.name||'')}</td><td>${esc(r.locations?.name||'')}</td><td>${esc(r.train||'')}</td><td><span class="pill ${r.status==='completed'?'done':'draft'}">${r.status}</span></td><td class="m">${fmt(r.chromic_processed_l,0)}</td><td class="m">${fmt(r.cro3_recovered_kg,1)}</td><td class="m">${fmt(r.fe_removed_kg,1)}</td><td class="m">${fmt(r.h2so4_50_kg,1)}</td><td class="m">${fmt(r.naoh_100_kg,1)}</td>`;tr.onclick=()=>htmlReport([r]);tb.appendChild(tr);});
+    t.appendChild(tb);w.appendChild(t);out.appendChild(w);
   }
   load();
 }
 
-/* ---------------- admin: technicians ---------------- */
-async function callFn(action, payload){
-  const { data:{ session } } = await sb.auth.getSession();
-  const r = await fetch(CFG.fnBase+'/manage-technician', { method:'POST', headers:{ 'Authorization':'Bearer '+session.access_token, 'Content-Type':'application/json' }, body: JSON.stringify(Object.assign({action},payload)) });
-  const j = await r.json().catch(()=>({error:'bad response'}));
-  if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
-  return j;
-}
-async function loadClientsLocations(){
-  const { data:cl } = await sb.from('clients').select('id,name');
-  const { data:lo } = await sb.from('locations').select('id,name,client_id');
-  return { clients:cl||[], locations:lo||[] };
-}
+/* ---- admin helpers ---- */
+async function callFn(action,payload){const {data:{session}}=await sb.auth.getSession();
+  const r=await fetch(CFG.fnBase+'/manage-technician',{method:'POST',headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(Object.assign({action},payload))});
+  const j=await r.json().catch(()=>({error:'bad response'}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j;}
+async function loadCL(){const {data:cl}=await sb.from('clients').select('id,name').order('name');const {data:lo}=await sb.from('locations').select('id,name,client_id,active').order('name');return{clients:cl||[],locations:lo||[]};}
+
+/* ---- admin: technicians ---- */
 async function screenTechs(m){
-  const c=el('div','card'); c.innerHTML='<h2>Technicians</h2>';
-  const { clients, locations } = await loadClientsLocations();
-  // add form
-  const f=el('div','grid g3');
-  const nm=inp('text'), em=inp('email'), pw=inp('text');
-  const cSel=document.createElement('select'); clients.forEach(x=>cSel.append(opt(x.id,x.name)));
-  const lSel=document.createElement('select'); function fillLoc(){lSel.innerHTML='';locations.filter(l=>l.client_id===cSel.value).forEach(l=>lSel.append(opt(l.id,l.name)));}
-  cSel.onchange=fillLoc; if(clients.length){cSel.value=clients[0].id;} fillLoc();
-  [nm,em,pw,cSel,lSel].forEach(x=>{x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';});
-  f.append(labelWrap('Full name',nm),labelWrap('Email',em),labelWrap('Temp password',pw),labelWrap('Company',cSel),labelWrap('Location',lSel));
-  const bAdd=el('button','btn primary','Create technician'); bAdd.style.marginTop='12px';
-  bAdd.onclick=async()=>{
-    if(!nm.value||!em.value||!pw.value){toast('Name, email and password required');return;}
-    bAdd.disabled=true; bAdd.textContent='Creating…';
-    try{ await callFn('create',{email:em.value.trim(),password:pw.value,full_name:nm.value.trim(),client_id:cSel.value,location_id:lSel.value}); toast('Technician created'); nm.value=em.value=pw.value=''; list(); }
-    catch(e){ toast('Failed: '+e.message); }
-    bAdd.disabled=false; bAdd.textContent='Create technician';
-  };
-  c.appendChild(f); c.appendChild(bAdd);
-  const listBox=el('div'); listBox.style.marginTop='16px'; c.appendChild(listBox);
-  m.appendChild(c);
-  async function list(){
-    listBox.innerHTML='<div class="note">Loading…</div>';
-    try{
-      const { technicians } = await callFn('list',{});
-      if(!technicians.length){ listBox.innerHTML='<div class="note">No technicians yet.</div>'; return; }
-      const t=el('table'); t.innerHTML='<thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Location</th><th>Status</th><th></th></tr></thead>';
-      const tb=el('tbody');
-      technicians.forEach(u=>{
-        const tr=el('tr');
-        tr.innerHTML=`<td>${esc(u.full_name||'')}</td><td>${esc(u.email||'')}</td><td>${esc(u.clients?.name||'')}</td><td>${esc(u.locations?.name||'')}</td>
-          <td><span class="pill ${u.active?'done':'draft'}">${u.active?'active':'inactive'}</span></td>
-          <td><button class="btn sm g">${u.active?'Deactivate':'Activate'}</button></td>`;
-        tr.querySelector('button').onclick=async()=>{ try{ await callFn('set_active',{user_id:u.id,active:!u.active}); list(); }catch(e){toast('Failed: '+e.message);} };
-        tb.appendChild(tr);
-      });
-      t.appendChild(tb); listBox.innerHTML=''; listBox.appendChild(t);
-    }catch(e){ listBox.innerHTML='<div class="note">'+esc(e.message)+'</div>'; }
-  }
+  const c=el('div','card');c.innerHTML='<h2>Technicians</h2>';
+  const {clients,locations}=await loadCL();
+  const nm=inp('text'),em=inp('email'),pw=inp('text');
+  const cSel=document.createElement('select');clients.forEach(x=>cSel.append(opt(x.id,x.name)));
+  const lSel=document.createElement('select');function fillLoc(){lSel.innerHTML='';locations.filter(l=>l.client_id===cSel.value&&l.active!==false).forEach(l=>lSel.append(opt(l.id,l.name)));}
+  cSel.onchange=fillLoc;if(clients.length)cSel.value=clients[0].id;fillLoc();
+  [nm,em,pw,cSel,lSel].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
+  const f=el('div','grid g3');f.append(lw('Full name',nm),lw('Email',em),lw('Temp password',pw),lw('Company',cSel),lw('Location',lSel));
+  c.appendChild(f);
+  const bAdd=el('button','btn primary','Create technician');bAdd.style.marginTop='12px';
+  bAdd.onclick=async()=>{if(!nm.value||!em.value||!pw.value){toast('Name, email and password required');return;}bAdd.disabled=true;bAdd.textContent='Creating…';
+    try{await callFn('create',{email:em.value.trim(),password:pw.value,full_name:nm.value.trim(),client_id:cSel.value,location_id:lSel.value});toast('Technician created');nm.value=em.value=pw.value='';list();}catch(e){toast('Failed: '+e.message);}
+    bAdd.disabled=false;bAdd.textContent='Create technician';};
+  c.appendChild(bAdd);const lb=el('div');lb.style.marginTop='16px';c.appendChild(lb);m.appendChild(c);
+  async function list(){lb.innerHTML='<div class="note">Loading…</div>';
+    try{const {technicians}=await callFn('list',{});
+      if(!technicians.length){lb.innerHTML='<div class="note">No technicians yet.</div>';return;}
+      const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Location</th><th>Status</th><th></th></tr></thead>';const tb=el('tbody');
+      technicians.forEach(u=>{const tr=el('tr');
+        tr.innerHTML=`<td>${esc(u.full_name||'')}</td><td>${esc(u.email||'')}</td><td>${esc(u.clients?.name||'')}</td><td>${esc(u.locations?.name||'')}</td><td><span class="pill ${u.active?'done':'off'}">${u.active?'active':'inactive'}</span></td><td></td>`;
+        const act=tr.lastChild;const be=el('button','btn sm g','Edit');be.onclick=()=>editTech(u,clients,locations,list);
+        const ba=el('button','btn sm g',u.active?'Deactivate':'Activate');ba.onclick=async()=>{try{await callFn('set_active',{user_id:u.id,active:!u.active});list();}catch(e){toast('Failed: '+e.message);}};
+        const bd=el('button','btn sm danger','Delete');bd.onclick=async()=>{if(!confirm('Delete '+(u.full_name||u.email)+'? Only possible if they have no cycle records.'))return;try{await callFn('delete',{user_id:u.id});toast('Deleted');list();}catch(e){toast(e.message);}};
+        act.append(be,document.createTextNode(' '),ba,document.createTextNode(' '),bd);tb.appendChild(tr);});
+      t.appendChild(tb);w.appendChild(t);lb.innerHTML='';lb.appendChild(w);
+    }catch(e){lb.innerHTML='<div class="note">'+esc(e.message)+'</div>';}}
+  list();
+}
+function editTech(u,clients,locations,after){
+  const md=el('div','modal');const nm=inp('text'),pw=inp('text');const cS=document.createElement('select'),lS=document.createElement('select');
+  clients.forEach(x=>cS.append(opt(x.id,x.name)));function fl(){lS.innerHTML='';locations.filter(l=>l.client_id===cS.value&&l.active!==false).forEach(l=>lS.append(opt(l.id,l.name)));}
+  cS.onchange=fl;nm.value=u.full_name||'';cS.value=u.client_id||(clients[0]&&clients[0].id);fl();if(u.location_id)lS.value=u.location_id;
+  [nm,pw,cS,lS].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
+  const mc=el('div','mc');mc.innerHTML='<h3>Edit technician</h3>';
+  const g=el('div','grid g2');g.append(lw('Full name',nm),lw('New password (optional)',pw),lw('Company',cS),lw('Location',lS));mc.appendChild(g);
+  const rr=el('div','row');rr.style.cssText='justify-content:flex-end;margin-top:16px';
+  const bc=el('button','btn g','Cancel');bc.onclick=()=>md.remove();
+  const bs=el('button','btn primary','Save');bs.onclick=async()=>{try{await callFn('update',{user_id:u.id,full_name:nm.value.trim(),client_id:cS.value,location_id:lS.value,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){toast('Failed: '+e.message);}};
+  rr.append(bc,bs);mc.appendChild(rr);md.appendChild(mc);document.body.appendChild(md);
+}
+
+/* ---- admin: locations ---- */
+async function screenLocations(m){
+  const c=el('div','card');c.innerHTML='<h2>Locations</h2>';
+  const {clients}=await loadCL();
+  const cSel=document.createElement('select');clients.forEach(x=>cSel.append(opt(x.id,x.name)));cSel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
+  const nm=inp('text');nm.placeholder='New location name';nm.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
+  const bAdd=el('button','btn sm primary','Add location');
+  const row=el('div','row');row.append(lw('Company',cSel),lw('Location name',nm),bAdd);c.appendChild(row);
+  const lb=el('div');lb.style.marginTop='14px';c.appendChild(lb);m.appendChild(c);
+  bAdd.onclick=async()=>{if(!nm.value.trim()){toast('Enter a location name');return;}const {error}=await sb.from('locations').insert({client_id:cSel.value,name:nm.value.trim()});if(error){toast('Failed: '+error.message);return;}nm.value='';toast('Location added (stock lines auto-created)');list();};
+  async function list(){lb.innerHTML='';const {data}=await sb.from('locations').select('*, clients(name)').order('name');
+    const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Location</th><th>Company</th><th>Status</th><th></th></tr></thead>';const tb=el('tbody');
+    (data||[]).forEach(l=>{const tr=el('tr');tr.innerHTML=`<td>${esc(l.name)}</td><td>${esc(l.clients?.name||'')}</td><td><span class="pill ${l.active!==false?'done':'off'}">${l.active!==false?'active':'inactive'}</span></td><td></td>`;
+      const act=tr.lastChild;
+      const be=el('button','btn sm g','Rename');be.onclick=async()=>{const v=prompt('Rename location:',l.name);if(v&&v.trim()){const {error}=await sb.from('locations').update({name:v.trim()}).eq('id',l.id);toast(error?error.message:'Renamed');list();}};
+      const bt=el('button','btn sm g',l.active!==false?'Deactivate':'Activate');bt.onclick=async()=>{const {error}=await sb.from('locations').update({active:!(l.active!==false)}).eq('id',l.id);toast(error?error.message:'Updated');list();};
+      const bd=el('button','btn sm danger','Delete');bd.onclick=async()=>{if(!confirm('Delete location '+l.name+'? Not possible if cycles reference it.'))return;const {error}=await sb.from('locations').delete().eq('id',l.id);toast(error?'Cannot delete — it has records. Deactivate instead.':'Deleted');list();};
+      act.append(be,document.createTextNode(' '),bt,document.createTextNode(' '),bd);tb.appendChild(tr);});
+    t.appendChild(tb);w.appendChild(t);lb.appendChild(w);}
   list();
 }
 
-/* ---------------- admin: company & stock ---------------- */
+/* ---- admin: companies & stock ---- */
 async function screenCompany(m){
-  const { clients } = await loadClientsLocations();
-  const c=el('div','card'); c.innerHTML='<h2>Company details</h2>';
-  const { data:full } = await sb.from('clients').select('id,name,address');
-  const sel=document.createElement('select'); (full||[]).forEach(x=>sel.append(opt(x.id,x.name)));
-  sel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
-  const nameI=inp('text'), addrI=inp('text');
-  [nameI,addrI].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
-  function loadC(){ const x=(full||[]).find(y=>y.id===sel.value); nameI.value=x?.name||''; addrI.value=x?.address||''; }
-  sel.onchange=loadC; if(full&&full.length){sel.value=full[0].id;} loadC();
-  const g=el('div','grid g2'); g.append(labelWrap('Select company',sel), el('div'), labelWrap('Company name',nameI), labelWrap('Address',addrI));
-  c.appendChild(g);
-  const bSave=el('button','btn primary','Save company'); bSave.style.marginTop='12px';
-  bSave.onclick=async()=>{ const { error }=await sb.from('clients').update({name:nameI.value,address:addrI.value}).eq('id',sel.value); toast(error?('Failed: '+error.message):'Company saved'); };
-  c.appendChild(bSave); m.appendChild(c);
+  const c=el('div','card');c.innerHTML='<h2>Companies</h2>';
+  const nn=inp('text'),na=inp('text');nn.placeholder='New company name';na.placeholder='Address';
+  [nn,na].forEach(x=>x.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
+  const bAdd=el('button','btn sm primary','Add company');
+  const arow=el('div','row');arow.append(lw('Company name',nn),lw('Address',na),bAdd);c.appendChild(arow);
+  bAdd.onclick=async()=>{if(!nn.value.trim()){toast('Enter a company name');return;}const {error}=await sb.from('clients').insert({name:nn.value.trim(),address:na.value.trim()||null});if(error){toast('Failed: '+error.message);return;}nn.value=na.value='';toast('Company added (its own settings auto-created)');listCo();};
+  const lb=el('div');lb.style.marginTop='14px';c.appendChild(lb);m.appendChild(c);
 
-  // stock
-  const sc=el('div','card'); sc.innerHTML='<h2>Chemical stock</h2>';
-  const { data:inv } = await sb.from('inventory').select('*').order('chemical');
-  const t=el('table'); t.innerHTML='<thead><tr><th>Chemical</th><th>Basis</th><th class="m">On hand (kg)</th><th class="m">Low alert (kg)</th><th></th></tr></thead>';
-  const tb=el('tbody');
-  (inv||[]).forEach(r=>{
-    const oh=inp('number'), lo=inp('number'); oh.value=r.on_hand_kg; lo.value=r.low_limit_kg;
-    [oh,lo].forEach(x=>x.style.cssText='width:110px;padding:7px;border:1px solid var(--line-l);border-radius:6px;text-align:right');
-    const tr=el('tr'); const c1=el('td',null,r.chemical==='H2SO4_50'?'H₂SO₄':'NaOH'); const c2=el('td',null,r.basis||'');
-    const c3=el('td'); c3.appendChild(oh); const c4=el('td'); c4.appendChild(lo);
-    const c5=el('td'); const b=el('button','btn sm g','Save'); b.onclick=async()=>{ const {error}=await sb.from('inventory').update({on_hand_kg:num(oh.value),low_limit_kg:num(lo.value),updated_at:new Date().toISOString()}).eq('id',r.id); toast(error?('Failed: '+error.message):'Stock updated'); }; c5.appendChild(b);
-    tr.append(c1,c2,c3,c4,c5); tb.appendChild(tr);
-  });
-  t.appendChild(tb); sc.appendChild(t);
-  sc.appendChild(el('div','note','Completing a cycle automatically deducts the H₂SO₄ (50%) and NaOH (100%) it used from these figures.'));
-  m.appendChild(sc);
+  const sc=el('div','card');sc.innerHTML='<h2>Chemical stock</h2>';
+  const coSel=document.createElement('select');coSel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;margin-bottom:12px';
+  sc.appendChild(lw('Company',coSel));const stbox=el('div');sc.appendChild(stbox);m.appendChild(sc);
+
+  async function listCo(){lb.innerHTML='';coSel.innerHTML='';
+    const {data}=await sb.from('clients').select('*').order('name');
+    (data||[]).forEach(x=>coSel.append(opt(x.id,x.name)));
+    const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Company</th><th>Address</th><th></th></tr></thead>';const tb=el('tbody');
+    (data||[]).forEach(x=>{const tr=el('tr');const nameI=inp('text'),addrI=inp('text');nameI.value=x.name;addrI.value=x.address||'';
+      [nameI,addrI].forEach(e=>e.style.cssText='width:100%;padding:7px;border:1px solid var(--line-l);border-radius:6px');
+      const c1=el('td');c1.appendChild(nameI);const c2=el('td');c2.appendChild(addrI);const c3=el('td');
+      const bs=el('button','btn sm g','Save');bs.onclick=async()=>{const {error}=await sb.from('clients').update({name:nameI.value,address:addrI.value}).eq('id',x.id);toast(error?error.message:'Saved');listCo();};
+      const bd=el('button','btn sm danger','Delete');bd.onclick=async()=>{if(!confirm('Delete company '+x.name+'? Not possible if it has locations/records.'))return;const {error}=await sb.from('clients').delete().eq('id',x.id);toast(error?'Cannot delete — it has locations or records.':'Deleted');listCo();};
+      c3.append(bs,document.createTextNode(' '),bd);tr.append(c1,c2,c3);tb.appendChild(tr);});
+    t.appendChild(tb);w.appendChild(t);lb.appendChild(w);loadStock();}
+  coSel.onchange=loadStock;
+  async function loadStock(){stbox.innerHTML='';const {data:inv}=await sb.from('inventory').select('*, locations(name)').eq('client_id',coSel.value).order('chemical');
+    if(!inv||!inv.length){stbox.appendChild(el('div','note','No locations/stock yet for this company. Add a location first.'));return;}
+    const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Location</th><th>Chemical</th><th>Basis</th><th class="m">On hand kg</th><th class="m">Low alert kg</th><th></th></tr></thead>';const tb=el('tbody');
+    inv.forEach(r=>{const oh=inp('number'),lo=inp('number');oh.value=r.on_hand_kg;lo.value=r.low_limit_kg;[oh,lo].forEach(e=>e.style.cssText='width:100px;padding:6px;border:1px solid var(--line-l);border-radius:6px;text-align:right');
+      const tr=el('tr');tr.append(el('td',null,esc(r.locations?.name||'')),el('td',null,r.chemical==='H2SO4_50'?'H₂SO₄':'NaOH'),el('td',null,r.basis||''));
+      const c4=el('td');c4.appendChild(oh);const c5=el('td');c5.appendChild(lo);const c6=el('td');
+      const b=el('button','btn sm g','Save');b.onclick=async()=>{const {error}=await sb.from('inventory').update({on_hand_kg:num(oh.value),low_limit_kg:num(lo.value),updated_at:new Date().toISOString()}).eq('id',r.id);toast(error?error.message:'Stock updated');};
+      c6.appendChild(b);tr.append(c4,c5,c6);tb.appendChild(tr);});
+    t.appendChild(tb);w.appendChild(t);stbox.appendChild(w);
+    stbox.appendChild(el('div','note','Each company/location keeps its own stock. Completing a cycle auto-deducts H₂SO₄ (50%) and NaOH (100%).'));}
+  listCo();
 }
 
-/* ---------------- admin: settings ---------------- */
+/* ---- admin: settings ---- */
 async function screenSettings(m){
-  const { data:full } = await sb.from('clients').select('id,name');
-  const c=el('div','card'); c.innerHTML='<h2>Formula &amp; setpoint settings</h2>';
-  const sel=document.createElement('select'); (full||[]).forEach(x=>sel.append(opt(x.id,x.name)));
-  sel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;margin-bottom:12px';
-  c.appendChild(labelWrap('Company',sel));
-  const body=el('div'); c.appendChild(body); m.appendChild(c);
-  async function load(){
-    const { data:s } = await sb.from('settings').select('data').eq('client_id',sel.value).maybeSingle();
-    const cur=Object.assign({},DEFAULTS,s?.data||{});
-    body.innerHTML='';
-    const g=el('div','grid g3');
-    const keys=[['workingCapKg','Working capacity (kg)'],['feedCrO3','Spent CrO₃ (g/L)'],['feedFe','Spent Fe (g/L)'],['feedCr3','Spent Cr³⁺ (g/L)'],['ct2TargetL','CT2 recovered (L)'],['ct2TargetCrO3','CT2 CrO₃ (g/L)'],['diluteCutL','Dilute cut (L)'],['acidStockPct','Acid stock (%)']];
-    const inps={};
-    keys.forEach(([k,l])=>{ const i=inp('number'); i.value=cur[k]; i.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc'; inps[k]=i; g.appendChild(labelWrap(l,i)); });
-    body.appendChild(g);
+  const c=el('div','card');c.innerHTML='<h2>Formula &amp; setpoint settings</h2>';
+  const {data:full}=await sb.from('clients').select('id,name').order('name');
+  const sel=document.createElement('select');(full||[]).forEach(x=>sel.append(opt(x.id,x.name)));sel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;margin-bottom:12px';
+  c.appendChild(lw('Company',sel));const body=el('div');c.appendChild(body);m.appendChild(c);
+  async function load(){const {data:s}=await sb.from('settings').select('data').eq('client_id',sel.value).maybeSingle();const cur=Object.assign({},DEFAULTS,s?.data||{});body.innerHTML='';
+    const keys=[['workingCapKg','Working capacity (kg)'],['feedCrO3','Spent CrO₃ (g/L)'],['feedFe','Spent Fe (g/L)'],['feedCr3','Spent Cr³⁺ (g/L)'],['ct2TargetL','CT2 recovered (L)'],['ct2TargetCrO3','CT2 CrO₃ (g/L)'],['diluteCutL','Dilute cut (L)'],['bedL','Resin bed (L)'],['voidL','Void (L)'],['regenBV','Regen BV'],['regenPct','Regen H₂SO₄ %'],['chromeRinseCond','Chrome-rinse end'],['h2so4RinseCond','H₂SO₄-rinse end'],['bathCeilingFe','Bath Fe ceiling'],['acidStockPct','Acid stock (%)']];
+    const g=el('div','grid g3'),inps={};keys.forEach(([k,l])=>{const i=inp('number');i.value=cur[k];i.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';inps[k]=i;g.appendChild(lw(l,i));});body.appendChild(g);
     body.appendChild(el('div','sec','Density tables <em>(concentration % : density kg/L, one pair per line)</em>'));
-    const g2=el('div','grid g2');
-    const h2ta=document.createElement('textarea'), nata=document.createElement('textarea');
+    const g2=el('div','grid g2'),h2ta=document.createElement('textarea'),nata=document.createElement('textarea');
     [h2ta,nata].forEach(x=>x.style.cssText='width:100%;min-height:150px;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;font-family:monospace;font-size:12px');
-    h2ta.value=(cur.h2so4_density||[]).map(p=>p.join(', ')).join('\n');
-    nata.value=(cur.naoh_density||[]).map(p=>p.join(', ')).join('\n');
-    g2.append(labelWrap('H₂SO₄ density',h2ta), labelWrap('NaOH density',nata));
-    body.appendChild(g2);
-    const b=el('button','btn primary','Save settings'); b.style.marginTop='12px';
-    b.onclick=async()=>{
-      const parse=t=>t.split('\n').map(l=>l.split(',').map(x=>num(x))).filter(p=>p.length>=2&&p[0]>0);
-      const data=Object.assign({},cur); keys.forEach(([k])=>data[k]=num(inps[k].value)); data.h2so4_density=parse(h2ta.value); data.naoh_density=parse(nata.value);
-      const { error }=await sb.from('settings').upsert({client_id:sel.value,data,updated_at:new Date().toISOString()},{onConflict:'client_id'});
-      toast(error?('Failed: '+error.message):'Settings saved');
-    };
-    body.appendChild(b);
-  }
-  sel.onchange=load; if(full&&full.length){sel.value=full[0].id;} load();
+    h2ta.value=(cur.h2so4_density||[]).map(p=>p.join(', ')).join('\n');nata.value=(cur.naoh_density||[]).map(p=>p.join(', ')).join('\n');
+    g2.append(lw('H₂SO₄ density',h2ta),lw('NaOH density',nata));body.appendChild(g2);
+    const b=el('button','btn primary','Save settings');b.style.marginTop='12px';
+    b.onclick=async()=>{const parse=t=>t.split('\n').map(l=>l.split(',').map(x=>num(x))).filter(p=>p.length>=2&&p[0]>0);const data=Object.assign({},cur);keys.forEach(([k])=>data[k]=num(inps[k].value));data.h2so4_density=parse(h2ta.value);data.naoh_density=parse(nata.value);
+      const {error}=await sb.from('settings').upsert({client_id:sel.value,data,updated_at:new Date().toISOString()},{onConflict:'client_id'});toast(error?error.message:'Settings saved');};
+    body.appendChild(b);}
+  sel.onchange=load;if(full&&full.length){sel.value=full[0].id;}load();
 }
 
-/* ---------------- exports ---------------- */
-function reportHTML(rows, from, to){
-  const head=`<h1 style="margin:0;color:#c9640a">Polyfill Microns Pvt. Ltd.</h1><div style="font-size:13px;color:#333">Chromic Acid Recycling — CARS report${from?` · ${from} to ${to}`:''}</div><hr style="border:0;border-top:2px solid #f2820c">`;
-  const detail=rows.map(r=>{
-    const d=r.data||{};
-    return `<div style="page-break-inside:avoid;margin-bottom:18px;border:1px solid #ddd;border-radius:8px;padding:12px">
-      <div style="font-weight:600">${r.cycle_date||''} · ${esc(r.train||'')} · <span style="color:#888">${r.status}</span></div>
-      <div style="font-size:12px;color:#555">Technician ${esc(d.technician_name||'')} · ${esc(r.clients?.name||'')} / ${esc(r.locations?.name||'')}</div>
-      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
-        <tr><td>Chromic processed</td><td style="text-align:right">${fmt(r.chromic_processed_l,0)} L</td><td>CrO₃ recovered</td><td style="text-align:right">${fmt(r.cro3_recovered_kg,1)} kg</td></tr>
-        <tr><td>Fe removed</td><td style="text-align:right">${fmt(r.fe_removed_kg,1)} kg</td><td>Recovery</td><td style="text-align:right">${fmt(r.recovery_pct,0)}%</td></tr>
-        <tr><td>H₂SO₄ (50%)</td><td style="text-align:right">${fmt(r.h2so4_50_kg,1)} kg</td><td>NaOH (100%)</td><td style="text-align:right">${fmt(r.naoh_100_kg,1)} kg</td></tr>
-      </table>${d.notes?`<div style="font-size:12px;margin-top:6px"><b>Notes:</b> ${esc(d.notes)}</div>`:''}</div>`;
-  }).join('');
-  return `<!doctype html><meta charset="utf-8"><title>CARS report</title><body style="font-family:system-ui,Segoe UI,Roboto,sans-serif;max-width:800px;margin:20px auto;padding:0 16px">${head}${detail}<div style="text-align:center;color:#888;font-size:11px;margin-top:20px">© ${new Date().getFullYear()} Polyfill Microns Pvt. Ltd. — sole and exclusive property.</div></body>`;
+/* ---- exports ---- */
+function labelOf(k){return({flow:'Flow (LPH)',cond:'Conductivity',spentFe:'Spent Fe',spentCr3:'Spent Cr³⁺',treatFe:'Treated Fe (live)',treatCr3:'Treated Cr³⁺ (live)',feedVol:'Chromic processed (L)',feedCrO3:'Feed CrO₃',feedFe:'Feed Fe',feedCr3:'Feed Cr³⁺',feedCu:'Feed Cu',ct2:'CT2 recovered (L)',treatCrO3:'Treated CrO₃',treatFeL:'Treated Fe',treatCr3L:'Treated Cr³⁺',treatCu:'Treated Cu',carsPct:'CARS H₂SO₄ %',carsVol:'CARS H₂SO₄ vol',recyc:'H₂SO₄ recycled L',cw1Pct:'CARWARS cat-1 %',cw1Vol:'CARWARS cat-1 vol',cwAnPct:'CARWARS anion %',cwAnVol:'CARWARS anion vol',cw2Pct:'CARWARS cat-2 %',cw2Vol:'CARWARS cat-2 vol',rwCatPct:'RWRS cation %',rwCatVol:'RWRS cation vol',rwAnPct:'RWRS WBA %',rwAnVol:'RWRS WBA vol',bathFe:'Bath Fe',reuseCount:'H₂SO₄ reuse #'}[k]||k);}
+function reportHTML(rows,from,to){
+  const logo=`<svg width="46" height="46" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" fill="#12203a"/><circle cx="60" cy="60" r="56" fill="none" stroke="#e8836b" stroke-width="6"/><text x="60" y="72" text-anchor="middle" font-family="Arial" font-weight="700" font-size="34" fill="#fff">PM</text></svg>`;
+  const head=`<div style="display:flex;align-items:center;gap:12px;border-bottom:3px solid #f2820c;padding-bottom:10px;margin-bottom:14px">${logo}<div><div style="font-weight:700;font-size:20px;color:#12203a">Polyfill Microns Pvt Ltd</div><div style="font-size:13px;color:#555">Chromic Acid Recycling — CARS report${from?` · ${from} to ${to}`:''}</div></div></div>`;
+  const secRow=(pairs)=>`<table style="width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 10px">${pairs.map(([a,b])=>`<tr><td style="padding:3px 6px;color:#555;width:26%">${a}</td><td style="padding:3px 6px;font-family:monospace">${b}</td></tr>`).join('')}</table>`;
+  const block=r=>{const d=r.data||{};const g=(k,dg=1)=>d[k]!==''&&d[k]!=null?fmt(num(d[k]),dg):'—';
+    const readings=[['Train',esc(d.train||r.train||'')],['Step',(typeof d.step==='number'?(d.step+1)+'. '+(STEPS[d.step]?STEPS[d.step].m:''):'—')],['Flow (LPH)',g('flow',0)],['Conductivity',g('cond')],['Spent Fe / Cr³⁺',g('spentFe')+' / '+g('spentCr3')],['Treated Fe / Cr³⁺',g('treatFe')+' / '+g('treatCr3')]];
+    const feed=[['Chromic processed (L)',g('feedVol',0)],['Feed CrO₃',g('feedCrO3')],['Feed Fe',g('feedFe')],['Feed Cr³⁺',g('feedCr3')],['Feed Cu',g('feedCu')]];
+    const treat=[['CT2 recovered (L)',g('ct2',0)],['Treated CrO₃',g('treatCrO3')],['Treated Fe',g('treatFeL')],['Treated Cr³⁺',g('treatCr3L')],['Treated Cu',g('treatCu')]];
+    const regen=[['CARS H₂SO₄',g('carsPct')+'% · '+g('carsVol',0)+' L'],['CARWARS cat-1',g('cw1Pct')+'% · '+g('cw1Vol',0)+' L'],['CARWARS anion (NaOH)',g('cwAnPct')+'% · '+g('cwAnVol',0)+' L'],['CARWARS cat-2',g('cw2Pct')+'% · '+g('cw2Vol',0)+' L'],['RWRS cation',g('rwCatPct')+'% · '+g('rwCatVol',0)+' L'],['RWRS WBA (NaOH)',g('rwAnPct')+'% · '+g('rwAnVol',0)+' L'],['H₂SO₄ recycled',g('recyc',0)+' L']];
+    const tanks=Object.keys(d.tanks||{}).length?[['Tank levels',Object.entries(d.tanks).map(([k,v])=>k+' '+fmt(num(v),0)).join(' · ')]]:[];
+    const totals=[['Chromic processed',fmt(r.chromic_processed_l,0)+' L'],['CrO₃ recovered',fmt(r.cro3_recovered_kg,1)+' kg'],['Fe removed',fmt(r.fe_removed_kg,1)+' kg'],['Recovery',fmt(r.recovery_pct,0)+'%'],['H₂SO₄ (50%)',fmt(r.h2so4_50_kg,1)+' kg'],['NaOH (100%)',fmt(r.naoh_100_kg,1)+' kg']];
+    return `<div style="page-break-inside:avoid;border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:8px">
+        <div style="font-weight:700;font-size:15px">${r.cycle_date||''} · ${esc(r.train||d.train||'')}</div>
+        <div style="font-size:12px;color:#888">${r.status} · ${esc(d.technician_name||'')} · ${esc(r.clients?.name||'')} / ${esc(r.locations?.name||'')}</div></div>
+      <b style="color:#c9640a;font-size:12px">Live readings</b>${secRow(readings)}
+      <b style="color:#c9640a;font-size:12px">Feed (spent)</b>${secRow(feed)}
+      <b style="color:#c9640a;font-size:12px">Treated (CT2)</b>${secRow(treat)}
+      <b style="color:#c9640a;font-size:12px">Regeneration</b>${secRow(regen)}
+      ${tanks.length?`<b style="color:#c9640a;font-size:12px">Tanks</b>${secRow(tanks)}`:''}
+      <b style="color:#c9640a;font-size:12px">Calculated totals</b>${secRow(totals)}
+      ${d.notes?`<div style="font-size:12px;margin-top:6px"><b>Notes:</b> ${esc(d.notes)}</div>`:''}
+      ${(d.bathFe!==''&&d.bathFe!=null)?`<div style="font-size:12px"><b>Bath Fe:</b> ${g('bathFe')} g/L · reuse #${g('reuseCount',0)}</div>`:''}
+    </div>`;};
+  return `<!doctype html><meta charset="utf-8"><title>CARS report</title><body style="font-family:system-ui,Segoe UI,Roboto,sans-serif;max-width:820px;margin:18px auto;padding:0 16px;color:#222">${head}${rows.map(block).join('')}<div style="text-align:center;color:#888;font-size:11px;margin-top:16px">© ${new Date().getFullYear()} Polyfill Microns Pvt Ltd — sole and exclusive property.</div></body>`;
 }
-function htmlReport(rows, from, to){ const w=window.open('','_blank'); w.document.write(reportHTML(rows,from,to)); w.document.close(); }
-function excelExport(rows, from, to){
-  const detail=rows.map(r=>({ Date:r.cycle_date, Technician:r.data?.technician_name||'', Company:r.clients?.name||'', Location:r.locations?.name||'', Train:r.train, Status:r.status,
-    'Chromic L':+r.chromic_processed_l||0, 'CrO3 recovered kg':+r.cro3_recovered_kg||0, 'Fe removed kg':+r.fe_removed_kg||0, 'Recovery %':+r.recovery_pct||0, 'H2SO4 50% kg':+r.h2so4_50_kg||0, 'NaOH 100% kg':+r.naoh_100_kg||0 }));
-  const sum=(f)=>rows.reduce((a,x)=>a+(+f(x)||0),0);
-  const summary=[{Metric:'Cycles',Value:rows.length},{Metric:'Completed',Value:rows.filter(x=>x.status==='completed').length},{Metric:'Chromic processed L',Value:sum(x=>x.chromic_processed_l)},{Metric:'CrO3 recovered kg',Value:sum(x=>x.cro3_recovered_kg)},{Metric:'Fe removed kg',Value:sum(x=>x.fe_removed_kg)},{Metric:'H2SO4 50% kg',Value:sum(x=>x.h2so4_50_kg)},{Metric:'NaOH 100% kg',Value:sum(x=>x.naoh_100_kg)}];
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), 'Summary');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(detail), 'Cycles');
-  XLSX.writeFile(wb, `CARS_${from||'all'}_${to||''}.xlsx`);
+function htmlReport(rows,from,to,print){const w=window.open('','_blank');w.document.write(reportHTML(rows,from,to));w.document.close();if(print)setTimeout(()=>w.print(),400);}
+function excelExport(rows,from,to){
+  const detail=rows.map(r=>{const d=r.data||{};const base={Date:r.cycle_date,Technician:d.technician_name||'',Company:r.clients?.name||'',Location:r.locations?.name||'',Train:r.train,Status:r.status,
+    'Chromic L':+r.chromic_processed_l||0,'CrO3 recovered kg':+r.cro3_recovered_kg||0,'Fe removed kg':+r.fe_removed_kg||0,'Recovery %':+r.recovery_pct||0,'H2SO4 50% kg':+r.h2so4_50_kg||0,'NaOH 100% kg':+r.naoh_100_kg||0};
+    ['flow','cond','spentFe','spentCr3','feedCrO3','feedFe','feedCr3','feedCu','ct2','treatCrO3','treatFeL','treatCr3L','treatCu','carsPct','carsVol','recyc','cw1Pct','cw1Vol','cwAnPct','cwAnVol','cw2Pct','cw2Vol','rwCatPct','rwCatVol','rwAnPct','rwAnVol','bathFe','reuseCount'].forEach(k=>base[labelOf(k)]=d[k]!==''&&d[k]!=null?+d[k]:'');base.Notes=d.notes||'';return base;});
+  const sum=f=>rows.reduce((a,x)=>a+(+f(x)||0),0);
+  const summary=[['Cycles',rows.length],['Completed',rows.filter(x=>x.status==='completed').length],['Chromic processed L',sum(x=>x.chromic_processed_l)],['CrO3 recovered kg',sum(x=>x.cro3_recovered_kg)],['Fe removed kg',sum(x=>x.fe_removed_kg)],['H2SO4 50% kg',sum(x=>x.h2so4_50_kg)],['NaOH 100% kg',sum(x=>x.naoh_100_kg)]].map(([Metric,Value])=>({Metric,Value}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(summary),'Summary');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(detail),'Cycles');XLSX.writeFile(wb,`CARS_${from||'all'}_${to||''}.xlsx`);
 }
-function jsonExport(rows, from, to){
-  const blob=new Blob([JSON.stringify({owner:'Polyfill Microns Pvt. Ltd.',from,to,exported:new Date().toISOString(),cycles:rows},null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`CARS_${from||'all'}.json`; a.click(); URL.revokeObjectURL(a.href);
-}
+function jsonExport(rows,from,to){const blob=new Blob([JSON.stringify({owner:'Polyfill Microns Pvt Ltd',from,to,exported:new Date().toISOString(),cycles:rows},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`CARS_${from||'all'}.json`;a.click();URL.revokeObjectURL(a.href);}
 
-/* ---------------- tiny UI helpers ---------------- */
-function field(label, control){ const w=el('div','f'); w.appendChild(el('label',null,label)); w.appendChild(control); return w; }
-function labelWrap(label, control){ const w=el('div','f'); w.appendChild(el('label',null,label)); w.appendChild(control); return w; }
-function add(parent,cls,html){ const d=el('div',cls,html); parent.appendChild(d); }
-function inputField(type,val,on,ph){ const i=document.createElement('input'); i.type=type; if(val!=null)i.value=val; if(ph)i.placeholder=ph; i.oninput=()=>on(i.value); return i; }
-function selectField(opts,val,on){ const s=document.createElement('select'); opts.forEach(o=>s.append(opt(o,o))); if(val)s.value=val; s.onchange=()=>on(s.value); return s; }
-function inp(type){ const i=document.createElement('input'); i.type=type; return i; }
-function opt(v,t){ const o=document.createElement('option'); o.value=v; o.textContent=t; return o; }
-function acidTriple(parent,label,d,pk,vk,type){
-  parent.appendChild(field(label+' — conc (%)', inputField('number', d[pk], v=>{d[pk]=v;updateTotals();})));
-  parent.appendChild(field(label+' — vol (L)', inputField('number', d[vk], v=>{d[vk]=v;updateTotals();})));
-  const calc=document.createElement('input'); calc.readOnly=true; calc.dataset.calc=type+'|'+pk+'|'+vk;
-  parent.appendChild(field(label+' — qty (kg)', calc));
+/* ---- tiny helpers ---- */
+function field(label,control){const w=el('div','f');w.appendChild(el('label',null,label));w.appendChild(control);return w;}
+function lw(label,control){const w=el('div','f');w.appendChild(el('label',null,label));w.appendChild(control);return w;}
+function add(p,cls,html){p.appendChild(el('div',cls,html));}
+function inp(type){const i=document.createElement('input');i.type=type;return i;}
+function opt(v,t){const o=document.createElement('option');o.value=v;o.textContent=t;return o;}
+function inp2(type,key,ph){const i=document.createElement('input');i.type=type;i.className='mono';if(cd()[key]!=null)i.value=cd()[key];if(ph)i.placeholder=ph;i.oninput=()=>{cd()[key]=i.value;updateBoard();};return i;}
+function sel2(opts,key){const s=document.createElement('select');opts.forEach(o=>s.append(opt(o,o)));s.value=cd()[key]||opts[0];s.onchange=()=>{cd()[key]=s.value;};return s;}
+function acidTriple(parent,label,pk,vk,type){
+  parent.appendChild(field(label+' — conc (%)',inp2('number',pk)));
+  parent.appendChild(field(label+' — vol (L)',inp2('number',vk)));
+  const calc=document.createElement('input');calc.readOnly=true;calc.className='mono';calc.dataset.calc=type+'|'+pk+'|'+vk;
+  parent.appendChild(field(label+' — qty (kg)',calc));
 }
 </script>
 </body>
