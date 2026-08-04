@@ -45,3 +45,16 @@ stamped on every cycle automatically.
 - All data lives in your Supabase project; the site holds only the public anon key.
 - Completed cycles are locked (no edit/delete) at the database level.
 - The app works as an installable PWA: open the URL in Chrome → "Add to Home screen".
+
+## v2 update — what changed
+- Branding: Polyfill Microns Pvt Ltd + logo shown in the header (right) and login.
+  The logo is `logo.svg` — replace that one file with your real artwork (same name) to swap it everywhere.
+- Technician dashboard fully restored: 9-step rail with per-step targets and operator
+  action cues, live readings, tank board, full cycle log, calculations, validations, workflow.
+- Reports now include every field/reading; HTML report reproduces the dashboard layout
+  (Live readings / Feed / Treated / Regeneration / Tanks / Totals). Excel = all fields.
+  Print/PDF and JSON retained.
+- Admin: Technicians (add / edit / activate-deactivate / delete-with-guard),
+  Locations (add / rename / activate / delete), Companies (add / edit / delete) with
+  each company keeping its own stock and settings.
+- To pick up v2 on an already-installed phone: reopen the app (service worker cache bumped to v2).
