@@ -146,6 +146,28 @@ tr.clk{cursor:pointer}tr.clk:hover td{background:#fafbfc}.hwrap{overflow-x:auto}
 .modal .mc{background:#fff;border-radius:14px;padding:22px;width:min(460px,94vw);max-height:90vh;overflow:auto}
 .modal h3{margin:0 0 6px}.modal p{color:var(--wink-dim);font-size:13.5px;margin:0 0 16px}
 footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-height:1.6}
+/* --- dashboard styling corrections --- */
+.trainsel button.on{background:rgba(242,130,12,.14);color:var(--chrome);border:1.5px solid var(--acid)}
+.legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:12px}
+.legend .lg{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim)}
+.legend .lg i{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
+.legend .lg.go i{background:var(--ok)}.legend .lg.stop i{background:var(--alarm)}.legend .lg.hold i{background:var(--warn)}
+.rbar{height:7px;background:var(--panel);border-radius:5px;overflow:hidden;margin-top:9px}
+.rbar i{display:block;height:100%;border-radius:5px}
+.rmini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.rmini button{background:#fff;border:1px solid var(--line-l);color:var(--wink);padding:6px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
+.rmini button:hover{border-color:var(--acid);background:#fff7ef}
+.rmini input{width:82px;padding:6px 8px;border:1px solid var(--line-l);border-radius:7px;font-family:'IBM Plex Mono',monospace}
+.rmi::before{width:5px}
+.btn.discard{background:#fdecec;color:var(--alarm);border:1px solid #f6c9c9}
+.btn.discard:hover{background:#fbdede;border-color:var(--alarm)}
+.whobar{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:flex-end;margin:10px 0 6px;padding:12px 15px;background:linear-gradient(180deg,#fff,#fbfcfe);border:1px solid var(--line-l);border-left:4px solid var(--acid);border-radius:11px}
+.whobar .wb i{display:block;font-size:9.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--wink-dim);font-style:normal;margin-bottom:3px}
+.whobar .wb b{font-size:17px;font-weight:700;color:var(--wink);line-height:1.05}
+.whobar .wb.co b{color:var(--acid-deep)}
+.whobar .wb.loc b{font-size:13px;color:var(--wink-dim);font-weight:600}
+table.rep td,table.rep th{padding:11px 12px}
+table.rep tbody tr{border-bottom:1px solid var(--line-l)}
 </style>
 </head>
 <body>
@@ -317,10 +339,11 @@ function acidCalc(parent,label,pk,vk,type){parent.appendChild(logField(label+' �
 
 function renderCycle(m){
   REF={};var d=cd();
-  m.appendChild(el('div','note',(CUR.id?'<span class="pill draft">Draft</span> saved cycle in progress':'New cycle — press Save to start the draft')+' · <b>'+esc(ME.name)+'</b> · '+esc(ME.clientName)+' / '+esc(ME.locationName)));
+  m.appendChild(el('div','note',CUR.id?'<span class="pill draft">Draft</span> saved cycle in progress':'New cycle — press Save to start the draft'));
+  m.appendChild(el('div','whobar','<span class="wb"><i>Technician</i><b>'+esc(ME.name)+'</b></span><span class="wb co"><i>Company</i><b>'+esc(ME.clientName||'—')+'</b></span><span class="wb loc"><i>Location</i><b>'+esc(ME.locationName||'—')+'</b></span>'));
   var b=el('div','board');
   var ts=el('div','trainsel');['Etching','Plating'].forEach(function(tr){var bb=el('button',d.train===tr?'on':'',tr);bb.onclick=function(){d.train=tr;Array.prototype.forEach.call(ts.children,function(c){c.className=c.textContent===tr?'on':'';});if(REF.train)REF.train.value=tr;};ts.appendChild(bb);});
-  b.appendChild(el('h3',null,'CARS cycle — '+esc(d.train)));b.appendChild(ts);
+  b.appendChild(el('h3',null,'CARS cycle — <span style="color:var(--chrome)">'+esc(d.train)+'</span>'));b.appendChild(ts);
   var rail=el('div','rail');rail.id='cyRail';
   STEPS.forEach(function(s,i){var e=el('div','step','<div class="n">'+String(i+1).padStart(2,'0')+'</div><div class="m">'+s.m+'</div><div class="d">'+s.d+'</div>');e.onclick=function(){d.step=i;paint();};rail.appendChild(e);});
   b.appendChild(rail);
@@ -552,20 +575,30 @@ function screenReports(m){
   [fTech,fCo,fLoc].forEach(s=>{s.style.cssText='padding:8px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';s.onchange=render;});
   fbar.append(lw('Technician',fTech),lw('Company',fCo),lw('Location',fLoc));
   let allRows=[],sortKey='cycle_date',sortDir='desc';
-  const SORTABLE={cycle_date:1,tech:1,co:1,loc:1,chromic_processed_l:1,cro3_recovered_kg:1,recovery_pct:1,h2so4_50_kg:1,naoh_100_kg:1};
+  const SORTABLE={cycle_date:1,time:1,tech:1,co:1,loc:1,train:1,status:1};
+  const rTimeVal=r=>r.completed_at||r.created_at||'';
+  const rTimeDisp=r=>{const x=r.completed_at||r.created_at;if(!x)return '—';const d=new Date(x);return isNaN(d.getTime())?'—':d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});};
   function fillF(sel,vals,lbl){const cur=sel.value;sel.innerHTML='';sel.append(opt('','All '+lbl));vals.forEach(v=>sel.append(opt(v,v)));if(vals.indexOf(cur)>=0)sel.value=cur;}
   async function load(){
     out.innerHTML='<div class="note">Loading…</div>';fbar.style.display='none';
     const {data,error}=await sb.from('cars_cycles').select('*, clients(name), locations(name)').gte('cycle_date',from.value).lte('cycle_date',to.value).order('cycle_date',{ascending:false});
     if(error){out.innerHTML='<div class="note">'+esc(error.message)+'</div>';return;}
     allRows=data||[];
+    const locIds=[...new Set(allRows.map(r=>r.location_id).filter(Boolean))];
+    if(locIds.length){
+      const [{data:st},{data:iv}]=await Promise.all([
+        sb.from('location_state').select('*').in('location_id',locIds),
+        sb.from('inventory').select('*').in('location_id',locIds)]);
+      const lsMap={},invMap={};(st||[]).forEach(s=>lsMap[s.location_id]=s.data||{});(iv||[]).forEach(v=>{(invMap[v.location_id]=invMap[v.location_id]||{})[v.chemical]=v;});
+      allRows.forEach(r=>{r._ls=lsMap[r.location_id]||{};r._inv=invMap[r.location_id]||{};});
+    }
     fillF(fTech,[...new Set(allRows.map(rTech).filter(Boolean))].sort(),'technicians');
     fillF(fCo,[...new Set(allRows.map(rCo).filter(Boolean))].sort(),'companies');
     fillF(fLoc,[...new Set(allRows.map(rLoc).filter(Boolean))].sort(),'locations');
     fbar.style.display=allRows.length?'flex':'none';render();
   }
   function view(){const rows=allRows.filter(r=>(!fTech.value||rTech(r)===fTech.value)&&(!fCo.value||rCo(r)===fCo.value)&&(!fLoc.value||rLoc(r)===fLoc.value));
-    const val=r=>({cycle_date:r.cycle_date||'',tech:rTech(r),co:rCo(r),loc:rLoc(r),chromic_processed_l:+r.chromic_processed_l||0,cro3_recovered_kg:+r.cro3_recovered_kg||0,recovery_pct:+r.recovery_pct||0,h2so4_50_kg:+r.h2so4_50_kg||0,naoh_100_kg:+r.naoh_100_kg||0}[sortKey]);
+    const val=r=>({cycle_date:r.cycle_date||'',time:rTimeVal(r),tech:rTech(r),co:rCo(r),loc:rLoc(r),train:r.train||'',status:r.status||''}[sortKey]);
     const dir=sortDir==='asc'?1:-1;return rows.slice().sort((a,b)=>{const x=val(a),y=val(b);return x<y?-dir:x>y?dir:0;});}
   function render(){const rows=view();const sum=f=>rows.reduce((a,x)=>a+(+f(x)||0),0);out.innerHTML='';
     const kp=el('div','kpis');kp.innerHTML=
@@ -584,11 +617,11 @@ function screenReports(m){
     const b4=el('button','btn sm g','JSON export');b4.onclick=()=>jsonExport(rows,from.value,to.value);
     ex.append(b1,b2,b3,b4);out.appendChild(ex);
     if(!rows.length){out.appendChild(el('div','note','No cycles match the current filters.'));return;}
-    const cols=[['cycle_date','Date'],['tech','Technician'],['co','Company'],['loc','Location'],['train','Train'],['status','Status'],['chromic_processed_l','Chromic L','m'],['cro3_recovered_kg','CrO₃ rec','m'],['recovery_pct','Recovery','m'],['h2so4_50_kg','H₂SO₄ 50%','m'],['naoh_100_kg','NaOH','m']];
-    const w=el('div','hwrap'),t=el('table');const thead=el('thead'),htr=el('tr');
+    const cols=[['cycle_date','Date'],['time','Time'],['tech','Technician'],['co','Company'],['loc','Location'],['train','Train'],['status','Status'],['chromic_processed_l','Chromic L','m'],['cro3_recovered_kg','CrO₃ rec','m'],['recovery_pct','Recovery','m'],['h2so4_50_kg','H₂SO₄ 50%','m'],['naoh_100_kg','NaOH','m']];
+    const w=el('div','hwrap'),t=el('table','rep');const thead=el('thead'),htr=el('tr');
     cols.forEach(cc=>{const th=el('th',cc[2]==='m'?'m':null);const sortable=SORTABLE[cc[0]];th.innerHTML=esc(cc[1])+(sortable&&sortKey===cc[0]?' <span class="ar">'+(sortDir==='asc'?'▲':'▼')+'</span>':'');if(sortable){th.classList.add('sortable');th.onclick=()=>{if(sortKey===cc[0])sortDir=sortDir==='asc'?'desc':'asc';else{sortKey=cc[0];sortDir='asc';}render();};}htr.appendChild(th);});
     thead.appendChild(htr);t.appendChild(thead);const tb=el('tbody');
-    rows.forEach(r=>{const tr=el('tr','clk');tr.innerHTML='<td>'+(r.cycle_date||'')+'</td><td>'+esc(rTech(r))+'</td><td>'+esc(rCo(r))+'</td><td>'+esc(rLoc(r))+'</td><td>'+esc(r.train||'')+'</td><td><span class="pill '+(r.status==='completed'?'done':'draft')+'">'+r.status+'</span></td><td class="m">'+fmt(r.chromic_processed_l,0)+'</td><td class="m">'+fmt(r.cro3_recovered_kg,1)+'</td><td class="m">'+fmt(r.recovery_pct,0)+'%</td><td class="m">'+fmt(r.h2so4_50_kg,1)+'</td><td class="m">'+fmt(r.naoh_100_kg,1)+'</td>';tr.onclick=()=>htmlReport([r]);tb.appendChild(tr);});
+    rows.forEach(r=>{const tr=el('tr','clk');tr.innerHTML='<td>'+(r.cycle_date||'')+'</td><td>'+rTimeDisp(r)+'</td><td>'+esc(rTech(r))+'</td><td>'+esc(rCo(r))+'</td><td>'+esc(rLoc(r))+'</td><td>'+esc(r.train||'')+'</td><td><span class="pill '+(r.status==='completed'?'done':'draft')+'">'+r.status+'</span></td><td class="m">'+fmt(r.chromic_processed_l,0)+'</td><td class="m">'+fmt(r.cro3_recovered_kg,1)+'</td><td class="m">'+fmt(r.recovery_pct,0)+'%</td><td class="m">'+fmt(r.h2so4_50_kg,1)+'</td><td class="m">'+fmt(r.naoh_100_kg,1)+'</td>';tr.onclick=()=>htmlReport([r]);tb.appendChild(tr);});
     t.appendChild(tb);w.appendChild(t);out.appendChild(w);
   }
   load();
@@ -612,7 +645,9 @@ async function screenTechs(m){
   const f=el('div','grid g3');f.append(lw('Username',un),lw('Contact email (optional)',em),lw('Temp password',pw),lw('Company',cSel),lw('Location',lSel));
   c.appendChild(f);
   const bAdd=el('button','btn primary','Create technician');bAdd.style.marginTop='12px';
-  bAdd.onclick=async()=>{if(!un.value.trim()||!pw.value){toast('Username and password required');return;}bAdd.disabled=true;bAdd.textContent='Creating…';
+  bAdd.onclick=async()=>{if(!un.value.trim()||!pw.value){toast('Username and password required');return;}
+    if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){toast('Enter a valid contact email, or leave it blank');return;}
+    bAdd.disabled=true;bAdd.textContent='Creating…';
     try{await callFn('create',{username:un.value.trim(),email_contact:em.value.trim()||null,password:pw.value,full_name:un.value.trim(),client_id:cSel.value||null,location_id:lSel.value||null});toast('Technician created');un.value=em.value=pw.value='';list();}catch(e){toast('Failed: '+e.message);}
     bAdd.disabled=false;bAdd.textContent='Create technician';};
   c.appendChild(bAdd);const lb=el('div');lb.style.marginTop='16px';c.appendChild(lb);m.appendChild(c);
@@ -640,7 +675,7 @@ function editTech(u,clients,locations,after){
   const err=el('div','err');mc.appendChild(err);
   const rr=el('div','row');rr.style.cssText='justify-content:flex-end;margin-top:16px';
   const bc=el('button','btn g','Cancel');bc.onclick=()=>md.remove();
-  const bs=el('button','btn primary','Save');bs.onclick=async()=>{err.textContent='';bs.disabled=true;try{await callFn('update',{user_id:u.id,full_name:nm.value.trim(),username:un.value.trim()||undefined,email_contact:em.value.trim(),client_id:cS.value||null,location_id:lS.value||null,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){err.textContent=e.message;}bs.disabled=false;};
+  const bs=el('button','btn primary','Save');bs.onclick=async()=>{err.textContent='';if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){err.textContent='Enter a valid contact email, or leave it blank.';return;}bs.disabled=true;try{await callFn('update',{user_id:u.id,full_name:nm.value.trim(),username:un.value.trim()||undefined,email_contact:em.value.trim(),client_id:cS.value||null,location_id:lS.value||null,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){err.textContent=e.message;}bs.disabled=false;};
   rr.append(bc,bs);mc.appendChild(rr);md.appendChild(mc);document.body.appendChild(md);
 }
 
@@ -772,15 +807,16 @@ function rCo(r){return (r.data&&r.data.client_name)||(r.clients&&r.clients.name)
 function rLoc(r){return (r.data&&r.data.location_name)||(r.locations&&r.locations.name)||'';}
 function reportDoc(rows,meta){
   meta=meta||{};
-  var payload=JSON.stringify(rows).replace(/</g,'\\u003c');
+  var payload=JSON.stringify(rows).replace(/</g,'\u003c');
   var css="body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:0;background:#eef1f5;color:#1a2230}"+
-   ".hd{display:flex;align-items:center;gap:12px;background:#10141d;color:#fff;padding:12px 18px;border-bottom:3px solid #f2820c}"+
-   ".hd img{width:40px;height:40px;border-radius:50%}.hd b{font-size:17px}.hd .s{font-size:11px;color:#9fb;opacity:.8}"+
-   ".nav{display:flex;gap:8px;align-items:center;padding:10px 18px;background:#171d29;color:#cdd6e4;flex-wrap:wrap}"+
+   ".lh{display:flex;align-items:center;gap:14px;padding:14px 20px 8px}.lh img{width:54px;height:54px;border-radius:50%}"+
+   ".lhn{font-size:20px;font-weight:800;color:#E8825A;letter-spacing:.5px}.lht{font-size:11px;color:#1B3A6B;margin-top:2px}"+
+   ".lhs{margin-left:auto;text-align:right;font-size:11px;color:#5a6678;line-height:1.5}.lhrule{height:3px;background:#E8825A;margin:0 20px 10px}"+
+   ".nav{display:flex;gap:8px;align-items:center;padding:8px 20px;background:#171d29;color:#cdd6e4;flex-wrap:wrap}"+
    ".nav button{background:#1e2735;color:#cdd6e4;border:0;padding:7px 13px;border-radius:7px;font-weight:600;cursor:pointer}"+
    ".nav button:hover{background:#28324a}.nav .np{background:#f2820c;color:#1a1206}.nav .cnt{font-size:12px;margin-left:auto}"+
-   ".tabs{display:flex;gap:6px;padding:10px 18px 0}.tabs button{background:#e7ebf1;border:0;padding:8px 14px;border-radius:8px 8px 0 0;font-weight:600;color:#5a6678;cursor:pointer}.tabs button.on{background:#fff;color:#c9640a}"+
-   ".wrap{max-width:900px;margin:0 auto;padding:0 18px 24px}.card{background:#fff;border:1px solid #dde3ea;border-top:0;border-radius:0 0 12px 12px;padding:16px}"+
+   ".tabs{display:flex;gap:6px;padding:10px 20px 0}.tabs button{background:#e7ebf1;border:0;padding:8px 14px;border-radius:8px 8px 0 0;font-weight:600;color:#5a6678;cursor:pointer}.tabs button.on{background:#fff;color:#c9640a}"+
+   ".wrap{max-width:900px;margin:0 auto;padding:0 20px 24px}.card{background:#fff;border:1px solid #dde3ea;border-top:0;border-radius:0 0 12px 12px;padding:16px}"+
    ".board{background:#10141d;color:#e9eef6;border-radius:11px;padding:14px;margin-bottom:12px}"+
    ".rail{display:flex;gap:5px;overflow-x:auto;background:#171d29;border-radius:9px;padding:5px}"+
    ".step{min-width:88px;padding:8px 9px;border-radius:7px;border:1px solid transparent}.step.on{background:#241a09;border-color:#f2820c}.step .n{font-size:10px;color:#5f6c81;font-family:monospace}.step .m{font-size:11px;color:#8f9db1;font-weight:600}.step.on .m{color:#ffb84d}"+
@@ -790,54 +826,97 @@ function reportDoc(rows,meta){
    ".fl{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #eef1f4;padding:4px 0;font-size:12.5px}.fl .k{color:#5a6678}.fl .v{font-family:monospace;font-weight:600}"+
    ".sec{grid-column:1/-1;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#c9640a;border-bottom:1px solid #dde3ea;padding:8px 0 4px;margin-top:6px}"+
    ".kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:11px}.kpi{border-left:3px solid #f2820c;padding-left:10px}.kpi .v{font-family:monospace;font-size:20px;font-weight:600}.kpi .l{font-size:10px;color:#5a6678;text-transform:uppercase}"+
-   ".pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase}.pd{background:rgba(240,164,28,.16);color:#a9700a}.pc{background:rgba(34,171,87,.14);color:#1a8f47}"+
+   ".rems{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}"+
+   ".rmi{border:1px solid #dde3ea;border-left:4px solid #22ab57;border-radius:9px;padding:8px 10px;background:#fafbfc}.rmi.wn{border-left-color:#f0a41c}.rmi.al{border-left-color:#e53a3a}"+
+   ".rmh{display:flex;justify-content:space-between;gap:8px;align-items:center}.rmh b{font-size:12px}"+
+   ".rmg{font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:rgba(34,171,87,.12);color:#1a8f47}.rmg.wn{background:rgba(240,164,28,.14);color:#a9700a}.rmg.al{background:rgba(229,58,58,.12);color:#c62828}"+
+   ".rmb{font-size:11px;color:#5a6678;margin-top:3px}"+
+   ".blk{margin-top:14px}.blkh{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#c9640a;margin-bottom:6px}"+
    "#printAll{display:none}"+
-   "@media print{@page{size:auto;margin:11mm}#screen{display:none!important}#printAll{display:block}.pcard{page-break-inside:avoid;border:1px solid #ccc;border-radius:8px;padding:10px;margin-bottom:12px}.pcard h4{margin:0 0 6px;font-size:13px;color:#12203a}.pflds{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px 16px}@media(max-width:700px){.pflds{grid-template-columns:1fr 1fr}}.pfl{display:flex;justify-content:space-between;border-bottom:1px solid #eee;font-size:11px;padding:2px 0}.psec{grid-column:1/-1;font-weight:700;color:#c9640a;font-size:10.5px;text-transform:uppercase;margin-top:4px}body{background:#fff}}";
+   "@media print{@page{size:auto;margin:12mm}#screen{display:none!important}#printAll{display:block}"+
+   ".pcard{page-break-inside:avoid;border:1px solid #ccc;border-radius:8px;padding:10px;margin-bottom:12px}.pcard h4{margin:0 0 6px;font-size:13px;color:#12203a;border-bottom:1px solid #eee;padding-bottom:4px}"+
+   ".pflds{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px 16px}.pfl{display:flex;justify-content:space-between;border-bottom:1px solid #eee;font-size:11px;padding:2px 0}.psec{grid-column:1/-1;font-weight:700;color:#c9640a;font-size:10.5px;text-transform:uppercase;margin-top:5px}"+
+   ".rems{grid-template-columns:1fr 1fr 1fr}.pnote{font-size:11px;margin-top:6px;border:1px solid #eee;border-radius:6px;padding:6px;background:#fafafa}body{background:#fff}}";
   var doc="<!doctype html><html><head><meta charset='utf-8'><title>CARS cycle report</title><style>"+css+"</style></head><body>"+
-   "<div id='screen'><div class='hd'><img src='"+((meta.logo)||'')+"'><div><b>Polyfill Microns Pvt Ltd</b><div class='s'>Chromic Acid Recycling — locked cycle view</div></div></div>"+
-   "<div class='nav'><button class='np' id='prev'>\u2039 Prev</button><button class='np' id='next'>Next \u203a</button><button id='prn'>Print all</button><span class='cnt' id='cnt'></span></div>"+
+   "<div id='screen'><div id='lhScreen'></div>"+
+   "<div class='nav'><button class='np' id='prev'>\u2039 Prev</button><button class='np' id='next'>Next \u203a</button><button id='prn'>Print</button><span class='cnt' id='cnt'></span></div>"+
    "<div class='tabs' id='tabs'></div><div class='wrap'><div class='card' id='body'></div></div></div>"+
    "<div id='printAll'></div>"+
-   "<scr"+"ipt>var ROWS="+payload+",STEPS="+JSON.stringify(STEPS)+",TANKS="+JSON.stringify(TANKS)+",CAPS="+JSON.stringify(DEFAULTS.tankCaps)+";"+
+   "<scr"+"ipt>var ROWS="+payload+",STEPS="+JSON.stringify(STEPS)+",TANKS="+JSON.stringify(TANKS)+",CAPS="+JSON.stringify(DEFAULTS.tankCaps)+",META="+JSON.stringify(meta)+",EST=META.est||{};"+
    "var idx=0,tab='board';"+
    "function E(i){return document.getElementById(i);}"+
    "function f(v,d){d=d==null?1:d;v=parseFloat(v);return isNaN(v)?'\u2014':v.toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});}"+
    "function g(r,k,d){var x=(r.data||{})[k];return (x===''||x==null)?'\u2014':f(x,d);}"+
+   "function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}"+
+   "function dt(x){if(!x)return '\u2014';var d=new Date(x);return isNaN(d.getTime())?'\u2014':d.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}"+
    "function co(r){return (r.data&&r.data.client_name)||(r.clients&&r.clients.name)||'';}"+
    "function lo(r){return (r.data&&r.data.location_name)||(r.locations&&r.locations.name)||'';}"+
    "function te(r){return (r.data&&r.data.technician_name)||'';}"+
    "function fl(k,v){return \"<div class='fl'><span class='k'>\"+k+\"</span><span class='v'>\"+v+\"</span></div>\";}"+
+   "function scope(){var s=META.from?('Cycle report \u00b7 '+META.from+' to '+META.to):'Cycle report';return s;}"+
+   "function letterhead(){return \"<div class='lh'><img src='\"+(META.logo||'')+\"'><div><div class='lhn'>POLYFILL MICRONS PVT. LTD.</div><div class='lht'>Air &amp; Water Pollution Control Systems \u00b7 Chromic Acid Recycling (CARS)</div></div><div class='lhs'>\"+scope()+\"<br>Generated \"+dt(new Date().toISOString())+\"</div></div><div class='lhrule'></div>\";}"+
    "function boardHTML(r){var d=r.data||{},st=(typeof d.step==='number'?d.step:0);"+
    "var rail=STEPS.map(function(s,i){return \"<div class='step\"+(i===st?' on':'')+\"'><div class='n'>\"+(i+1)+\"</div><div class='m'>\"+s.m+\"</div></div>\";}).join('');"+
    "var rd=[['Train',d.train||r.train||'\u2014'],['Step',(st+1)+'. '+(STEPS[st]?STEPS[st].m:'')],['Flow LPH',g(r,'flow',0)],['Conductivity',g(r,'cond')],['Spent Fe',g(r,'spentFe')],['Spent Cr\u00b3\u207a',g(r,'spentCr3')],['Treated Fe',g(r,'treatFe')],['Treated Cr\u00b3\u207a',g(r,'treatCr3')]].map(function(p){return \"<div><div class='k'>\"+p[0]+\"</div><div class='v'>\"+p[1]+\"</div></div>\";}).join('');"+
    "var tanks=TANKS.map(function(a){var k=a[0],cap=CAPS[k]||1000,lv=parseFloat((d.tanks||{})[k])||0,pct=Math.min(100,lv/cap*100);return \"<div class='tk'><div class='n'>\"+(k==='H2'?'H\u2082SO\u2084':(k==='SP'?'Spent H\u2082SO\u2084':k))+\"</div><div class='vis'><i style='height:\"+pct+\"%;background:\"+a[2]+\"'></i></div><div class='val'>\"+f(lv,0)+' / '+f(cap,0)+\" L</div></div>\";}).join('');"+
    "return \"<div class='board'><div class='rail'>\"+rail+\"</div><div class='rd'>\"+rd+\"</div></div><div class='board'><div style=\\\"font-size:11px;color:#5f6c81;text-transform:uppercase;margin-bottom:6px\\\">Tank board</div><div class='tanks'>\"+tanks+\"</div></div>\";}"+
    "function logHTML(r){var out=\"<div class='flds'>\";"+
-   "out+=\"<div class='sec'>Header</div>\"+fl('Date',r.cycle_date||'\u2014')+fl('Train',(r.data&&r.data.train)||r.train||'\u2014')+fl('Chromic processed L',g(r,'feedVol',0));"+
+   "out+=\"<div class='sec'>Header</div>\"+fl('Date',r.cycle_date||'\u2014')+fl('Train',(r.data&&r.data.train)||r.train||'\u2014')+fl('Status',r.status)+fl('Completed',dt(r.completed_at))+fl('Chromic processed L',g(r,'feedVol',0));"+
    "out+=\"<div class='sec'>Feed (spent)</div>\"+fl('Feed CrO\u2083',g(r,'feedCrO3'))+fl('Feed Fe',g(r,'feedFe'))+fl('Feed Cr\u00b3\u207a',g(r,'feedCr3'))+fl('Feed Cu',g(r,'feedCu'));"+
    "out+=\"<div class='sec'>Treated (CT2)</div>\"+fl('CT2 recovered L',g(r,'ct2',0))+fl('Treated CrO\u2083',g(r,'treatCrO3'))+fl('Treated Fe',g(r,'treatFeL'))+fl('Treated Cr\u00b3\u207a',g(r,'treatCr3L'))+fl('Treated Cu',g(r,'treatCu'));"+
    "out+=\"<div class='sec'>CARS / CARWARS / RWRS regeneration</div>\"+fl('CARS H\u2082SO\u2084',g(r,'carsPct')+'% \u00b7 '+g(r,'carsVol',0)+' L')+fl('H\u2082SO\u2084 recycled L',g(r,'recyc',0))+fl('CARWARS cat-1',g(r,'cw1Pct')+'% \u00b7 '+g(r,'cw1Vol',0)+' L')+fl('CARWARS anion',g(r,'cwAnPct')+'% \u00b7 '+g(r,'cwAnVol',0)+' L')+fl('CARWARS cat-2',g(r,'cw2Pct')+'% \u00b7 '+g(r,'cw2Vol',0)+' L')+fl('RWRS cation',g(r,'rwCatPct')+'% \u00b7 '+g(r,'rwCatVol',0)+' L')+fl('RWRS WBA',g(r,'rwAnPct')+'% \u00b7 '+g(r,'rwAnVol',0)+' L');"+
-   "if(r.data&&r.data.notes)out+=\"<div class='sec'>Notes</div><div style='grid-column:1/-1;font-size:12.5px'>\"+String(r.data.notes).replace(/</g,'&lt;')+\"</div>\";"+
-   "return out+\"</div>\";}"+
-   "function totHTML(r){var k=[['Chromic L',f(r.chromic_processed_l,0)],['CrO\u2083 rec kg',f(r.cro3_recovered_kg,1)],['Fe removed kg',f(r.fe_removed_kg,1)],['Recovery %',f(r.recovery_pct,0)],['H\u2082SO\u2084 50% kg',f(r.h2so4_50_kg,1)],['NaOH kg',f(r.naoh_100_kg,1)]];return \"<div class='kpis'>\"+k.map(function(p){return \"<div class='kpi'><div class='v'>\"+p[1]+\"</div><div class='l'>\"+p[0]+\"</div></div>\";}).join('')+\"</div>\";}"+
-   "function render(){var r=ROWS[idx];E('cnt').textContent=(idx+1)+' / '+ROWS.length+'  \u00b7  '+(r.cycle_date||'')+' \u00b7 '+te(r)+' \u00b7 '+co(r)+' / '+lo(r)+' \u00b7 '+r.status;"+
-   "E('tabs').innerHTML=[['board','Operator board'],['log','Cycle log'],['tot','Totals']].map(function(t){return \"<button class='\"+(tab===t[0]?'on':'')+\"' onclick=\\\"setTab('\"+t[0]+\"')\\\">\"+t[1]+\"</button>\";}).join('');"+
+   "out+=\"</div>\";out+=\"<div class='blk'><div class='blkh'>Notes</div><div style='font-size:12.5px'>\"+(r.data&&r.data.notes?esc(r.data.notes):'\u2014')+\"</div></div>\";return out;}"+
+   "function totHTML(r){var k=[['Chromic L',f(r.chromic_processed_l,0)],['CrO\u2082 rec kg',f(r.cro3_recovered_kg,1)],['Fe removed kg',f(r.fe_removed_kg,1)],['Recovery %',f(r.recovery_pct,0)],['H\u2082SO\u2084 50% kg',f(r.h2so4_50_kg,1)],['NaOH kg',f(r.naoh_100_kg,1)]];"+
+   "return \"<div class='kpis'>\"+k.map(function(p){return \"<div class='kpi'><div class='v'>\"+p[1]+\"</div><div class='l'>\"+p[0]+\"</div></div>\";}).join('')+\"</div><div class='blk'><div class='blkh'>Reminders &amp; Flags (current status)</div>\"+remCards(r)+\"</div>\";}"+
+   "function remCards(r){var ls=r._ls||{},inv=r._inv||{};"+
+   "var reuse=+ls.reuse||0,metals=reuse*5,freeAcid=Math.max(0,15-reuse*1.4),bleed=reuse>=5;"+
+   "var cwK=+ls.carwarsKg||0,cthr=+EST.carwarsThresh||15,cdue=cwK>=cthr;"+
+   "var rL=+ls.rwrsL||0,rthr=+EST.rwrsThresh||5000,rdue=rL>=rthr;"+
+   "var h2=inv['H2SO4_50']||{},hOn=+h2.on_hand_kg||0,hLo=+h2.low_limit_kg||200,hlo=hOn<=hLo;"+
+   "var na=inv['NaOH_100']||{},nOn=+na.on_hand_kg||0,nLo=+na.low_limit_kg||40,nlo=nOn<=nLo;"+
+   "var bf=+ls.bathFe||0,ceil=+EST.bathCeil||0,over=ceil>0&&bf>ceil;"+
+   "function c(cls,t,tag,b){return \"<div class='rmi \"+cls+\"'><div class='rmh'><b>\"+t+\"</b><span class='rmg \"+cls+\"'>\"+tag+\"</span></div><div class='rmb'>\"+b+\"</div></div>\";}"+
+   "return \"<div class='rems'>\"+c(bleed?'al':'ok','H\u2082SO\u2084 regenerant',bleed?'Bleed now':(reuse?'Reuse #'+reuse:'Fresh'),'Reuse #'+reuse+' \u00b7 free acid ~'+f(freeAcid,1)+'% \u00b7 metals ~'+f(metals,0)+' kg/1000 L')+"+
+   "c(cdue?'al':'ok','CARWARS anion regen',cdue?'Due':'Building','CrO\u2083 in CT3 '+f(cwK,1)+' / '+f(cthr,0)+' kg')+"+
+   "c(rdue?'al':'ok','RWRS regen',rdue?'Due':'Building','Rinse treated '+f(rL,0)+' / '+f(rthr,0)+' L')+"+
+   "c(hlo?'wn':'ok','H\u2082SO\u2084 stock',hlo?'Reorder':'OK','On hand '+f(hOn,0)+' kg (50%) \u00b7 ~'+f(+EST.h2||0,0)+' kg/regen \u00b7 alert '+f(hLo,0))+"+
+   "c(nlo?'wn':'ok','NaOH stock',nlo?'Reorder':'OK','On hand '+f(nOn,0)+' kg \u00b7 ~'+f(+EST.na||0,0)+' kg/regen \u00b7 alert '+f(nLo,0))+"+
+   "c(over?'al':'ok','Bath iron',ceil>0?(over?'Above':'In range'):'No ceiling','Bath Fe '+f(bf,1)+' g/L'+(ceil>0?' vs '+f(ceil,1):''))+\"</div>\";}"+
+   "function render(){var r=ROWS[idx];E('lhScreen').innerHTML=letterhead();"+
+   "E('cnt').textContent=(idx+1)+' / '+ROWS.length+'  \u00b7  '+(r.cycle_date||'')+' \u00b7 '+te(r)+' \u00b7 '+co(r)+' / '+lo(r)+' \u00b7 '+r.status;"+
+   "var single=ROWS.length<=1;E('prev').style.display=single?'none':'';E('next').style.display=single?'none':'';E('cnt').style.display=single?'none':'';"+
+   "E('tabs').innerHTML=[['board','Operator board'],['log','Cycle log'],['tot','Totals & flags']].map(function(t){return \"<button class='\"+(tab===t[0]?'on':'')+\"' onclick=\\\"setTab('\"+t[0]+\"')\\\">\"+t[1]+\"</button>\";}).join('');"+
    "E('body').innerHTML=tab==='board'?boardHTML(r):(tab==='log'?logHTML(r):totHTML(r));"+
-   "E('prev').disabled=idx===0;E('next').disabled=idx===ROWS.length-1;}"+
+   "if(!single){E('prev').disabled=idx===0;E('next').disabled=idx===ROWS.length-1;}}"+
    "window.setTab=function(t){tab=t;render();};"+
    "E('prev').onclick=function(){if(idx>0){idx--;render();}};E('next').onclick=function(){if(idx<ROWS.length-1){idx++;render();}};E('prn').onclick=function(){window.print();};"+
-   "E('printAll').innerHTML=ROWS.map(function(r){return \"<div class='pcard'><h4>\"+(r.cycle_date||'')+' \u00b7 '+((r.data&&r.data.train)||r.train||'')+' \u00b7 '+te(r)+' \u00b7 '+co(r)+' / '+lo(r)+' \u00b7 '+r.status+\"</h4><div class='pflds'>\"+"+
-   "[\"<div class='psec'>Readings</div>\",fl('Flow LPH',g(r,'flow',0)),fl('Conductivity',g(r,'cond')),fl('Spent Fe/Cr\u00b3\u207a',g(r,'spentFe')+' / '+g(r,'spentCr3')),\"<div class='psec'>Feed</div>\",fl('Chromic L',g(r,'feedVol',0)),fl('Feed CrO\u2083',g(r,'feedCrO3')),fl('Feed Fe/Cr\u00b3\u207a',g(r,'feedFe')+' / '+g(r,'feedCr3')),fl('Feed Cu',g(r,'feedCu')),\"<div class='psec'>Treated</div>\",fl('CT2 L',g(r,'ct2',0)),fl('Treated CrO\u2083',g(r,'treatCrO3')),fl('Treated Fe/Cr\u00b3\u207a',g(r,'treatFeL')+' / '+g(r,'treatCr3L')),\"<div class='psec'>Regeneration</div>\",fl('CARS H\u2082SO\u2084',g(r,'carsPct')+'% \u00b7 '+g(r,'carsVol',0)+'L'),fl('CARWARS anion',g(r,'cwAnPct')+'% \u00b7 '+g(r,'cwAnVol',0)+'L'),fl('RWRS cation',g(r,'rwCatPct')+'% \u00b7 '+g(r,'rwCatVol',0)+'L'),\"<div class='psec'>Totals</div>\",fl('Chromic L',f(r.chromic_processed_l,0)),fl('CrO\u2083 rec kg',f(r.cro3_recovered_kg,1)),fl('Fe rem kg',f(r.fe_removed_kg,1)),fl('Recovery %',f(r.recovery_pct,0)),fl('H\u2082SO\u2084 50% kg',f(r.h2so4_50_kg,1)),fl('NaOH kg',f(r.naoh_100_kg,1))].join('')"+
-   "+\"</div></div>\";}).join('');"+
+   "E('printAll').innerHTML=letterhead()+ROWS.map(function(r){return \"<div class='pcard'><h4>\"+(r.cycle_date||'')+' \u00b7 '+((r.data&&r.data.train)||r.train||'')+' \u00b7 '+te(r)+' \u00b7 '+co(r)+' / '+lo(r)+' \u00b7 '+r.status+\"</h4><div class='pflds'>\"+"+
+   "[\"<div class='psec'>Readings</div>\",fl('Flow LPH',g(r,'flow',0)),fl('Conductivity',g(r,'cond')),fl('Spent Fe/Cr\u00b3\u207a',g(r,'spentFe')+' / '+g(r,'spentCr3')),fl('Completed',dt(r.completed_at)),\"<div class='psec'>Feed</div>\",fl('Chromic L',g(r,'feedVol',0)),fl('Feed CrO\u2083',g(r,'feedCrO3')),fl('Feed Fe/Cr\u00b3\u207a',g(r,'feedFe')+' / '+g(r,'feedCr3')),fl('Feed Cu',g(r,'feedCu')),\"<div class='psec'>Treated</div>\",fl('CT2 L',g(r,'ct2',0)),fl('Treated CrO\u2083',g(r,'treatCrO3')),fl('Treated Fe/Cr\u00b3\u207a',g(r,'treatFeL')+' / '+g(r,'treatCr3L')),\"<div class='psec'>Regeneration</div>\",fl('CARS H\u2082SO\u2084',g(r,'carsPct')+'% \u00b7 '+g(r,'carsVol',0)+'L'),fl('CARWARS anion',g(r,'cwAnPct')+'% \u00b7 '+g(r,'cwAnVol',0)+'L'),fl('RWRS cation',g(r,'rwCatPct')+'% \u00b7 '+g(r,'rwCatVol',0)+'L'),\"<div class='psec'>Totals</div>\",fl('Chromic L',f(r.chromic_processed_l,0)),fl('CrO\u2083 rec kg',f(r.cro3_recovered_kg,1)),fl('Fe rem kg',f(r.fe_removed_kg,1)),fl('Recovery %',f(r.recovery_pct,0)),fl('H\u2082SO\u2084 50% kg',f(r.h2so4_50_kg,1)),fl('NaOH kg',f(r.naoh_100_kg,1))].join('')"+
+   "+\"</div><div class='psec' style='color:#c9640a'>Reminders &amp; Flags</div>\"+remCards(r)+(r.data&&r.data.notes?\"<div class='pnote'><b>Notes:</b> \"+esc(r.data.notes)+\"</div>\":'')+\"</div>\";}).join('');"+
    "render();"+
    "<\/scr"+"ipt></body></html>";
   return doc;
 }
 function htmlReport(rows,from,to,print){
   if(!rows||!rows.length){toast('No cycles to show');return;}
-  var w=window.open('','_blank');var meta={from:from,to:to,logo:(location.origin||'')+'/pmpl-logo.jpg'};
-  w.document.write(reportDoc(rows,meta));w.document.close();
-  if(print)setTimeout(function(){try{w.print();}catch(e){}},500);
+  var est={h2:h2PerRegen50(),na:naPerCarwars(),carwarsThresh:SETTINGS.carwarsThreshKg,rwrsThresh:SETTINGS.rwrsThreshL,bathCeil:SETTINGS.bathCeilingFe};
+  var meta={from:from,to:to,logo:(location.origin||'')+'/pmpl-logo.jpg',est:est};
+  var md=el('div','modal');md.style.cssText='padding:0;align-items:stretch;justify-content:stretch;z-index:70';
+  var box=el('div');box.style.cssText='background:#eef1f5;width:100%;height:100%;display:flex;flex-direction:column';
+  var bar=el('div');bar.style.cssText='display:flex;align-items:center;gap:10px;background:#10141d;color:#fff;padding:10px 16px;flex:none';
+  bar.innerHTML='<b style="font-size:14px">CARS cycle report</b><span style="font-size:12px;color:#9fbfae">'+rows.length+' cycle(s)</span>';
+  var sp=el('div');sp.style.flex='1';bar.appendChild(sp);
+  var bPrint=el('button','btn sm','Print');bPrint.style.cssText='background:#f2820c;color:#1a1206';
+  var bClose=el('button','btn sm g','✕ Close');
+  bar.append(bPrint,bClose);box.appendChild(bar);
+  var ifr=document.createElement('iframe');ifr.style.cssText='flex:1;border:0;width:100%;background:#eef1f5';ifr.setAttribute('title','CARS report');ifr.srcdoc=reportDoc(rows,meta);box.appendChild(ifr);
+  md.appendChild(box);document.body.appendChild(md);
+  function close(){md.remove();document.removeEventListener('keydown',onKey);}
+  function onKey(e){if(e.key==='Escape')close();}
+  document.addEventListener('keydown',onKey);
+  bClose.onclick=close;
+  bPrint.onclick=function(){try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){window.print();}};
+  if(print)ifr.addEventListener('load',function(){setTimeout(function(){try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){}},350);});
 }
 function excelExport(rows,from,to){
   const detail=rows.map(r=>{const d=r.data||{};const base={Date:r.cycle_date,Technician:rTech(r),Company:rCo(r),Location:rLoc(r),Train:r.train,Status:r.status,
