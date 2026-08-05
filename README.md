@@ -1,60 +1,37 @@
-# CARS cloud app — deployment guide
-© Polyfill Microns Pvt. Ltd.
-
-## Files in this package (put all of them in the ROOT of the `pmpl` repo)
-- index.html — the application
-- config.js — public Supabase URL + anon key (safe to publish)
-- manifest.webmanifest, sw.js — PWA (installable, offline shell)
-- icon-192.png, icon-512.png — app icons
-- CNAME — custom domain (service.polyfillmicrons.in)
-
-## 1. Publish on GitHub Pages
-1. Upload/commit these files to the `pmpl` repository, in the root folder.
-2. Repo → Settings → Pages → Build and deployment → Source: "Deploy from a branch".
-3. Branch: `main` (or `master`), folder `/ (root)` → Save.
-4. The CNAME file already sets the custom domain to service.polyfillmicrons.in.
-   Under Settings → Pages you should see it; tick "Enforce HTTPS" once the
-   certificate is issued (can take a few minutes to an hour).
-
-## 2. DNS (at your domain provider for polyfillmicrons.in)
-Add ONE record:
-- Type: CNAME
-- Host/Name: `service`
-- Value/Target: `<your-github-username>.github.io`
-(Send me your GitHub username and I'll confirm the exact target.)
-
-## 3. First sign-in (admin)
-- URL: https://service.polyfillmicrons.in
-- Email: polyfillmicrons@outlook.com
-- Temporary password: Polyfill@2026
-Change this password soon (Supabase dashboard → Authentication → Users, or ask me
-to add an in-app "change password" button — a small addition).
-
-## 4. Add technicians (as admin)
-Technicians tab → enter name, email, a temporary password, company and location →
-Create. Deactivate/Activate from the same list controls their access instantly.
-Each technician only ever sees their own cycles; their name/company/location are
-stamped on every cycle automatically.
-
-## 5. Company, stock, settings (as admin)
-- Company & stock: edit company name/address; set real on-hand kg and low-stock
-  alert levels. Completing a cycle auto-deducts the H2SO4 (50%) and NaOH (100%) used.
-- Settings: adjust setpoints and the H2SO4/NaOH density tables per company.
-
-## Notes
-- All data lives in your Supabase project; the site holds only the public anon key.
-- Completed cycles are locked (no edit/delete) at the database level.
-- The app works as an installable PWA: open the URL in Chrome → "Add to Home screen".
-
-## v2 update — what changed
-- Branding: Polyfill Microns Pvt Ltd + logo shown in the header (right) and login.
-  The logo is `logo.svg` — replace that one file with your real artwork (same name) to swap it everywhere.
-- Technician dashboard fully restored: 9-step rail with per-step targets and operator
-  action cues, live readings, tank board, full cycle log, calculations, validations, workflow.
-- Reports now include every field/reading; HTML report reproduces the dashboard layout
-  (Live readings / Feed / Treated / Regeneration / Tanks / Totals). Excel = all fields.
-  Print/PDF and JSON retained.
-- Admin: Technicians (add / edit / activate-deactivate / delete-with-guard),
-  Locations (add / rename / activate / delete), Companies (add / edit / delete) with
-  each company keeping its own stock and settings.
-- To pick up v2 on an already-installed phone: reopen the app (service worker cache bumped to v2).
+CARS Cloud App — deploy
+Push the contents of this zip to the pmpl GitHub repo (root), keeping the
+custom domain `service.polyfillmicrons.in`. Files: index.html, config.js,
+pmpl-logo.jpg, icon-192.png, icon-512.png, manifest.webmanifest, sw.js, CNAME.
+The service worker cache is cars-cloud-v4 — phones/PWA installs will pull
+the new build on next open (may take one refresh).
+What changed in this build (admin + login batch)
+Company = Company name + Location (no Address). One company → many locations;
+a location name can recur across companies. (Company + Location) is unique.
+Locations are managed inside Companies & stock (separate Locations tab removed).
+Add a company with one or more locations, edit associations, add/remove locations,
+deactivate/delete with safeguards. Company & location fields have generic
+autocomplete (Indian industrial towns + existing companies) and accept new values.
+Technicians now log in with Username + Password. Optional contact email is
+profile-only (not used for login). Internally the username maps to
+`<username>@pmpl.local` for auth.
+Deleting a technician or company that has historical cycles is blocked with a
+clear message recommending Deactivate; history keeps its original
+technician/company/location (snapshotted on each cycle).
+Reports: filter by Technician / Company / Location (combined), sort key columns,
+click a row to open a locked, read-only dashboard of that cycle (Operator board /
+Cycle log / Totals tabs). The HTML report is cumulative with Prev / Next.
+Print/PDF: fixed the blank first page on Letter and uses an efficient multi-column
+layout (fields side-by-side, no wasted right margin).
+Switching browser tabs and back keeps you on the same screen. Closing the browser
+logs you out (session storage); reopening requires login.
+Sign-out button has a subtle hover effect.
+Settings: Default (all companies) is the first option and applies globally;
+pick a company to save an override just for it. Override can be removed to fall
+back to Default.
+Tank level entry uses an in-app modal (no browser `prompt()`); dashboard fields,
+tabs and calculations refresh immediately on change.
+Authorised PMPL logo used on login, header and reports; PWA icons regenerated.
+Backend: Supabase migrations applied (username/email_contact, company active flag,
+single global-default settings, location_state); Edge Function `manage-technician`
+updated to v6 (username auth). Optional: enable "leaked password protection" in
+Supabase Auth settings.
