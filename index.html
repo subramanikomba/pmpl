@@ -44,7 +44,17 @@ header{background:var(--panel);color:var(--ink);padding:10px 16px;display:flex;a
 .brandR img{width:34px;height:34px}
 .brandR .bt{line-height:1.15;text-align:right}.brandR .bt b{font-size:13px}.brandR .bt span{display:block;font-size:9.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.5px}
 .who{text-align:right;font-size:11.5px;color:var(--ink-dim);line-height:1.25}.who b{color:var(--ink);display:block}
-.ghost{background:var(--panel2);color:var(--ink-dim);border:1px solid var(--line-d);padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600}
+.ghost{background:var(--panel2);color:var(--ink-dim);border:1px solid var(--line-d);padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;transition:background .15s,color .15s,border-color .15s}
+.ghost:hover{background:var(--panel3);color:var(--ink);border-color:var(--acid)}
+.modal input,.modal select,.modal textarea{width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;font-family:'IBM Plex Mono',monospace}
+.modal input:focus,.modal select:focus{outline:none;border-color:var(--acid)}
+.modal .err{color:var(--alarm);font-size:12px;min-height:15px;margin-top:6px}
+th.sortable{cursor:pointer;user-select:none}th.sortable:hover{color:var(--acid-deep)}th .ar{font-size:9px;opacity:.7;margin-left:2px}
+.locrow{display:flex;gap:7px;align-items:center;margin-bottom:6px}.locrow input{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#eef1f4;border-radius:15px;padding:4px 7px 4px 11px;font-size:12px;margin:4px 5px 0 0}
+.chip button{border:0;background:#d9dee5;color:#556;border-radius:50%;width:18px;height:18px;line-height:16px;cursor:pointer;font-size:12px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:10px 0}
+.filters .f{min-width:150px}
 nav.tabs{background:var(--panel2);display:flex;gap:4px;padding:6px 12px;overflow-x:auto}
 nav.tabs button{background:transparent;border:0;color:var(--ink-dim);padding:8px 14px;border-radius:7px;font-weight:600;font-size:13px;white-space:nowrap}
 nav.tabs button.on{background:var(--acid);color:#1a1206}
@@ -142,11 +152,11 @@ footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-
 
 <div id="login">
   <div class="lcard">
-    <img src="logo.svg" alt="Polyfill Microns">
+    <img src="pmpl-logo.jpg" alt="Polyfill Microns" style="border-radius:50%">
     <div class="lbrand">Polyfill Microns Pvt. Ltd.</div>
     <h1>CARS Operator Portal</h1>
     <div class="sub">Chromic Acid Recycling · sign in to continue</div>
-    <label>Email</label><input id="liEmail" type="email" autocomplete="username">
+    <label>Username</label><input id="liEmail" type="text" autocomplete="username" placeholder="username (admins: your email)">
     <label>Password</label><input id="liPass" type="password" autocomplete="current-password">
     <button class="lbtn" id="liBtn">Sign in</button>
     <div class="lerr" id="liErr"></div>
@@ -158,7 +168,7 @@ footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-
     <div class="ctx"><div class="c1" id="hCtx1">CARS</div><div class="c2" id="hCtx2"></div></div>
     <div class="who"><b id="hName">—</b><span id="hRole"></span></div>
     <div class="sp"></div>
-    <div class="brandR"><img src="logo.svg" alt="Polyfill Microns"><div class="bt"><b>Polyfill Microns Pvt Ltd</b><span>Recycling &amp; pollution control</span></div></div>
+    <div class="brandR"><img src="pmpl-logo.jpg" alt="Polyfill Microns" style="border-radius:50%"><div class="bt"><b>Polyfill Microns Pvt Ltd</b><span>Recycling &amp; pollution control</span></div></div>
     <button class="ghost" id="hOut">Sign out</button>
   </header>
   <nav class="tabs" id="tabs"></nav>
@@ -171,7 +181,7 @@ footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const CFG = window.CARS_CONFIG;
-const sb = createClient(CFG.url, CFG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true } });
+const sb = createClient(CFG.url, CFG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true, storage: window.sessionStorage } });
 
 const $=s=>document.querySelector(s);
 const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
@@ -187,6 +197,8 @@ const DEFAULTS={
   diluteCutL:150, ct2TargetL:500, ct2TargetCrO3:220,
   regenBV:2, regenPct:15, condUnit:'mS/cm', chromeRinseCond:5, h2so4RinseCond:8,
   bathCeilingFe:0, acidStockPct:50,
+  carwarsThreshKg:15, carwarsCat1L:100, carwarsAnionL:250, carwarsCat2L:250,
+  rwrsThreshL:5000, rwrsCationL:100, rwrsAnionL:200, rinseToWT1PerCycle:500, carwarsNaOHpct:13,
   h2so4_density:[[5,1.032],[10,1.066],[15,1.102],[20,1.139],[25,1.178],[30,1.219],[35,1.260],[40,1.303],[50,1.395]],
   naoh_density:[[5,1.054],[10,1.109],[15,1.164],[20,1.219],[25,1.274],[30,1.328],[40,1.430],[50,1.525]],
   tankCaps:{CT1A:1000,CT1B:1000,CT2A:1000,CT2B:1000,CT3:3000,CT4:1000,WT1:3000,DM:2000,H2:1000,SP:1000}
@@ -207,7 +219,7 @@ const STEPS=[
  {m:'H₂SO₄ rinse',d:'sulphate → WT1',ep:'cond',route:'Outlet → WT1',sp:'h2so4RinseCond'},
  {m:'Void drain',d:'air purge',ep:'manual',route:'Column emptying'}];
 
-let ME=null, SETTINGS=Object.assign({},DEFAULTS), CUR=null, INV=[];
+let ME=null, SETTINGS=Object.assign({},DEFAULTS), CUR=null, INV=[], LS={}, REF={};
 
 function rho(tb,c){if(!c)return 1;const t=(tb||[]).slice().sort((a,b)=>a[0]-b[0]);if(!t.length)return 1;
  if(c<=t[0][0])return t[0][1];if(c>=t[t.length-1][0])return t[t.length-1][1];
@@ -219,28 +231,32 @@ const naoh_100=(c,v)=>(c>0&&v>0)?v*rho(SETTINGS.naoh_density,c)*(c/100):0;
 $('#liBtn').onclick=doLogin;
 $('#liPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 async function doLogin(){
-  const email=$('#liEmail').value.trim(),password=$('#liPass').value;
+  const raw=$('#liEmail').value.trim(),password=$('#liPass').value;
+  const email=raw.includes('@')?raw:(raw.toLowerCase()+'@pmpl.local');
   $('#liErr').textContent='';$('#liBtn').disabled=true;$('#liBtn').textContent='Signing in…';
   const {error}=await sb.auth.signInWithPassword({email,password});
   $('#liBtn').disabled=false;$('#liBtn').textContent='Sign in';
-  if(error)$('#liErr').textContent=error.message||'Sign-in failed';
+  if(error)$('#liErr').textContent=(raw.includes('@')?'':'Check your username and password. ')+(error.message||'Sign-in failed');
 }
 $('#hOut').onclick=async()=>{
   if(CUR&&CUR.id&&CUR.status==='draft'){const g=await confirmComplete();if(g==='cancel')return;if(g==='complete'){await saveCurrent(true);}else{await saveCurrent(false);}}
   await sb.auth.signOut();
 };
 sb.auth.onAuthStateChange(async(_e,session)=>{
-  if(session&&session.user){await boot(session.user);}
+  if(session&&session.user){ if(ME&&ME.id===session.user.id) return; await boot(session.user); }
   else{$('#app').classList.add('hide');$('#login').classList.remove('hide');ME=null;CUR=null;}
 });
 async function boot(user){
-  const {data:prof,error}=await sb.from('profiles').select('id,full_name,role,active,client_id,location_id,clients(name,address),locations(name)').eq('id',user.id).single();
+  const {data:prof,error}=await sb.from('profiles').select('id,full_name,role,active,client_id,location_id,clients(name),locations(name)').eq('id',user.id).single();
   if(error||!prof){$('#liErr').textContent='Profile not found. Contact admin.';await sb.auth.signOut();return;}
   if(!prof.active){$('#liErr').textContent='Your account is deactivated. Contact admin.';await sb.auth.signOut();return;}
   ME={id:prof.id,role:prof.role,name:prof.full_name||user.email,email:user.email,client_id:prof.client_id,location_id:prof.location_id,
-      clientName:prof.clients?.name||'',clientAddress:prof.clients?.address||'',locationName:prof.locations?.name||''};
-  if(ME.client_id){const {data:s}=await sb.from('settings').select('data').eq('client_id',ME.client_id).maybeSingle();SETTINGS=Object.assign({},DEFAULTS,s?.data||{});
-    const {data:inv}=await sb.from('inventory').select('*').eq('client_id',ME.client_id).eq('location_id',ME.location_id);INV=inv||[];}
+      clientName:prof.clients?.name||'',locationName:prof.locations?.name||''};
+  {const {data:gs}=await sb.from('settings').select('data').is('client_id',null).maybeSingle();
+   let cs=null; if(ME.client_id){const r=await sb.from('settings').select('data').eq('client_id',ME.client_id).maybeSingle();cs=r.data;}
+   SETTINGS=Object.assign({},DEFAULTS,gs?.data||{},cs?.data||{});}
+  if(ME.client_id){const {data:inv}=await sb.from('inventory').select('*').eq('client_id',ME.client_id).eq('location_id',ME.location_id);INV=inv||[];
+    if(ME.location_id){const {data:st}=await sb.from('location_state').select('data').eq('location_id',ME.location_id).maybeSingle();LS=st?.data||{};}}
   $('#login').classList.add('hide');$('#app').classList.remove('hide');
   $('#hCtx1').textContent=ME.role==='admin'?'Administrator':(ME.clientName||'CARS');
   $('#hCtx2').textContent=ME.role==='admin'?'Console':(ME.locationName||'');
@@ -250,203 +266,253 @@ async function boot(user){
 }
 function buildTabs(){
   const tabs=ME.role==='admin'
-    ?[['reports','Reports'],['techs','Technicians'],['locations','Locations'],['company','Companies & stock'],['settings','Settings']]
+    ?[['reports','Reports'],['techs','Technicians'],['company','Companies & stock'],['settings','Settings']]
     :[['cycle','Current cycle'],['mine','My cycles']];
   const nav=$('#tabs');nav.innerHTML='';
-  tabs.forEach(([k,l],i)=>{const b=el('button',null,l);b.onclick=()=>go(k,b);nav.appendChild(b);if(i===0)b.classList.add('on');});
-  go(tabs[0][0],nav.firstChild);
+  const last=sessionStorage.getItem('cars_tab');let si=tabs.findIndex(t=>t[0]===last);if(si<0)si=0;
+  tabs.forEach(([k,l])=>{const b=el('button',null,l);b.onclick=()=>go(k,b);nav.appendChild(b);});
+  go(tabs[si][0],nav.children[si]);
 }
 function go(tab,btn){document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
+  try{sessionStorage.setItem('cars_tab',tab);}catch(e){}
   const m=$('#main');m.innerHTML='';
-  ({cycle:screenCycle,mine:screenMine,reports:screenReports,techs:screenTechs,locations:screenLocations,company:screenCompany,settings:screenSettings})[tab](m);}
+  ({cycle:screenCycle,mine:screenMine,reports:screenReports,techs:screenTechs,company:screenCompany,settings:screenSettings})[tab](m);}
 
 /* ---- technician: dashboard cycle ---- */
 function blankData(){return{train:'Etching',step:0,cycle_date:today(),
  flow:'',vol:'',cond:'',spentFe:'',spentCr3:'',treatFe:'',treatCr3:'',
  feedVol:'',feedCrO3:'',feedFe:'',feedCr3:'',feedCu:'',ct2:'',treatCrO3:'',treatFeL:'',treatCr3L:'',treatCu:'',
  carsPct:'',carsVol:'',recyc:'',cw1Pct:'',cw1Vol:'',cwAnPct:'',cwAnVol:'',cw2Pct:'',cw2Vol:'',rwCatPct:'',rwCatVol:'',rwAnPct:'',rwAnVol:'',
- bathFe:'',reuseCount:'',notes:'',tanks:{}};}
+ notes:'',tanks:{}};}
 async function screenCycle(m){
   if(!CUR){const {data}=await sb.from('cars_cycles').select('*').eq('technician_id',ME.id).eq('status','draft').order('updated_at',{ascending:false}).limit(1);
     CUR=(data&&data.length)?{id:data[0].id,status:'draft',data:Object.assign(blankData(),data[0].data||{})}:{id:null,status:'draft',data:blankData()};}
   renderCycle(m);
 }
 function cd(){return CUR.data;}
-function impurity(){const v=num(cd().spentFe)+num(cd().spentCr3);return v||(SETTINGS.feedFe+SETTINGS.feedCr3);}
-function feedTarget(){const i=impurity();return i>0?SETTINGS.workingCapKg*1000/i:0;}
-function stepTarget(i){const c=SETTINGS,s=STEPS[i];switch(s.ep){case'feed':return feedTarget();case'dilute':return c.diluteCutL;case'ct2':return c.ct2TargetL;case'void':return c.voidL;case'regen':return c.regenBV*c.bedL;default:return c.bedL;}}
+function impurity(){var v=num(cd().spentFe)+num(cd().spentCr3);return v||(SETTINGS.feedFe+SETTINGS.feedCr3);}
+function feedTarget(){var i=impurity();return i>0?SETTINGS.workingCapKg*1000/i:0;}
+function stepTarget(i){var s=STEPS[i];switch(s.ep){case'feed':return feedTarget();case'dilute':return SETTINGS.diluteCutL;case'ct2':return SETTINGS.ct2TargetL;case'void':return SETTINGS.voidL;case'regen':return SETTINGS.regenBV*SETTINGS.bedL;default:return SETTINGS.bedL;}}
+
+function ddField(label,key,unit,cross){var w=el('div','fieldd');w.appendChild(el('label',null,label));
+  var i=document.createElement('input');i.className='mono';i.value=cd()[key]||'';i.addEventListener('input',function(){cd()[key]=i.value;if(cross)cross(i.value);syncImp();paint();totals();});
+  w.appendChild(i);if(unit)w.appendChild(el('span','u',unit));REF['lv_'+key]=i;return w;}
+function impCol(title,keys,totId,hint){var c=el('div','impc');c.innerHTML='<span class="it">'+title+'</span>';
+  var r=el('div','improw'),labels=['Fe','Cr³⁺'];
+  keys.forEach(function(k,idx){if(idx)r.appendChild(document.createTextNode(' + '));r.appendChild(document.createTextNode(labels[idx]+' '));
+    var i=document.createElement('input');i.className='simp';i.value=cd()[k]||'';i.addEventListener('input',function(){cd()[k]=i.value;liveCross(k,i.value);syncImp();paint();totals();});r.appendChild(i);});
+  r.appendChild(document.createTextNode(' = '));var t=el('span','imptot');t.id=totId;r.appendChild(t);
+  c.appendChild(r);c.appendChild(el('div',null,'<small style="color:var(--ink-faint);font-size:10px">'+hint+'</small>'));return c;}
+function liveCross(k,v){var d=cd();
+  if(k==='spentFe'){d.feedFe=v;if(REF.feedFe)REF.feedFe.value=v;}
+  else if(k==='spentCr3'){d.feedCr3=v;if(REF.feedCr3)REF.feedCr3.value=v;}
+  else if(k==='treatFe'){d.treatFeL=v;if(REF.treatFeL)REF.treatFeL.value=v;}
+  else if(k==='treatCr3'){d.treatCr3L=v;if(REF.treatCr3L)REF.treatCr3L.value=v;}}
+function logField(label,key,opt){opt=opt||{};var w=el('div','f');var lb=el('label',null,label+(opt.auto?' <span style="color:var(--acid-deep);font-weight:700;font-size:9px;letter-spacing:.3px;margin-left:5px;text-transform:uppercase">auto</span>':''));w.appendChild(lb);
+  var i=document.createElement('input');i.className='mono';if(opt.auto)i.style.cssText='background:#fff5ec;border-color:#f3c79b;color:var(--acid-deep);font-weight:600';if(opt.ro){i.readOnly=true;}i.value=(cd()[key]!=null?cd()[key]:'');
+  if(!opt.ro)i.addEventListener('input',function(){cd()[key]=i.value;totals();});REF[key]=i;w.appendChild(i);return w;}
+function acidCalc(parent,label,pk,vk,type){parent.appendChild(logField(label+' — conc (%)',pk));parent.appendChild(logField(label+' — vol (L)',vk));
+  var w=el('div','f');w.appendChild(el('label',null,label+' — qty (kg) <span style="color:var(--acid-deep);font-weight:700;font-size:9px;margin-left:5px;text-transform:uppercase">auto</span>'));
+  var i=document.createElement('input');i.className='mono';i.readOnly=true;i.setAttribute('data-calc',type+'|'+pk+'|'+vk);w.appendChild(i);parent.appendChild(w);}
+
 function renderCycle(m){
-  const d=cd();
-  m.appendChild(el('div','note',(CUR.id?'<span class="pill draft">Draft</span> saved cycle in progress':'New cycle — press Save to start the draft')+` · <b>${esc(ME.name)}</b> · ${esc(ME.clientName)} / ${esc(ME.locationName)}`));
-  // board
-  const b=el('div','board');
-  const ts=el('div','trainsel');['Etching','Plating'].forEach(tr=>{const bb=el('button',d.train===tr?'on':'',tr);bb.onclick=()=>{d.train=tr;renderCycle(m);};ts.appendChild(bb);});
+  REF={};var d=cd();
+  m.appendChild(el('div','note',(CUR.id?'<span class="pill draft">Draft</span> saved cycle in progress':'New cycle — press Save to start the draft')+' · <b>'+esc(ME.name)+'</b> · '+esc(ME.clientName)+' / '+esc(ME.locationName)));
+  var b=el('div','board');
+  var ts=el('div','trainsel');['Etching','Plating'].forEach(function(tr){var bb=el('button',d.train===tr?'on':'',tr);bb.onclick=function(){d.train=tr;Array.prototype.forEach.call(ts.children,function(c){c.className=c.textContent===tr?'on':'';});if(REF.train)REF.train.value=tr;};ts.appendChild(bb);});
   b.appendChild(el('h3',null,'CARS cycle — '+esc(d.train)));b.appendChild(ts);
-  // rail
-  const rail=el('div','rail');
-  STEPS.forEach((s,i)=>{const st=el('div','step '+(i<d.step?'done':'')+(i===d.step?' active':''),`<div class="n">${String(i+1).padStart(2,'0')}</div><div class="m">${s.m}</div><div class="d">${s.d}</div>`);st.onclick=()=>{d.step=i;renderCycle(m);};rail.appendChild(st);});
+  var rail=el('div','rail');rail.id='cyRail';
+  STEPS.forEach(function(s,i){var e=el('div','step','<div class="n">'+String(i+1).padStart(2,'0')+'</div><div class="m">'+s.m+'</div><div class="d">'+s.d+'</div>');e.onclick=function(){d.step=i;paint();};rail.appendChild(e);});
   b.appendChild(rail);
-  const rn=el('div','railnav');
-  const bp=el('button','np','‹ Previous');bp.onclick=()=>{d.step=Math.max(0,d.step-1);renderCycle(m);};
-  const bnx=el('button','nn','Advance step ›');bnx.onclick=()=>{d.step=Math.min(STEPS.length-1,d.step+1);renderCycle(m);};
-  rn.append(bp,bnx,el('span','rl',`Step ${d.step+1} of ${STEPS.length} · ${STEPS[d.step].route}`));b.appendChild(rn);
-  // readings + cue
-  const rg=el('div','rgrid');
-  const rc1=el('div','rc');rc1.innerHTML='<div class="t">Live readings — this step</div>';
-  const ir=el('div','inrow');
-  ir.appendChild(ddField('Flow (LPH)','flow',()=>upd(),`target <b id="tFlow">${fmt(d.step===5?SETTINGS.regenFlowLPH:SETTINGS.feedFlowLPH,0)}</b>`));
-  ir.appendChild(ddField('Volume this step','vol',()=>upd(),`target <b id="tVol">—</b>`));
-  ir.appendChild(ddField('Outlet conductivity','cond',()=>upd(),SETTINGS.condUnit));
+  var rn=el('div','railnav');
+  var bp=el('button','np','‹ Previous');bp.onclick=function(){d.step=Math.max(0,d.step-1);paint();};
+  var bnx=el('button','nn','Advance step ›');bnx.onclick=function(){d.step=Math.min(STEPS.length-1,d.step+1);paint();};
+  rn.appendChild(bp);rn.appendChild(bnx);rn.appendChild(el('span','rl','','cyHint'));rn.lastChild.id='cyHint';b.appendChild(rn);
+  var rg=el('div','rgrid');
+  var rc1=el('div','rc');rc1.innerHTML='<div class="t">Live readings — this step</div>';
+  var ir=el('div','inrow');
+  ir.appendChild(ddField('Flow (LPH)','flow','target <b id="tFlow">—</b>'));
+  ir.appendChild(ddField('Volume this step','vol','L · target <b id="tVol">—</b> · → Chromic processed',function(v){cd().feedVol=v;if(REF.feedVol)REF.feedVol.value=v;}));
+  ir.appendChild(ddField('Outlet conductivity','cond',SETTINGS.condUnit));
   rc1.appendChild(ir);
-  const ib=el('div','impb');
-  ib.appendChild(impCol('Spent acid impurity',['spentFe','spentCr3'],'spentImp','Fe + Cr³⁺ sizes the feed batch'));
-  ib.appendChild(impCol('Treated acid impurity',['treatFe','treatCr3'],'treatImp','measured in CT2 recovered acid'));
+  var ib=el('div','impb');
+  ib.appendChild(impCol('Spent acid impurity → Feed',['spentFe','spentCr3'],'spentImp','Fe + Cr³⁺ auto-fills Feed Fe/Cr³⁺ and sizes the batch'));
+  ib.appendChild(impCol('Treated acid impurity → Treated',['treatFe','treatCr3'],'treatImp','auto-fills Treated Fe/Cr³⁺ in the log'));
   rc1.appendChild(ib);
   rc1.appendChild(el('div','prog','<div class="pl"><span id="progName">Progress</span><span class="mono" id="progTxt">0 / 0 L</span></div><div class="pbar"><i id="progBar" style="width:0%"></i></div>'));
-  const rc2=el('div','rc');rc2.innerHTML='<div class="t">Operator action</div><div class="cue" id="cue"><span class="dot"></span><div><b id="cueT">—</b><span id="cueS"></span></div></div>';
-  rg.append(rc1,rc2);b.appendChild(rg);
-  // tanks
+  var rc2=el('div','rc');rc2.innerHTML='<div class="t">Operator action</div><div class="cue" id="cue"><span class="dot"></span><div><b id="cueT">—</b><span id="cueS"></span></div></div>'+
+    '<div class="legend"><span class="lg go"><i></i> Green — proceed / on track</span><span class="lg stop"><i></i> Red — stop, endpoint reached</span><span class="lg hold"><i></i> Amber — manual step / hold</span></div>';
+  rg.appendChild(rc1);rg.appendChild(rc2);b.appendChild(rg);
   b.appendChild(el('h3',null,'Tank board — tap a tank to set level'));
-  const tk=el('div','tanks');
-  TANKS.forEach(([k,desc,color])=>{const cap=SETTINGS.tankCaps[k]||1000,lvl=num(d.tanks[k]),pct=cap>0?Math.min(100,lvl/cap*100):0;
-    const flag=pct>=95?'<span class="tflag hi">HIGH</span>':(pct<=5&&lvl>0?'<span class="tflag lo">LOW</span>':'');
-    const t=el('div','tank',`${flag}<div class="tk">${k==='H2'?'H₂SO₄':(k==='SP'?'Spent H₂SO₄':k)}</div><div class="td">${desc}</div><div class="tvis"><i style="height:${pct}%;background:${color}"></i></div><div class="tval"><b>${fmt(lvl,0)}</b> / ${fmt(cap,0)} L</div>`);
-    t.onclick=()=>{const v=prompt(`${k} — ${desc}\nLevel (L), capacity ${cap}:`,lvl);if(v!==null){d.tanks[k]=Math.max(0,Math.min(cap,num(v)));renderCycle(m);}};
-    tk.appendChild(t);});
-  b.appendChild(tk);
+  var tk=el('div','tanks');tk.id='cyTanks';b.appendChild(tk);
   m.appendChild(b);
-  // log card
-  const lc=el('div','card');lc.innerHTML='<h2>Cycle log</h2>';
-  const lg=el('div','grid g3');
-  add(lg,'sec','Header');
-  lg.appendChild(field('Cycle date',inp2('date','cycle_date')));
-  lg.appendChild(field('Train',sel2(['Etching','Plating'],'train')));
-  lg.appendChild(field('Chromic acid processed (L)',inp2('number','feedVol','auto from impurity')));
-  add(lg,'sec','Feed (spent) — chromic acid &amp; impurities');
-  lg.appendChild(field('Feed CrO₃ (g/L)',inp2('number','feedCrO3')));
-  lg.appendChild(field('Feed Fe (g/L)',inp2('number','feedFe','from live reading')));
-  lg.appendChild(field('Feed Cr³⁺ (g/L)',inp2('number','feedCr3','from live reading')));
-  lg.appendChild(field('Feed Cu (g/L)',inp2('number','feedCu')));
-  add(lg,'sec','Treated (CT2)');
-  lg.appendChild(field('CT2 recovered (L)',inp2('number','ct2')));
-  lg.appendChild(field('Treated CrO₃ (g/L)',inp2('number','treatCrO3')));
-  lg.appendChild(field('Treated Cu (g/L)',inp2('number','treatCu')));
-  lg.appendChild(field('Treated Fe (g/L)',inp2('number','treatFeL','from live reading')));
-  lg.appendChild(field('Treated Cr³⁺ (g/L)',inp2('number','treatCr3L','from live reading')));
-  add(lg,'sec','CARS regeneration — H₂SO₄ <em>(qty auto = 50% stock)</em>');
-  acidTriple(lg,'CARS H₂SO₄','carsPct','carsVol','h2so4');
-  lg.appendChild(field('H₂SO₄ recycled this cycle (L)',inp2('number','recyc')));
-  add(lg,'sec','CARWARS regeneration <em>(blank if not done)</em>');
-  acidTriple(lg,'Cation-1 H₂SO₄','cw1Pct','cw1Vol','h2so4');
-  acidTriple(lg,'Anion NaOH','cwAnPct','cwAnVol','naoh');
-  acidTriple(lg,'Cation-2 H₂SO₄','cw2Pct','cw2Vol','h2so4');
-  add(lg,'sec','RWRS regeneration <em>(blank if not done)</em>');
-  acidTriple(lg,'Cation H₂SO₄','rwCatPct','rwCatVol','h2so4');
-  acidTriple(lg,'WBA anion NaOH','rwAnPct','rwAnVol','naoh');
-  add(lg,'sec','Other');
-  lg.appendChild(field('Bath Fe (g/L)',inp2('number','bathFe')));
-  lg.appendChild(field('H₂SO₄ regenerant reuse #',inp2('number','reuseCount')));
-  const nf=field('Observations / notes',inp2('text','notes'));nf.style.gridColumn='span 3';lg.appendChild(nf);
+  var lc=el('div','card');lc.innerHTML='<h2>Cycle log</h2>';var lg=el('div','grid g3');
+  add2(lg,'sec','Header');
+  lg.appendChild(logField('Cycle date','cycle_date'));
+  lg.appendChild(logField('Train','train',{ro:true}));
+  lg.appendChild(logField('Chromic acid processed (L)','feedVol',{auto:true}));
+  add2(lg,'sec','Feed (spent) — chromic acid &amp; impurities');
+  lg.appendChild(logField('Feed CrO₃ (g/L)','feedCrO3'));
+  lg.appendChild(logField('Feed Fe (g/L)','feedFe',{auto:true}));
+  lg.appendChild(logField('Feed Cr³⁺ (g/L)','feedCr3',{auto:true}));
+  lg.appendChild(logField('Feed Cu (g/L)','feedCu'));
+  add2(lg,'sec','Treated (CT2)');
+  lg.appendChild(logField('CT2 recovered (L)','ct2'));
+  lg.appendChild(logField('Treated CrO₃ (g/L)','treatCrO3'));
+  lg.appendChild(logField('Treated Cu (g/L)','treatCu'));
+  lg.appendChild(logField('Treated Fe (g/L)','treatFeL',{auto:true}));
+  lg.appendChild(logField('Treated Cr³⁺ (g/L)','treatCr3L',{auto:true}));
+  add2(lg,'sec','CARS regeneration — H₂SO₄ <em>(qty auto = 50% stock)</em>');
+  acidCalc(lg,'CARS H₂SO₄','carsPct','carsVol','h2');
+  lg.appendChild(logField('H₂SO₄ recycled this cycle (L)','recyc'));
+  add2(lg,'sec','CARWARS regeneration <em>(blank if not done)</em>');
+  acidCalc(lg,'Cation-1 H₂SO₄','cw1Pct','cw1Vol','h2');
+  acidCalc(lg,'Anion NaOH','cwAnPct','cwAnVol','na');
+  acidCalc(lg,'Cation-2 H₂SO₄','cw2Pct','cw2Vol','h2');
+  add2(lg,'sec','RWRS regeneration <em>(blank if not done)</em>');
+  acidCalc(lg,'Cation H₂SO₄','rwCatPct','rwCatVol','h2');
+  acidCalc(lg,'WBA anion NaOH','rwAnPct','rwAnVol','na');
+  var nf=logField('Observations / notes','notes');nf.style.gridColumn='span 3';lg.appendChild(nf);
   lc.appendChild(lg);
-  const tot=el('div','kpis');tot.id='cycTot';tot.style.marginTop='14px';lc.appendChild(tot);
-  const rb=el('div','row');rb.style.marginTop='16px';
-  const bs=el('button','btn primary','Save draft');bs.onclick=()=>saveCurrent(false);
-  const bd=el('button','btn done','Mark cycle complete');bd.onclick=()=>completeFlow();
-  rb.append(bs,bd);lc.appendChild(rb);
+  var tot=el('div','kpis');tot.id='cyTot';tot.style.marginTop='14px';lc.appendChild(tot);
+  var rb=el('div','row');rb.style.marginTop='16px';
+  var bs=el('button','btn primary','Save draft');bs.onclick=function(){saveCurrent(false);};
+  var bdn=el('button','btn done','Mark cycle complete');bdn.onclick=function(){completeFlow();};
+  var bdc=el('button','btn discard','Discard');bdc.onclick=function(){discardCurrent();};
+  rb.appendChild(bs);rb.appendChild(bdn);rb.appendChild(bdc);lc.appendChild(rb);
   m.appendChild(lc);
-  // reminders
-  m.appendChild(remindersCard());
-  upd();
-  function upd(){updateBoard(m);}
+  var rcard=el('div','card');rcard.innerHTML='<h2>Reminders &amp; Flags</h2>';var rembox=el('div','rem');rembox.id='cyRem';rcard.appendChild(rembox);m.appendChild(rcard);
+  renderTanks();syncImp();paint();totals();renderRem();
 }
-function ddField(label,key,on,unit){const w=el('div','fieldd');w.appendChild(el('label',null,label));
-  const i=document.createElement('input');i.className='mono';i.value=cd()[key]||'';i.oninput=()=>{cd()[key]=i.value;on();};w.appendChild(i);
-  if(unit)w.appendChild(el('span','u',unit));return w;}
-function impCol(title,keys,totId,hint){const c=el('div','impc');c.innerHTML=`<span class="it">${title}</span>`;
-  const r=el('div','improw');const labels=['Fe','Cr³⁺'];
-  keys.forEach((k,idx)=>{if(idx)r.appendChild(document.createTextNode(' + '));r.appendChild(document.createTextNode(labels[idx]+' '));
-    const i=document.createElement('input');i.className='simp';i.value=cd()[k]||'';i.oninput=()=>{cd()[k]=i.value;syncFe();updateBoard();};r.appendChild(i);});
-  r.appendChild(document.createTextNode(' = '));const tsp=el('span','imptot');tsp.id=totId;r.appendChild(tsp);
-  c.appendChild(r);c.appendChild(el('div',null,`<small style="color:var(--ink-faint);font-size:10px">${hint}</small>`));return c;}
-function syncFe(){const d=cd();if(!d.feedFe)d.feedFe=d.spentFe;if(!d.feedCr3)d.feedCr3=d.spentCr3;if(!d.treatFeL)d.treatFeL=d.treatFe;if(!d.treatCr3L)d.treatCr3L=d.treatCr3;}
-function updateBoard(m){
-  const d=cd(),i=d.step,s=STEPS[i],tv=stepTarget(i);
-  const si=num(d.spentFe)+num(d.spentCr3),ti=num(d.treatFe)+num(d.treatCr3);
-  if($('#spentImp'))$('#spentImp').textContent=(si?fmt(si,1):'—')+' g/L';
-  if($('#treatImp'))$('#treatImp').textContent=(ti?fmt(ti,1):'—')+' g/L';
-  if($('#tVol'))$('#tVol').textContent=tv?fmt(tv,0):'—';
+function add2(p,cls,html){p.appendChild(el('div',cls,html));}
+function syncImp(){var si=num(cd().spentFe)+num(cd().spentCr3),ti=num(cd().treatFe)+num(cd().treatCr3);
+  if($('#spentImp'))$('#spentImp').textContent=(si?fmt(si,1):'—')+' g/L';if($('#treatImp'))$('#treatImp').textContent=(ti?fmt(ti,1):'—')+' g/L';}
+function renderTanks(){var tk=$('#cyTanks');if(!tk)return;tk.innerHTML='';var d=cd();
+  TANKS.forEach(function(a){var k=a[0],desc=a[1],col=a[2],cap=SETTINGS.tankCaps[k]||1000,lvl=num(d.tanks[k]),pct=cap>0?Math.min(100,lvl/cap*100):0;
+    var flag=pct>=95?'<span class="tflag hi">HIGH</span>':(pct<=5&&lvl>0?'<span class="tflag lo">LOW</span>':'');
+    var e=el('div','tank',flag+'<div class="tk">'+(k==='H2'?'H₂SO₄':(k==='SP'?'Spent H₂SO₄':k))+'</div><div class="td">'+desc+'</div><div class="tvis"><i style="height:'+pct+'%;background:'+col+'"></i></div><div class="tval"><b>'+fmt(lvl,0)+'</b> / '+fmt(cap,0)+' L</div>');
+    e.onclick=function(){tankModal(k,desc,cap,lvl);};tk.appendChild(e);});}
+function tankModal(k,desc,cap,lvl){
+  var name=(k==='H2'?'H₂SO₄':(k==='SP'?'Spent H₂SO₄':k));
+  var md=el('div','modal');
+  md.innerHTML='<div class="mc"><h3>'+name+' — set level</h3><p>'+esc(desc)+' · capacity '+fmt(cap,0)+' L</p>'+
+    '<label style="font-size:12px;color:var(--wink-dim)">Level (L)</label><input id="tkIn" type="number" min="0" max="'+cap+'" value="'+lvl+'">'+
+    '<div class="err" id="tkErr"></div>'+
+    '<div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn g" id="tkC">Cancel</button><button class="btn primary" id="tkS">Save</button></div></div>';
+  document.body.appendChild(md);
+  var inp=md.querySelector('#tkIn');inp.focus();inp.select();
+  md.querySelector('#tkC').onclick=function(){md.remove();};
+  md.querySelector('#tkS').onclick=function(){var v=num(inp.value);if(inp.value===''||isNaN(parseFloat(inp.value))){md.querySelector('#tkErr').textContent='Enter a number.';return;}
+    if(v<0){md.querySelector('#tkErr').textContent='Level cannot be negative.';return;}
+    if(v>cap){md.querySelector('#tkErr').textContent='Level cannot exceed capacity ('+fmt(cap,0)+' L).';return;}
+    cd().tanks[k]=v;md.remove();renderTanks();};
+  inp.addEventListener('keydown',function(ev){if(ev.key==='Enter')md.querySelector('#tkS').click();if(ev.key==='Escape')md.remove();});
+}
+function paint(){var d=cd(),i=d.step,s=STEPS[i],tv=stepTarget(i),rail=$('#cyRail');if(!rail)return;
+  Array.prototype.forEach.call(rail.children,function(e,k){e.className='step'+(k<i?' done':'')+(k===i?' active':'');});
+  if($('#cyHint'))$('#cyHint').textContent='Step '+(i+1)+' of '+STEPS.length+' · '+s.route;
   if($('#tFlow'))$('#tFlow').textContent=fmt(i===5?SETTINGS.regenFlowLPH:SETTINGS.feedFlowLPH,0);
-  const vol=num(d.vol),pct=tv>0?Math.min(100,vol/tv*100):0;
-  if($('#progTxt'))$('#progTxt').textContent=`${fmt(vol,0)} / ${fmt(tv,0)} L`;
-  if($('#progBar'))$('#progBar').style.width=pct+'%';
+  if($('#tVol'))$('#tVol').textContent=tv?fmt(tv,0):'—';
+  var vol=num(d.vol),pct=tv>0?Math.min(100,vol/tv*100):0;
+  if($('#progTxt'))$('#progTxt').textContent=fmt(vol,0)+' / '+fmt(tv,0)+' L';if($('#progBar'))$('#progBar').style.width=pct+'%';
   if($('#progName'))$('#progName').textContent=s.ep==='manual'?'Manual step':(s.ep==='cond'?'Rinsing — watch conductivity':'Progress');
-  renderCue();
-  // acid calc readouts + totals
-  document.querySelectorAll('[data-calc]').forEach(sp=>{const[type,pk,vk]=sp.dataset.calc.split('|');const c=num(cd()[pk]),v=num(cd()[vk]);const kg=type==='h2so4'?h2so4_50(c,v):naoh_100(c,v);sp.value=(c>0&&v>0)?fmt(kg,2):'';});
-  const mm=metrics(d),box=$('#cycTot');if(box)box.innerHTML=
-    `<div class="kpi"><div class="v mono">${fmt(mm.feedVol,0)}</div><div class="l">Chromic L</div></div>
-     <div class="kpi a2"><div class="v mono">${fmt(mm.cro3rec,1)}</div><div class="l">CrO₃ rec kg</div></div>
-     <div class="kpi a3"><div class="v mono">${fmt(mm.feRem,1)}</div><div class="l">Fe removed kg</div></div>
-     <div class="kpi a4"><div class="v mono">${fmt(mm.recov,0)}%</div><div class="l">Recovery</div></div>
-     <div class="kpi"><div class="v mono">${fmt(mm.h2so4_50_kg,1)}</div><div class="l">H₂SO₄ 50% kg</div></div>
-     <div class="kpi a2"><div class="v mono">${fmt(mm.naoh_100_kg,1)}</div><div class="l">NaOH kg</div></div>`;
+  cue();}
+function cue(){var d=cd(),i=d.step,s=STEPS[i],c=$('#cue');if(!c)return;var cond=num(d.cond),vol=num(d.vol),tv=stepTarget(i);c.className='cue';var cls='go',t=s.route,x='';
+  if(s.ep==='feed'){var im=impurity();if(vol>=tv&&tv>0){cls='stop';t='Batch complete';x=fmt(vol,0)+' L processed for '+fmt(im,1)+' g/L impurity. Advance.';}else{cls='go';t='Load '+fmt(tv,0)+' L this batch';x='Sized: '+fmt(SETTINGS.workingCapKg,1)+' kg ÷ '+fmt(im,1)+' g/L. '+fmt(Math.max(0,tv-vol),0)+' L remaining.';}}
+  else if(s.ep==='dilute'){if(vol>=tv&&tv>0){cls='stop';t='Switch outlet CT3 → CT2';x='Dilute cut of '+fmt(tv,0)+' L collected. Divert to CT2.';}else{cls='go';t='Collect dilute cut → CT3';x='First '+fmt(tv,0)+' L to CT3. '+fmt(Math.max(0,tv-vol),0)+' L to go.';}}
+  else if(s.ep==='ct2'){if(vol>=tv&&tv>0){cls='stop';t='CT2 target reached';x=fmt(vol,0)+' L recovered. Advance.';}else{cls='go';t='Recover treated acid → CT2';x='Collect ~'+fmt(tv,0)+' L. '+fmt(Math.max(0,tv-vol),0)+' L remaining.';}}
+  else if(s.ep==='void'){if(vol>=tv&&tv>0){cls='stop';t='Void displaced';x='CT2 balanced. Advance.';}else{cls='go';t='Water push · bottom';x='Push ~'+fmt(tv,0)+' L. '+fmt(Math.max(0,tv-vol),0)+' L remaining.';}}
+  else if(s.ep==='cond'){var sp=SETTINGS[s.sp];if(cond>0&&cond<=sp){cls='stop';t='STOP — endpoint reached';x='Conductivity '+fmt(cond,1)+' ≤ '+fmt(sp,1)+' '+SETTINGS.condUnit+'. Stop and advance.';}else{cls='go';t=i===4?'Continue chrome rinse':'Continue sulphuric rinse';x='Conductivity '+(cond>0?fmt(cond,1):'—')+' > '+fmt(sp,1)+' '+SETTINGS.condUnit+'. Keep rinsing.';}}
+  else if(s.ep==='regen'){if(vol>=tv&&tv>0){cls='stop';t='Regeneration volume done';x=fmt(vol,0)+' L of '+fmt(SETTINGS.regenPct,0)+'% H₂SO₄ passed. Soak next.';}else{cls='go';t='Regenerate — '+fmt(SETTINGS.regenPct,0)+'% H₂SO₄';x='Pass '+fmt(tv,0)+' L ('+fmt(SETTINGS.regenBV,1)+' BV). '+fmt(Math.max(0,tv-vol),0)+' L remaining.';}}
+  else{cls='hold';t=s.m;x=i===6?'Hold the last bed volume overnight, then advance.':'Purge the void with air; column ready for next batch.';}
+  c.classList.add(cls);$('#cueT').textContent=t;$('#cueS').textContent=x;}
+function metrics(d){var imp=(num(d.feedFe)+num(d.feedCr3))||(SETTINGS.feedFe+SETTINGS.feedCr3);var fv=num(d.feedVol)||(imp>0?SETTINGS.workingCapKg*1000/imp:0);
+  var fc=num(d.feedCrO3)||SETTINGS.feedCrO3,ct2=num(d.ct2)||SETTINGS.ct2TargetL,tc=num(d.treatCrO3)||SETTINGS.ct2TargetCrO3,tf=num(d.treatFeL!==''?d.treatFeL:d.treatFe);
+  var rec=ct2*tc/1000,fer=Math.max(0,fv*num(d.feedFe)/1000-ct2*tf/1000),ck=fv*fc/1000,rp=ck>0?Math.min(100,rec/ck*100):0;
+  var H=h2so4_50(num(d.carsPct),num(d.carsVol))+h2so4_50(num(d.cw1Pct),num(d.cw1Vol))+h2so4_50(num(d.cw2Pct),num(d.cw2Vol))+h2so4_50(num(d.rwCatPct),num(d.rwCatVol));
+  var O=naoh_100(num(d.cwAnPct),num(d.cwAnVol))+naoh_100(num(d.rwAnPct),num(d.rwAnVol));return{feedVol:fv,cro3rec:rec,feRem:fer,recov:rp,h2so4_50_kg:H,naoh_100_kg:O};}
+function totals(){var list=document.querySelectorAll('[data-calc]');Array.prototype.forEach.call(list,function(sp){var p=sp.getAttribute('data-calc').split('|'),c=num(cd()[p[1]]),v=num(cd()[p[2]]);var kg=p[0]==='h2'?h2so4_50(c,v):naoh_100(c,v);sp.value=(c>0&&v>0)?fmt(kg,2):'';});
+  var mm=metrics(cd()),box=$('#cyTot');if(box)box.innerHTML='<div class="kpi"><div class="v mono">'+fmt(mm.feedVol,0)+'</div><div class="l">Chromic L</div></div>'+
+    '<div class="kpi a2"><div class="v mono">'+fmt(mm.cro3rec,1)+'</div><div class="l">CrO₃ rec kg</div></div>'+
+    '<div class="kpi a3"><div class="v mono">'+fmt(mm.feRem,1)+'</div><div class="l">Fe removed kg</div></div>'+
+    '<div class="kpi a4"><div class="v mono">'+fmt(mm.recov,0)+'%</div><div class="l">Recovery</div></div>'+
+    '<div class="kpi"><div class="v mono">'+fmt(mm.h2so4_50_kg,1)+'</div><div class="l">H₂SO₄ 50% kg</div></div>'+
+    '<div class="kpi a2"><div class="v mono">'+fmt(mm.naoh_100_kg,1)+'</div><div class="l">NaOH kg</div></div>';}
+
+function h2PerRegen50(){return SETTINGS.regenBV*SETTINGS.bedL*rho(SETTINGS.h2so4_density,SETTINGS.regenPct)*(SETTINGS.regenPct/100)/((SETTINGS.acidStockPct||50)/100);}
+function naPerCarwars(){var c=SETTINGS.carwarsNaOHpct||13;return SETTINGS.carwarsAnionL*rho(SETTINGS.naoh_density,c)*(c/100);}
+function invRow(chem){for(var i=0;i<INV.length;i++){if(INV[i].chemical===chem)return INV[i];}return null;}
+function renderRem(){var box=$('#cyRem');if(!box)return;var out='';
+  var reuse=num(LS.reuse),metals=reuse*5,freeAcid=Math.max(0,15-reuse*1.4),bleed=reuse>=5;
+  out+='<div class="rmi '+(bleed?'alarm':'ok')+'"><div class="rh"><span class="rt">H₂SO₄ regenerant</span><span class="rg '+(bleed?'alarm':'ok')+'">'+(bleed?'Bleed now':(reuse?'Reuse #'+reuse:'Fresh'))+'</span></div>'+
+    '<div class="rb">Batch is on <b>reuse</b> #'+reuse+' · est. free acid <b>~'+fmt(freeAcid,1)+'%</b> · est. dissolved metals <b>~'+fmt(metals,0)+' kg</b>/1000 L. '+(bleed?'<b>Bleed to ETP and prepare a fresh batch.</b>':'Titrate free acidity and top up to 12–15% before reusing.')+'</div>'+
+    '<div class="rbar"><i style="width:'+Math.min(100,metals/20*100)+'%;background:'+(bleed?'var(--alarm)':'var(--acid)')+'"></i></div>'+
+    '<div class="rmini"><button data-a="reuse">Log a regen (+1)</button><button data-a="bleed">Bled / fresh batch</button></div></div>';
+  var cwK=num(LS.carwarsKg),cdue=cwK>=SETTINGS.carwarsThreshKg;
+  out+='<div class="rmi '+(cdue?'alarm':'ok')+'"><div class="rh"><span class="rt">CARWARS anion regen</span><span class="rg '+(cdue?'alarm':'ok')+'">'+(cdue?'Due':'Building')+'</span></div>'+
+    '<div class="rb">CrO₃ accumulated in CT3 since last regen: <b>'+fmt(cwK,1)+'</b> / <b>'+fmt(SETTINGS.carwarsThreshKg,0)+' kg</b>. '+(cdue?'Regeneration due.':'Regen not yet due.')+'</div>'+
+    '<div class="rbar"><i style="width:'+Math.min(100,cwK/SETTINGS.carwarsThreshKg*100)+'%;background:'+(cdue?'var(--alarm)':'var(--teal)')+'"></i></div>'+
+    '<div class="rmini"><button data-a="cwreset">Regen done — reset</button></div></div>';
+  var rL=num(LS.rwrsL),rdue=rL>=SETTINGS.rwrsThreshL;
+  out+='<div class="rmi '+(rdue?'alarm':'ok')+'"><div class="rh"><span class="rt">RWRS regen (cation + WBA)</span><span class="rg '+(rdue?'alarm':'ok')+'">'+(rdue?'Due':'Building')+'</span></div>'+
+    '<div class="rb">Sulphate rinse treated since last regen: <b>'+fmt(rL,0)+'</b> / <b>'+fmt(SETTINGS.rwrsThreshL,0)+' L</b>. '+(rdue?'Regeneration due.':'Regen not yet due.')+' <em style="color:var(--warn)">Throughput provisional.</em></div>'+
+    '<div class="rbar"><i style="width:'+Math.min(100,rL/SETTINGS.rwrsThreshL*100)+'%;background:'+(rdue?'var(--alarm)':'var(--violet)')+'"></i></div>'+
+    '<div class="rmini"><button data-a="rwreset">Regen done — reset</button></div></div>';
+  var h2=invRow('H2SO4_50'),hOn=h2?num(h2.on_hand_kg):0,hLo=h2?num(h2.low_limit_kg):200,hlo=hOn<=hLo;
+  out+='<div class="rmi '+(hlo?'warn':'ok')+'"><div class="rh"><span class="rt">H₂SO₄ stock</span><span class="rg '+(hlo?'warn':'ok')+'">'+(hlo?'Reorder':'OK')+'</span></div>'+
+    '<div class="rb">On hand <b>'+fmt(hOn,0)+' kg</b> (50% stock). One fresh regen ≈ <b>'+fmt(h2PerRegen50(),0)+' kg</b> · low-stock alert at '+fmt(hLo,0)+' kg.</div>'+
+    '<div class="rmini"><button data-a="h2set">Update stock</button></div></div>';
+  var na=invRow('NaOH_100'),nOn=na?num(na.on_hand_kg):0,nLo=na?num(na.low_limit_kg):40,nlo=nOn<=nLo;
+  out+='<div class="rmi '+(nlo?'warn':'ok')+'"><div class="rh"><span class="rt">Caustic (NaOH) stock</span><span class="rg '+(nlo?'warn':'ok')+'">'+(nlo?'Reorder':'OK')+'</span></div>'+
+    '<div class="rb">On hand <b>'+fmt(nOn,0)+' kg</b> · one CARWARS regen ≈ <b>'+fmt(naPerCarwars(),0)+' kg</b> · low-stock alert at '+fmt(nLo,0)+' kg.</div>'+
+    '<div class="rmini"><button data-a="naset">Update stock</button></div></div>';
+  var ceil=num(SETTINGS.bathCeilingFe),bf=num(LS.bathFe),over=ceil>0&&bf>ceil;
+  out+='<div class="rmi '+(over?'alarm':'ok')+'"><div class="rh"><span class="rt">Bath iron control</span><span class="rg '+(over?'alarm':'ok')+'">'+(ceil>0?(over?'Above ceiling':'In range'):'No ceiling set')+'</span></div>'+
+    '<div class="rb">Last bath Fe <b>'+fmt(bf,1)+' g/L</b>'+(ceil>0?' vs ceiling <b>'+fmt(ceil,1)+' g/L</b>.':' · set a ceiling in admin Settings.')+'</div>'+
+    '<div class="rmini">Record bath Fe <input id="bathIn" value="'+bf+'"><button data-a="bathset">Update</button></div></div>';
+  box.innerHTML=out;
+  Array.prototype.forEach.call(box.querySelectorAll('button[data-a]'),function(bn){bn.onclick=function(){remAct(bn.getAttribute('data-a'));};});
 }
-function renderCue(){
-  const d=cd(),i=d.step,s=STEPS[i],cue=$('#cue');if(!cue)return;const tv=stepTarget(i),cond=num(d.cond),vol=num(d.vol);
-  cue.className='cue';let cls='go',t=s.route,x='';
-  if(s.ep==='feed'){const im=impurity();if(vol>=tv&&tv>0){cls='stop';t='Batch complete';x=`${fmt(vol,0)} L processed. For ${fmt(im,1)} g/L impurity the batch is ${fmt(tv,0)} L. Advance.`;}else{cls='go';t=`Load ${fmt(tv,0)} L this batch`;x=`Sized from impurity: ${fmt(SETTINGS.workingCapKg,1)} kg ÷ ${fmt(im,1)} g/L. ${fmt(Math.max(0,tv-vol),0)} L remaining.`;}}
-  else if(s.ep==='dilute'){if(vol>=tv&&tv>0){cls='stop';t='Switch outlet CT3 → CT2';x=`Dilute cut of ${fmt(tv,0)} L collected. Divert to CT2 and advance.`;}else{cls='go';t='Collect dilute cut → CT3';x=`Send first ${fmt(tv,0)} L to CT3. ${fmt(Math.max(0,tv-vol),0)} L to go.`;}}
-  else if(s.ep==='ct2'){if(vol>=tv&&tv>0){cls='stop';t='CT2 target reached';x=`${fmt(vol,0)} L recovered to CT2. Advance.`;}else{cls='go';t='Recover treated acid → CT2';x=`Collect ~${fmt(tv,0)} L. ${fmt(Math.max(0,tv-vol),0)} L remaining.`;}}
-  else if(s.ep==='void'){if(vol>=tv&&tv>0){cls='stop';t='Void displaced';x='CT2 balanced. Advance.';}else{cls='go';t='Water push · bottom';x=`Push ~${fmt(tv,0)} L. ${fmt(Math.max(0,tv-vol),0)} L remaining.`;}}
-  else if(s.ep==='cond'){const sp=SETTINGS[s.sp];if(cond>0&&cond<=sp){cls='stop';t='STOP — endpoint reached';x=`Conductivity ${fmt(cond,1)} ≤ ${fmt(sp,1)} ${SETTINGS.condUnit}. Stop and advance.`;}else{cls='go';t=i===4?'Continue chrome rinse':'Continue sulphuric rinse';x=`Conductivity ${cond>0?fmt(cond,1):'—'} > ${fmt(sp,1)} ${SETTINGS.condUnit}. Keep rinsing.`;}}
-  else if(s.ep==='regen'){if(vol>=tv&&tv>0){cls='stop';t='Regeneration volume done';x=`${fmt(vol,0)} L of ${fmt(SETTINGS.regenPct,0)}% H₂SO₄ passed. Soak overnight next.`;}else{cls='go';t=`Regenerate — ${fmt(SETTINGS.regenPct,0)}% H₂SO₄`;x=`Pass ${fmt(tv,0)} L (${fmt(SETTINGS.regenBV,1)} BV). ${fmt(Math.max(0,tv-vol),0)} L remaining.`;}}
-  else{cls='hold';t=s.m;x=i===6?'Hold the last bed volume overnight, then advance.':'Purge the void with air from the top; column ready for next batch.';}
-  cue.classList.add(cls);$('#cueT').textContent=t;$('#cueS').textContent=x;
+async function saveLS(){if(!ME.location_id)return;await sb.from('location_state').upsert({location_id:ME.location_id,data:LS,updated_at:new Date().toISOString()},{onConflict:'location_id'});}
+async function refreshINV(){var {data:inv}=await sb.from('inventory').select('*').eq('client_id',ME.client_id).eq('location_id',ME.location_id);INV=inv||[];}
+async function setStock(chem,label){var cur=invRow(chem);var v=prompt(label+' stock (kg):',cur?cur.on_hand_kg:0);if(v===null)return;await sb.from('inventory').update({on_hand_kg:Math.max(0,num(v)),updated_at:new Date().toISOString()}).eq('client_id',ME.client_id).eq('location_id',ME.location_id).eq('chemical',chem);await refreshINV();renderRem();}
+async function remAct(a){
+  if(a==='reuse'){LS.reuse=num(LS.reuse)+1;await saveLS();renderRem();}
+  else if(a==='bleed'){LS.reuse=0;await saveLS();renderRem();toast('Fresh batch logged');}
+  else if(a==='cwreset'){LS.carwarsKg=0;await saveLS();renderRem();toast('CARWARS regen reset');}
+  else if(a==='rwreset'){LS.rwrsL=0;await saveLS();renderRem();toast('RWRS regen reset');}
+  else if(a==='h2set'){await setStock('H2SO4_50','H₂SO₄ (50%)');}
+  else if(a==='naset'){await setStock('NaOH_100','NaOH (100%)');}
+  else if(a==='bathset'){var e=$('#bathIn');if(e){LS.bathFe=Math.max(0,num(e.value));await saveLS();renderRem();}}
 }
-function metrics(d){
-  const imp=(num(d.feedFe)+num(d.feedCr3))||(SETTINGS.feedFe+SETTINGS.feedCr3);
-  const feedVol=num(d.feedVol)||(imp>0?SETTINGS.workingCapKg*1000/imp:0);
-  const feedCrO3=num(d.feedCrO3)||SETTINGS.feedCrO3;
-  const ct2=num(d.ct2)||SETTINGS.ct2TargetL,treatCrO3=num(d.treatCrO3)||SETTINGS.ct2TargetCrO3;
-  const treatFe=num(d.treatFeL!==''?d.treatFeL:d.treatFe);
-  const cro3rec=ct2*treatCrO3/1000,feRem=Math.max(0,feedVol*num(d.feedFe)/1000-ct2*treatFe/1000);
-  const crkg=feedVol*feedCrO3/1000,recov=crkg>0?Math.min(100,cro3rec/crkg*100):0;
-  const h2=h2so4_50(num(d.carsPct),num(d.carsVol))+h2so4_50(num(d.cw1Pct),num(d.cw1Vol))+h2so4_50(num(d.cw2Pct),num(d.cw2Vol))+h2so4_50(num(d.rwCatPct),num(d.rwCatVol));
-  const oh=naoh_100(num(d.cwAnPct),num(d.cwAnVol))+naoh_100(num(d.rwAnPct),num(d.rwAnVol));
-  return{feedVol,feedCrO3,cro3rec,feRem,recov,h2so4_50_kg:h2,naoh_100_kg:oh};
-}
-function remindersCard(){
-  const c=el('div','card');c.innerHTML='<h2>Reminders &amp; flags</h2>';const box=el('div','rem');
-  const h2=INV.find(x=>x.chemical==='H2SO4_50'),na=INV.find(x=>x.chemical==='NaOH_100');
-  function stock(x,label){if(!x)return;const lo=x.on_hand_kg<=x.low_limit_kg;box.appendChild(el('div','rmi '+(lo?'warn':'ok'),`<div class="rh"><span class="rt">${label} stock</span><span class="rg ${lo?'warn':'ok'}">${lo?'Reorder':'OK'}</span></div><div class="rb">On hand <b>${fmt(x.on_hand_kg,0)} kg</b> · alert at ${fmt(x.low_limit_kg,0)} kg. Completing a cycle deducts what it uses.</div>`));}
-  stock(h2,'H₂SO₄ (50%)');stock(na,'NaOH (100%)');
-  const bf=num(cd().bathFe),ceil=SETTINGS.bathCeilingFe;
-  if(ceil>0&&bf>0){const over=bf>ceil;box.appendChild(el('div','rmi '+(over?'alarm':'ok'),`<div class="rh"><span class="rt">Bath iron control</span><span class="rg ${over?'alarm':'ok'}">${over?'Above ceiling':'In range'}</span></div><div class="rb">Bath Fe <b>${fmt(bf,1)} g/L</b> vs ceiling <b>${fmt(ceil,1)} g/L</b>.</div>`));}
-  const rc=num(cd().reuseCount);
-  box.appendChild(el('div','rmi '+(rc>=5?'alarm':(rc>=4?'warn':'ok')),`<div class="rh"><span class="rt">H₂SO₄ regenerant reuse</span><span class="rg ${rc>=5?'alarm':'ok'}">${rc>=5?'Bleed now':(rc?'Reuse #'+rc:'Fresh')}</span></div><div class="rb">Recorded reuse count <b>${rc||0}</b>. Bleed to ETP and make a fresh batch by reuse #5 (metal-sulphate build-up).</div>`));
-  c.appendChild(box);return c;}
-function completeFlow(){
-  const d=cd(),miss=[];
-  if(!d.cycle_date)miss.push('cycle date');if(!d.train)miss.push('train');
-  const mm=metrics(d);if(mm.feedVol<=0)miss.push('feed (impurity or chromic processed)');
+function completeFlow(){var d=cd(),miss=[];if(!d.cycle_date)miss.push('cycle date');if(!d.train)miss.push('train');var mm=metrics(d);if(mm.feedVol<=0)miss.push('feed (impurity or chromic processed)');
   if(miss.length){toast('Cannot complete — missing: '+miss.join(', '));return;}
-  if(confirm('Mark this cycle Completed?\n\nChromic '+fmt(mm.feedVol,0)+' L · CrO₃ rec '+fmt(mm.cro3rec,1)+' kg · H₂SO₄ '+fmt(mm.h2so4_50_kg,1)+' kg · NaOH '+fmt(mm.naoh_100_kg,1)+' kg.\n\nIt will lock and cannot be edited.'))saveCurrent(true);
-}
+  if(confirm('Mark this cycle Completed?\n\nChromic '+fmt(mm.feedVol,0)+' L · CrO₃ rec '+fmt(mm.cro3rec,1)+' kg · H₂SO₄ '+fmt(mm.h2so4_50_kg,1)+' kg · NaOH '+fmt(mm.naoh_100_kg,1)+' kg.\n\nIt will lock and cannot be edited.'))saveCurrent(true);}
 async function saveCurrent(complete){
-  const d=cd(),mm=metrics(d);d.technician_name=ME.name;
-  const row={technician_id:ME.id,client_id:ME.client_id,location_id:ME.location_id,status:complete?'completed':'draft',
+  var d=cd(),mm=metrics(d);d.technician_name=ME.name;d.client_name=ME.clientName;d.location_name=ME.locationName;
+  var row={technician_id:ME.id,client_id:ME.client_id,location_id:ME.location_id,status:complete?'completed':'draft',
     train:d.train,cycle_date:d.cycle_date||today(),chromic_processed_l:mm.feedVol,cro3_recovered_kg:mm.cro3rec,fe_removed_kg:mm.feRem,
     recovery_pct:mm.recov,h2so4_50_kg:mm.h2so4_50_kg,naoh_100_kg:mm.naoh_100_kg,data:d,notes:d.notes||null};
-  let res;
+  var res;
   if(CUR.id){res=await sb.from('cars_cycles').update(row).eq('id',CUR.id).select().single();}
-  else if(complete){const ins=await sb.from('cars_cycles').insert(Object.assign({},row,{status:'draft'})).select().single();if(ins.error){toast('Save failed: '+ins.error.message);return;}CUR.id=ins.data.id;res=await sb.from('cars_cycles').update({status:'completed'}).eq('id',CUR.id).select().single();}
+  else if(complete){var ins=await sb.from('cars_cycles').insert(Object.assign({},row,{status:'draft'})).select().single();if(ins.error){toast('Save failed: '+ins.error.message);return;}CUR.id=ins.data.id;res=await sb.from('cars_cycles').update({status:'completed'}).eq('id',CUR.id).select().single();}
   else{res=await sb.from('cars_cycles').insert(row).select().single();}
   if(res.error){toast('Save failed: '+res.error.message);return;}
   CUR.id=res.data.id;
-  if(complete){toast('Cycle completed and locked');CUR=null;go('mine',document.querySelectorAll('#tabs button')[1]);}
-  else{CUR.status='draft';toast('Draft saved');}
+  if(complete){
+    var feedCrO3kg=mm.feedVol*(num(d.feedCrO3)||SETTINGS.feedCrO3)/1000,toCT3=Math.max(0,feedCrO3kg-mm.cro3rec);
+    LS.carwarsKg=num(LS.carwarsKg)+toCT3;if(num(d.cwAnPct)>0&&num(d.cwAnVol)>0)LS.carwarsKg=0;
+    LS.rwrsL=num(LS.rwrsL)+(SETTINGS.rinseToWT1PerCycle||500);if((num(d.rwCatPct)>0&&num(d.rwCatVol)>0)||(num(d.rwAnPct)>0&&num(d.rwAnVol)>0))LS.rwrsL=0;
+    await saveLS();await refreshINV();
+    toast('Cycle completed and locked');CUR=null;go('mine',document.querySelectorAll('#tabs button')[1]);
+  }else{CUR.status='draft';toast('Draft saved');}
 }
-function confirmComplete(){return new Promise(r=>{const md=el('div','modal');md.innerHTML=`<div class="mc"><h3>Mark this cycle as complete?</h3><p>You have an open cycle. Completing saves the latest data, records the completion time and locks it.</p><div class="row" style="justify-content:flex-end"><button class="btn g" id="mc1">Continue editing</button><button class="btn done" id="mc2">Mark cycle as complete</button></div></div>`;document.body.appendChild(md);md.querySelector('#mc1').onclick=()=>{md.remove();r('continue');};md.querySelector('#mc2').onclick=()=>{md.remove();r('complete');};});}
+async function discardCurrent(){
+  if(!confirm('Discard this cycle? All entered values will be cleared and the draft removed.'))return;
+  if(CUR.id){var r=await sb.from('cars_cycles').delete().eq('id',CUR.id);if(r.error){toast('Could not discard: '+r.error.message);return;}}
+  CUR=null;toast('Cycle discarded');go('cycle',document.querySelectorAll('#tabs button')[0]);
+}
+function confirmComplete(){return new Promise(function(r){var md=el('div','modal');md.innerHTML='<div class="mc"><h3>Mark this cycle as complete?</h3><p>You have an open cycle. Completing saves the latest data, records the completion time and locks it.</p><div class="row" style="justify-content:flex-end"><button class="btn g" id="mc1">Continue editing</button><button class="btn done" id="mc2">Mark cycle as complete</button></div></div>';document.body.appendChild(md);md.querySelector('#mc1').onclick=function(){md.remove();r('continue');};md.querySelector('#mc2').onclick=function(){md.remove();r('complete');};});}
 
 /* ---- technician: my cycles ---- */
 async function screenMine(m){
@@ -480,31 +546,49 @@ function screenReports(m){
   range.onchange=()=>{const d=new Date();if(range.value==='Today')from.value=today();else if(range.value==='This week'){d.setDate(d.getDate()-6);from.value=d.toISOString().slice(0,10);}else if(range.value==='This month')from.value=today().slice(0,8)+'01';to.value=today();load();};
   const bLoad=el('button','btn sm primary','Load');bLoad.onclick=load;
   ctl.append(lw('Range',range),lw('From',from),lw('To',to),bLoad);c.appendChild(ctl);
-  const out=el('div');out.id='repOut';out.style.marginTop='14px';c.appendChild(out);m.appendChild(c);
+  const fbar=el('div','filters');fbar.style.display='none';c.appendChild(fbar);
+  const out=el('div');out.style.marginTop='6px';c.appendChild(out);m.appendChild(c);
+  const fTech=document.createElement('select'),fCo=document.createElement('select'),fLoc=document.createElement('select');
+  [fTech,fCo,fLoc].forEach(s=>{s.style.cssText='padding:8px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';s.onchange=render;});
+  fbar.append(lw('Technician',fTech),lw('Company',fCo),lw('Location',fLoc));
+  let allRows=[],sortKey='cycle_date',sortDir='desc';
+  const SORTABLE={cycle_date:1,tech:1,co:1,loc:1,chromic_processed_l:1,cro3_recovered_kg:1,recovery_pct:1,h2so4_50_kg:1,naoh_100_kg:1};
+  function fillF(sel,vals,lbl){const cur=sel.value;sel.innerHTML='';sel.append(opt('','All '+lbl));vals.forEach(v=>sel.append(opt(v,v)));if(vals.indexOf(cur)>=0)sel.value=cur;}
   async function load(){
-    out.innerHTML='<div class="note">Loading…</div>';
+    out.innerHTML='<div class="note">Loading…</div>';fbar.style.display='none';
     const {data,error}=await sb.from('cars_cycles').select('*, clients(name), locations(name)').gte('cycle_date',from.value).lte('cycle_date',to.value).order('cycle_date',{ascending:false});
     if(error){out.innerHTML='<div class="note">'+esc(error.message)+'</div>';return;}
-    out.innerHTML='';const sum=f=>data.reduce((a,x)=>a+(+f(x)||0),0);
+    allRows=data||[];
+    fillF(fTech,[...new Set(allRows.map(rTech).filter(Boolean))].sort(),'technicians');
+    fillF(fCo,[...new Set(allRows.map(rCo).filter(Boolean))].sort(),'companies');
+    fillF(fLoc,[...new Set(allRows.map(rLoc).filter(Boolean))].sort(),'locations');
+    fbar.style.display=allRows.length?'flex':'none';render();
+  }
+  function view(){const rows=allRows.filter(r=>(!fTech.value||rTech(r)===fTech.value)&&(!fCo.value||rCo(r)===fCo.value)&&(!fLoc.value||rLoc(r)===fLoc.value));
+    const val=r=>({cycle_date:r.cycle_date||'',tech:rTech(r),co:rCo(r),loc:rLoc(r),chromic_processed_l:+r.chromic_processed_l||0,cro3_recovered_kg:+r.cro3_recovered_kg||0,recovery_pct:+r.recovery_pct||0,h2so4_50_kg:+r.h2so4_50_kg||0,naoh_100_kg:+r.naoh_100_kg||0}[sortKey]);
+    const dir=sortDir==='asc'?1:-1;return rows.slice().sort((a,b)=>{const x=val(a),y=val(b);return x<y?-dir:x>y?dir:0;});}
+  function render(){const rows=view();const sum=f=>rows.reduce((a,x)=>a+(+f(x)||0),0);out.innerHTML='';
     const kp=el('div','kpis');kp.innerHTML=
-      `<div class="kpi"><div class="v mono">${data.length}</div><div class="l">Cycles</div></div>
-       <div class="kpi a4"><div class="v mono">${data.filter(x=>x.status==='completed').length}</div><div class="l">Completed</div></div>
-       <div class="kpi"><div class="v mono">${fmt(sum(x=>x.chromic_processed_l),0)}</div><div class="l">Chromic L</div></div>
-       <div class="kpi a2"><div class="v mono">${fmt(sum(x=>x.cro3_recovered_kg),0)}</div><div class="l">CrO₃ rec kg</div></div>
-       <div class="kpi a3"><div class="v mono">${fmt(sum(x=>x.fe_removed_kg),1)}</div><div class="l">Fe removed kg</div></div>
-       <div class="kpi"><div class="v mono">${fmt(sum(x=>x.h2so4_50_kg),0)}</div><div class="l">H₂SO₄ 50% kg</div></div>
-       <div class="kpi a2"><div class="v mono">${fmt(sum(x=>x.naoh_100_kg),0)}</div><div class="l">NaOH kg</div></div>`;
+      '<div class="kpi"><div class="v mono">'+rows.length+'</div><div class="l">Cycles</div></div>'+
+      '<div class="kpi a4"><div class="v mono">'+rows.filter(x=>x.status==='completed').length+'</div><div class="l">Completed</div></div>'+
+      '<div class="kpi"><div class="v mono">'+fmt(sum(x=>x.chromic_processed_l),0)+'</div><div class="l">Chromic L</div></div>'+
+      '<div class="kpi a2"><div class="v mono">'+fmt(sum(x=>x.cro3_recovered_kg),0)+'</div><div class="l">CrO₃ rec kg</div></div>'+
+      '<div class="kpi a3"><div class="v mono">'+fmt(sum(x=>x.fe_removed_kg),1)+'</div><div class="l">Fe removed kg</div></div>'+
+      '<div class="kpi"><div class="v mono">'+fmt(sum(x=>x.h2so4_50_kg),0)+'</div><div class="l">H₂SO₄ 50% kg</div></div>'+
+      '<div class="kpi a2"><div class="v mono">'+fmt(sum(x=>x.naoh_100_kg),0)+'</div><div class="l">NaOH kg</div></div>';
     out.appendChild(kp);
     const ex=el('div','row');ex.style.margin='14px 0';
-    const b1=el('button','btn sm g','HTML report');b1.onclick=()=>htmlReport(data,from.value,to.value);
-    const b2=el('button','btn sm g','Print / PDF');b2.onclick=()=>htmlReport(data,from.value,to.value,true);
-    const b3=el('button','btn sm g','Excel export');b3.onclick=()=>excelExport(data,from.value,to.value);
-    const b4=el('button','btn sm g','JSON export');b4.onclick=()=>jsonExport(data,from.value,to.value);
+    const b1=el('button','btn sm g','HTML report');b1.onclick=()=>htmlReport(rows,from.value,to.value);
+    const b2=el('button','btn sm g','Print / PDF');b2.onclick=()=>htmlReport(rows,from.value,to.value,true);
+    const b3=el('button','btn sm g','Excel export');b3.onclick=()=>excelExport(rows,from.value,to.value);
+    const b4=el('button','btn sm g','JSON export');b4.onclick=()=>jsonExport(rows,from.value,to.value);
     ex.append(b1,b2,b3,b4);out.appendChild(ex);
-    const w=el('div','hwrap'),t=el('table');
-    t.innerHTML='<thead><tr><th>Date</th><th>Technician</th><th>Company</th><th>Location</th><th>Train</th><th>Status</th><th class="m">Chromic L</th><th class="m">CrO₃ rec</th><th class="m">Fe rem</th><th class="m">H₂SO₄ 50%</th><th class="m">NaOH</th></tr></thead>';
-    const tb=el('tbody');
-    data.forEach(r=>{const tr=el('tr','clk');tr.innerHTML=`<td>${r.cycle_date||''}</td><td>${esc(r.data?.technician_name||'')}</td><td>${esc(r.clients?.name||'')}</td><td>${esc(r.locations?.name||'')}</td><td>${esc(r.train||'')}</td><td><span class="pill ${r.status==='completed'?'done':'draft'}">${r.status}</span></td><td class="m">${fmt(r.chromic_processed_l,0)}</td><td class="m">${fmt(r.cro3_recovered_kg,1)}</td><td class="m">${fmt(r.fe_removed_kg,1)}</td><td class="m">${fmt(r.h2so4_50_kg,1)}</td><td class="m">${fmt(r.naoh_100_kg,1)}</td>`;tr.onclick=()=>htmlReport([r]);tb.appendChild(tr);});
+    if(!rows.length){out.appendChild(el('div','note','No cycles match the current filters.'));return;}
+    const cols=[['cycle_date','Date'],['tech','Technician'],['co','Company'],['loc','Location'],['train','Train'],['status','Status'],['chromic_processed_l','Chromic L','m'],['cro3_recovered_kg','CrO₃ rec','m'],['recovery_pct','Recovery','m'],['h2so4_50_kg','H₂SO₄ 50%','m'],['naoh_100_kg','NaOH','m']];
+    const w=el('div','hwrap'),t=el('table');const thead=el('thead'),htr=el('tr');
+    cols.forEach(cc=>{const th=el('th',cc[2]==='m'?'m':null);const sortable=SORTABLE[cc[0]];th.innerHTML=esc(cc[1])+(sortable&&sortKey===cc[0]?' <span class="ar">'+(sortDir==='asc'?'▲':'▼')+'</span>':'');if(sortable){th.classList.add('sortable');th.onclick=()=>{if(sortKey===cc[0])sortDir=sortDir==='asc'?'desc':'asc';else{sortKey=cc[0];sortDir='asc';}render();};}htr.appendChild(th);});
+    thead.appendChild(htr);t.appendChild(thead);const tb=el('tbody');
+    rows.forEach(r=>{const tr=el('tr','clk');tr.innerHTML='<td>'+(r.cycle_date||'')+'</td><td>'+esc(rTech(r))+'</td><td>'+esc(rCo(r))+'</td><td>'+esc(rLoc(r))+'</td><td>'+esc(r.train||'')+'</td><td><span class="pill '+(r.status==='completed'?'done':'draft')+'">'+r.status+'</span></td><td class="m">'+fmt(r.chromic_processed_l,0)+'</td><td class="m">'+fmt(r.cro3_recovered_kg,1)+'</td><td class="m">'+fmt(r.recovery_pct,0)+'%</td><td class="m">'+fmt(r.h2so4_50_kg,1)+'</td><td class="m">'+fmt(r.naoh_100_kg,1)+'</td>';tr.onclick=()=>htmlReport([r]);tb.appendChild(tr);});
     t.appendChild(tb);w.appendChild(t);out.appendChild(w);
   }
   load();
@@ -514,104 +598,127 @@ function screenReports(m){
 async function callFn(action,payload){const {data:{session}}=await sb.auth.getSession();
   const r=await fetch(CFG.fnBase+'/manage-technician',{method:'POST',headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(Object.assign({action},payload))});
   const j=await r.json().catch(()=>({error:'bad response'}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j;}
-async function loadCL(){const {data:cl}=await sb.from('clients').select('id,name').order('name');const {data:lo}=await sb.from('locations').select('id,name,client_id,active').order('name');return{clients:cl||[],locations:lo||[]};}
+async function loadCL(){const {data:cl}=await sb.from('clients').select('id,name,active').order('name');const {data:lo}=await sb.from('locations').select('id,name,client_id,active').order('name');return{clients:cl||[],locations:lo||[]};}
 
 /* ---- admin: technicians ---- */
 async function screenTechs(m){
   const c=el('div','card');c.innerHTML='<h2>Technicians</h2>';
   const {clients,locations}=await loadCL();
-  const nm=inp('text'),em=inp('email'),pw=inp('text');
-  const cSel=document.createElement('select');clients.forEach(x=>cSel.append(opt(x.id,x.name)));
-  const lSel=document.createElement('select');function fillLoc(){lSel.innerHTML='';locations.filter(l=>l.client_id===cSel.value&&l.active!==false).forEach(l=>lSel.append(opt(l.id,l.name)));}
-  cSel.onchange=fillLoc;if(clients.length)cSel.value=clients[0].id;fillLoc();
-  [nm,em,pw,cSel,lSel].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
-  const f=el('div','grid g3');f.append(lw('Full name',nm),lw('Email',em),lw('Temp password',pw),lw('Company',cSel),lw('Location',lSel));
+  const un=inp('text'),em=inp('email'),pw=inp('text');un.placeholder='login username';em.placeholder='optional contact email';pw.placeholder='temp password';
+  const cSel=document.createElement('select');clients.filter(x=>x.active!==false).forEach(x=>cSel.append(opt(x.id,x.name)));
+  const lSel=document.createElement('select');function fillLoc(){lSel.innerHTML='';lSel.append(opt('','—'));locations.filter(l=>l.client_id===cSel.value&&l.active!==false).forEach(l=>lSel.append(opt(l.id,l.name)));}
+  cSel.onchange=fillLoc;if(cSel.options.length)cSel.value=cSel.options[0].value;fillLoc();
+  [un,em,pw,cSel,lSel].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
+  const f=el('div','grid g3');f.append(lw('Username',un),lw('Contact email (optional)',em),lw('Temp password',pw),lw('Company',cSel),lw('Location',lSel));
   c.appendChild(f);
   const bAdd=el('button','btn primary','Create technician');bAdd.style.marginTop='12px';
-  bAdd.onclick=async()=>{if(!nm.value||!em.value||!pw.value){toast('Name, email and password required');return;}bAdd.disabled=true;bAdd.textContent='Creating…';
-    try{await callFn('create',{email:em.value.trim(),password:pw.value,full_name:nm.value.trim(),client_id:cSel.value,location_id:lSel.value});toast('Technician created');nm.value=em.value=pw.value='';list();}catch(e){toast('Failed: '+e.message);}
+  bAdd.onclick=async()=>{if(!un.value.trim()||!pw.value){toast('Username and password required');return;}bAdd.disabled=true;bAdd.textContent='Creating…';
+    try{await callFn('create',{username:un.value.trim(),email_contact:em.value.trim()||null,password:pw.value,full_name:un.value.trim(),client_id:cSel.value||null,location_id:lSel.value||null});toast('Technician created');un.value=em.value=pw.value='';list();}catch(e){toast('Failed: '+e.message);}
     bAdd.disabled=false;bAdd.textContent='Create technician';};
   c.appendChild(bAdd);const lb=el('div');lb.style.marginTop='16px';c.appendChild(lb);m.appendChild(c);
   async function list(){lb.innerHTML='<div class="note">Loading…</div>';
     try{const {technicians}=await callFn('list',{});
       if(!technicians.length){lb.innerHTML='<div class="note">No technicians yet.</div>';return;}
-      const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Location</th><th>Status</th><th></th></tr></thead>';const tb=el('tbody');
+      const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Name</th><th>Username</th><th>Contact email</th><th>Company</th><th>Location</th><th>Status</th><th></th></tr></thead>';const tb=el('tbody');
       technicians.forEach(u=>{const tr=el('tr');
-        tr.innerHTML=`<td>${esc(u.full_name||'')}</td><td>${esc(u.email||'')}</td><td>${esc(u.clients?.name||'')}</td><td>${esc(u.locations?.name||'')}</td><td><span class="pill ${u.active?'done':'off'}">${u.active?'active':'inactive'}</span></td><td></td>`;
+        tr.innerHTML='<td>'+esc(u.full_name||'')+'</td><td class="mono">'+esc(u.username||'')+'</td><td>'+esc(u.email_contact||'')+'</td><td>'+esc(u.clients?.name||'')+'</td><td>'+esc(u.locations?.name||'')+'</td><td><span class="pill '+(u.active?'done':'off')+'">'+(u.active?'active':'inactive')+'</span></td><td></td>';
         const act=tr.lastChild;const be=el('button','btn sm g','Edit');be.onclick=()=>editTech(u,clients,locations,list);
         const ba=el('button','btn sm g',u.active?'Deactivate':'Activate');ba.onclick=async()=>{try{await callFn('set_active',{user_id:u.id,active:!u.active});list();}catch(e){toast('Failed: '+e.message);}};
-        const bd=el('button','btn sm danger','Delete');bd.onclick=async()=>{if(!confirm('Delete '+(u.full_name||u.email)+'? Only possible if they have no cycle records.'))return;try{await callFn('delete',{user_id:u.id});toast('Deleted');list();}catch(e){toast(e.message);}};
+        const bd=el('button','btn sm danger','Delete');bd.onclick=async()=>{if(!confirm('Delete '+(u.full_name||u.username)+'? Only possible if they have no cycle records.'))return;try{await callFn('delete',{user_id:u.id});toast('Deleted');list();}catch(e){toast(e.message);}};
         act.append(be,document.createTextNode(' '),ba,document.createTextNode(' '),bd);tb.appendChild(tr);});
       t.appendChild(tb);w.appendChild(t);lb.innerHTML='';lb.appendChild(w);
     }catch(e){lb.innerHTML='<div class="note">'+esc(e.message)+'</div>';}}
   list();
 }
 function editTech(u,clients,locations,after){
-  const md=el('div','modal');const nm=inp('text'),pw=inp('text');const cS=document.createElement('select'),lS=document.createElement('select');
-  clients.forEach(x=>cS.append(opt(x.id,x.name)));function fl(){lS.innerHTML='';locations.filter(l=>l.client_id===cS.value&&l.active!==false).forEach(l=>lS.append(opt(l.id,l.name)));}
-  cS.onchange=fl;nm.value=u.full_name||'';cS.value=u.client_id||(clients[0]&&clients[0].id);fl();if(u.location_id)lS.value=u.location_id;
-  [nm,pw,cS,lS].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
-  const mc=el('div','mc');mc.innerHTML='<h3>Edit technician</h3>';
-  const g=el('div','grid g2');g.append(lw('Full name',nm),lw('New password (optional)',pw),lw('Company',cS),lw('Location',lS));mc.appendChild(g);
+  const md=el('div','modal');const nm=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');
+  const cS=document.createElement('select'),lS=document.createElement('select');
+  clients.filter(x=>x.active!==false).forEach(x=>cS.append(opt(x.id,x.name)));function fl(){lS.innerHTML='';lS.append(opt('','—'));locations.filter(l=>l.client_id===cS.value&&l.active!==false).forEach(l=>lS.append(opt(l.id,l.name)));}
+  cS.onchange=fl;nm.value=u.full_name||'';un.value=u.username||'';em.value=u.email_contact||'';cS.value=u.client_id||(cS.options[0]&&cS.options[0].value);fl();if(u.location_id)lS.value=u.location_id;
+  const mc=el('div','mc');mc.innerHTML='<h3>Edit technician</h3><p>Username is the login. Contact email is optional and not used for login.</p>';
+  const g=el('div','grid g2');g.append(lw('Full name',nm),lw('Username',un),lw('Contact email (optional)',em),lw('New password (optional)',pw),lw('Company',cS),lw('Location',lS));mc.appendChild(g);
+  const err=el('div','err');mc.appendChild(err);
   const rr=el('div','row');rr.style.cssText='justify-content:flex-end;margin-top:16px';
   const bc=el('button','btn g','Cancel');bc.onclick=()=>md.remove();
-  const bs=el('button','btn primary','Save');bs.onclick=async()=>{try{await callFn('update',{user_id:u.id,full_name:nm.value.trim(),client_id:cS.value,location_id:lS.value,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){toast('Failed: '+e.message);}};
+  const bs=el('button','btn primary','Save');bs.onclick=async()=>{err.textContent='';bs.disabled=true;try{await callFn('update',{user_id:u.id,full_name:nm.value.trim(),username:un.value.trim()||undefined,email_contact:em.value.trim(),client_id:cS.value||null,location_id:lS.value||null,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){err.textContent=e.message;}bs.disabled=false;};
   rr.append(bc,bs);mc.appendChild(rr);md.appendChild(mc);document.body.appendChild(md);
 }
 
 /* ---- admin: locations ---- */
-async function screenLocations(m){
-  const c=el('div','card');c.innerHTML='<h2>Locations</h2>';
-  const {clients}=await loadCL();
-  const cSel=document.createElement('select');clients.forEach(x=>cSel.append(opt(x.id,x.name)));cSel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
-  const nm=inp('text');nm.placeholder='New location name';nm.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
-  const bAdd=el('button','btn sm primary','Add location');
-  const row=el('div','row');row.append(lw('Company',cSel),lw('Location name',nm),bAdd);c.appendChild(row);
-  const lb=el('div');lb.style.marginTop='14px';c.appendChild(lb);m.appendChild(c);
-  bAdd.onclick=async()=>{if(!nm.value.trim()){toast('Enter a location name');return;}const {error}=await sb.from('locations').insert({client_id:cSel.value,name:nm.value.trim()});if(error){toast('Failed: '+error.message);return;}nm.value='';toast('Location added (stock lines auto-created)');list();};
-  async function list(){lb.innerHTML='';const {data}=await sb.from('locations').select('*, clients(name)').order('name');
-    const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Location</th><th>Company</th><th>Status</th><th></th></tr></thead>';const tb=el('tbody');
-    (data||[]).forEach(l=>{const tr=el('tr');tr.innerHTML=`<td>${esc(l.name)}</td><td>${esc(l.clients?.name||'')}</td><td><span class="pill ${l.active!==false?'done':'off'}">${l.active!==false?'active':'inactive'}</span></td><td></td>`;
-      const act=tr.lastChild;
-      const be=el('button','btn sm g','Rename');be.onclick=async()=>{const v=prompt('Rename location:',l.name);if(v&&v.trim()){const {error}=await sb.from('locations').update({name:v.trim()}).eq('id',l.id);toast(error?error.message:'Renamed');list();}};
-      const bt=el('button','btn sm g',l.active!==false?'Deactivate':'Activate');bt.onclick=async()=>{const {error}=await sb.from('locations').update({active:!(l.active!==false)}).eq('id',l.id);toast(error?error.message:'Updated');list();};
-      const bd=el('button','btn sm danger','Delete');bd.onclick=async()=>{if(!confirm('Delete location '+l.name+'? Not possible if cycles reference it.'))return;const {error}=await sb.from('locations').delete().eq('id',l.id);toast(error?'Cannot delete — it has records. Deactivate instead.':'Deleted');list();};
-      act.append(be,document.createTextNode(' '),bt,document.createTextNode(' '),bd);tb.appendChild(tr);});
-    t.appendChild(tb);w.appendChild(t);lb.appendChild(w);}
-  list();
-}
+/* Locations are managed inside Companies & stock (screenCompany). */
 
 /* ---- admin: companies & stock ---- */
 async function screenCompany(m){
-  const c=el('div','card');c.innerHTML='<h2>Companies</h2>';
-  const nn=inp('text'),na=inp('text');nn.placeholder='New company name';na.placeholder='Address';
-  [nn,na].forEach(x=>x.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
-  const bAdd=el('button','btn sm primary','Add company');
-  const arow=el('div','row');arow.append(lw('Company name',nn),lw('Address',na),bAdd);c.appendChild(arow);
-  bAdd.onclick=async()=>{if(!nn.value.trim()){toast('Enter a company name');return;}const {error}=await sb.from('clients').insert({name:nn.value.trim(),address:na.value.trim()||null});if(error){toast('Failed: '+error.message);return;}nn.value=na.value='';toast('Company added (its own settings auto-created)');listCo();};
-  const lb=el('div');lb.style.marginTop='14px';c.appendChild(lb);m.appendChild(c);
-
-  const sc=el('div','card');sc.innerHTML='<h2>Chemical stock</h2>';
+  const GEO=['Pune','Pimpri-Chinchwad','Chakan','Ranjangaon','Talegaon','Mumbai','Navi Mumbai','Thane','Airoli','Taloja','Nashik','Aurangabad','Chennai','Sriperumbudur','Oragadam','Hosur','Bengaluru','Peenya','Hyderabad','Delhi','Gurugram','Manesar','Noida','Greater Noida','Faridabad','Bhiwadi','Rudrapur','Pantnagar','Haridwar','Baddi','Kurali','Mohali','Ludhiana','Ahmedabad','Sanand','Vadodara','Ankleshwar','Vapi','Silvassa','Surat','Rajkot','Coimbatore','Jamshedpur','Kolkata','Pithampur','Indore','Jaipur'];
+  const c=el('div','card');c.innerHTML='<h2>Companies &amp; locations</h2>';
+  const dlLoc=el('datalist');dlLoc.id='dlLoc';GEO.forEach(x=>dlLoc.append(opt(x,x)));c.appendChild(dlLoc);
+  const dlCo=el('datalist');dlCo.id='dlCo';c.appendChild(dlCo);
+  const nn=inp('text');nn.placeholder='Company name';nn.setAttribute('list','dlCo');nn.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
+  const locWrap=el('div');const locRows=[];
+  function addLocRow(val){const row=el('div','locrow');const i=inp('text');i.placeholder='Location (city / plant)';i.setAttribute('list','dlLoc');i.style.cssText='padding:8px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';if(val)i.value=val;
+    const rm=el('button','btn sm g','–');rm.onclick=()=>{row.remove();const k=locRows.indexOf(i);if(k>=0)locRows.splice(k,1);};
+    row.append(i,rm);locWrap.appendChild(row);locRows.push(i);}
+  addLocRow('');
+  const addMore=el('button','btn sm g','+ location');addMore.onclick=()=>addLocRow('');
+  const lc=el('div','f');lc.appendChild(el('label',null,'Locations'));lc.appendChild(locWrap);lc.appendChild(addMore);
+  const form=el('div','grid g2');form.append(lw('Company name',nn),lc);c.appendChild(form);
+  const addErr=el('div','err');
+  const bAdd=el('button','btn primary','Add company + locations');bAdd.style.marginTop='12px';
+  bAdd.onclick=async()=>{addErr.textContent='';const name=nn.value.trim();const locs=locRows.map(i=>i.value.trim()).filter(Boolean);
+    if(!name){addErr.textContent='Enter a company name.';return;}if(!locs.length){addErr.textContent='Add at least one location.';return;}
+    bAdd.disabled=true;
+    let {data:existing}=await sb.from('clients').select('id,name').ilike('name',name);
+    let cid=existing&&existing.length?existing[0].id:null;
+    if(!cid){const {data:ins,error}=await sb.from('clients').insert({name}).select('id').single();if(error){addErr.textContent=error.message;bAdd.disabled=false;return;}cid=ins.id;}
+    let added=0,dups=[];
+    for(const ln of locs){const {data:ex}=await sb.from('locations').select('id').eq('client_id',cid).ilike('name',ln);if(ex&&ex.length){dups.push(ln);continue;}const {error}=await sb.from('locations').insert({client_id:cid,name:ln});if(!error)added++;}
+    bAdd.disabled=false;nn.value='';locWrap.innerHTML='';locRows.length=0;addLocRow('');
+    toast(added+' location(s) added'+(dups.length?'; skipped duplicates: '+dups.join(', '):''));listCo();};
+  c.appendChild(bAdd);c.appendChild(addErr);
+  const lb=el('div');lb.style.marginTop='16px';c.appendChild(lb);m.appendChild(c);
+  const sc=el('div','card');sc.innerHTML='<h2>Chemical stock (per company / location)</h2>';
   const coSel=document.createElement('select');coSel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;margin-bottom:12px';
   sc.appendChild(lw('Company',coSel));const stbox=el('div');sc.appendChild(stbox);m.appendChild(sc);
-
-  async function listCo(){lb.innerHTML='';coSel.innerHTML='';
-    const {data}=await sb.from('clients').select('*').order('name');
-    (data||[]).forEach(x=>coSel.append(opt(x.id,x.name)));
-    const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Company</th><th>Address</th><th></th></tr></thead>';const tb=el('tbody');
-    (data||[]).forEach(x=>{const tr=el('tr');const nameI=inp('text'),addrI=inp('text');nameI.value=x.name;addrI.value=x.address||'';
-      [nameI,addrI].forEach(e=>e.style.cssText='width:100%;padding:7px;border:1px solid var(--line-l);border-radius:6px');
-      const c1=el('td');c1.appendChild(nameI);const c2=el('td');c2.appendChild(addrI);const c3=el('td');
-      const bs=el('button','btn sm g','Save');bs.onclick=async()=>{const {error}=await sb.from('clients').update({name:nameI.value,address:addrI.value}).eq('id',x.id);toast(error?error.message:'Saved');listCo();};
-      const bd=el('button','btn sm danger','Delete');bd.onclick=async()=>{if(!confirm('Delete company '+x.name+'? Not possible if it has locations/records.'))return;const {error}=await sb.from('clients').delete().eq('id',x.id);toast(error?'Cannot delete — it has locations or records.':'Deleted');listCo();};
-      c3.append(bs,document.createTextNode(' '),bd);tr.append(c1,c2,c3);tb.appendChild(tr);});
-    t.appendChild(tb);w.appendChild(t);lb.appendChild(w);loadStock();}
   coSel.onchange=loadStock;
-  async function loadStock(){stbox.innerHTML='';const {data:inv}=await sb.from('inventory').select('*, locations(name)').eq('client_id',coSel.value).order('chemical');
-    if(!inv||!inv.length){stbox.appendChild(el('div','note','No locations/stock yet for this company. Add a location first.'));return;}
+  async function listCo(){lb.innerHTML='';coSel.innerHTML='';dlCo.innerHTML='';
+    const {data:cos}=await sb.from('clients').select('*').order('name');
+    const {data:locs}=await sb.from('locations').select('*').order('name');
+    (cos||[]).forEach(x=>{coSel.append(opt(x.id,x.name));dlCo.append(opt(x.name,x.name));});
+    if(!cos||!cos.length){lb.appendChild(el('div','note','No companies yet — add one above.'));loadStock();return;}
+    cos.forEach(x=>{const card=el('div','card');card.style.cssText='padding:12px;margin-bottom:10px;background:#fafbfc';
+      const head=el('div','row');head.style.justifyContent='space-between';
+      const nameI=inp('text');nameI.value=x.name;nameI.style.cssText='padding:7px;border:1px solid var(--line-l);border-radius:6px;font-weight:600;min-width:200px';
+      const badge=el('span','pill '+(x.active!==false?'done':'off'),x.active!==false?'active':'inactive');
+      const left=el('div','row');left.append(nameI,badge);
+      const rgt=el('div','row');
+      const bSave=el('button','btn sm g','Rename');bSave.onclick=async()=>{const {error}=await sb.from('clients').update({name:nameI.value.trim()}).eq('id',x.id);toast(error?error.message:'Renamed');listCo();};
+      const bAct=el('button','btn sm g',x.active!==false?'Deactivate':'Activate');bAct.onclick=async()=>{const {error}=await sb.from('clients').update({active:!(x.active!==false)}).eq('id',x.id);toast(error?error.message:'Updated');listCo();};
+      const bDel=el('button','btn sm danger','Delete');bDel.onclick=async()=>{const {count}=await sb.from('cars_cycles').select('id',{count:'exact',head:true}).eq('client_id',x.id);
+        if(count&&count>0){alert('“'+x.name+'” has '+count+' historical cycle record(s) and cannot be deleted.\n\nPlease Deactivate it instead — historical reports must stay intact and keep showing the correct company & location.');return;}
+        if(!confirm('Delete company “'+x.name+'” and its locations? This cannot be undone.'))return;
+        const {error}=await sb.from('clients').delete().eq('id',x.id);toast(error?('Cannot delete: '+error.message):'Deleted');listCo();};
+      rgt.append(bSave,bAct,bDel);head.append(left,rgt);card.appendChild(head);
+      const clocs=(locs||[]).filter(l=>l.client_id===x.id);
+      const chips=el('div');chips.style.marginTop='8px';
+      clocs.forEach(l=>{const chip=el('span','chip');chip.innerHTML='<span>'+esc(l.name)+(l.active===false?' (inactive)':'')+'</span>';
+        const del=el('button',null,'×');del.title='Remove location';del.onclick=async()=>{const {count}=await sb.from('cars_cycles').select('id',{count:'exact',head:true}).eq('location_id',l.id);
+          if(count&&count>0){alert('Location “'+l.name+'” has '+count+' cycle record(s) and cannot be deleted.\n\nLeave it in place — history must stay intact.');return;}
+          if(!confirm('Remove location “'+l.name+'”?'))return;const {error}=await sb.from('locations').delete().eq('id',l.id);toast(error?error.message:'Removed');listCo();};
+        chip.appendChild(del);chips.appendChild(chip);});
+      if(!clocs.length)chips.appendChild(el('span','note','No locations yet.'));
+      card.appendChild(chips);
+      const addRow=el('div','locrow');addRow.style.marginTop='8px';const ni=inp('text');ni.placeholder='Add a location';ni.setAttribute('list','dlLoc');ni.style.cssText='padding:7px;border:1px solid var(--line-l);border-radius:6px';
+      const nb=el('button','btn sm primary','Add');nb.onclick=async()=>{const ln=ni.value.trim();if(!ln)return;const {data:ex}=await sb.from('locations').select('id').eq('client_id',x.id).ilike('name',ln);if(ex&&ex.length){toast('That location already exists for this company.');return;}const {error}=await sb.from('locations').insert({client_id:x.id,name:ln});toast(error?error.message:'Location added');listCo();};
+      addRow.append(ni,nb);card.appendChild(addRow);
+      lb.appendChild(card);});
+    loadStock();
+  }
+  async function loadStock(){stbox.innerHTML='';if(!coSel.value){stbox.appendChild(el('div','note','Add a company to manage stock.'));return;}
+    const {data:inv}=await sb.from('inventory').select('*, locations(name)').eq('client_id',coSel.value).order('chemical');
+    if(!inv||!inv.length){stbox.appendChild(el('div','note','No locations/stock yet for this company. Add a location above.'));return;}
     const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Location</th><th>Chemical</th><th>Basis</th><th class="m">On hand kg</th><th class="m">Low alert kg</th><th></th></tr></thead>';const tb=el('tbody');
     inv.forEach(r=>{const oh=inp('number'),lo=inp('number');oh.value=r.on_hand_kg;lo.value=r.low_limit_kg;[oh,lo].forEach(e=>e.style.cssText='width:100px;padding:6px;border:1px solid var(--line-l);border-radius:6px;text-align:right');
-      const tr=el('tr');tr.append(el('td',null,esc(r.locations?.name||'')),el('td',null,r.chemical==='H2SO4_50'?'H₂SO₄':'NaOH'),el('td',null,r.basis||''));
+      const tr=el('tr');tr.append(el('td',null,esc(r.locations?.name||'')),el('td',null,r.chemical==='H2SO4_50'?'H₂SO₄ (50%)':'NaOH (100%)'),el('td',null,r.basis||''));
       const c4=el('td');c4.appendChild(oh);const c5=el('td');c5.appendChild(lo);const c6=el('td');
       const b=el('button','btn sm g','Save');b.onclick=async()=>{const {error}=await sb.from('inventory').update({on_hand_kg:num(oh.value),low_limit_kg:num(lo.value),updated_at:new Date().toISOString()}).eq('id',r.id);toast(error?error.message:'Stock updated');};
       c6.appendChild(b);tr.append(c4,c5,c6);tb.appendChild(tr);});
@@ -624,76 +731,129 @@ async function screenCompany(m){
 async function screenSettings(m){
   const c=el('div','card');c.innerHTML='<h2>Formula &amp; setpoint settings</h2>';
   const {data:full}=await sb.from('clients').select('id,name').order('name');
-  const sel=document.createElement('select');(full||[]).forEach(x=>sel.append(opt(x.id,x.name)));sel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;margin-bottom:12px';
-  c.appendChild(lw('Company',sel));const body=el('div');c.appendChild(body);m.appendChild(c);
-  async function load(){const {data:s}=await sb.from('settings').select('data').eq('client_id',sel.value).maybeSingle();const cur=Object.assign({},DEFAULTS,s?.data||{});body.innerHTML='';
-    const keys=[['workingCapKg','Working capacity (kg)'],['feedCrO3','Spent CrO₃ (g/L)'],['feedFe','Spent Fe (g/L)'],['feedCr3','Spent Cr³⁺ (g/L)'],['ct2TargetL','CT2 recovered (L)'],['ct2TargetCrO3','CT2 CrO₃ (g/L)'],['diluteCutL','Dilute cut (L)'],['bedL','Resin bed (L)'],['voidL','Void (L)'],['regenBV','Regen BV'],['regenPct','Regen H₂SO₄ %'],['chromeRinseCond','Chrome-rinse end'],['h2so4RinseCond','H₂SO₄-rinse end'],['bathCeilingFe','Bath Fe ceiling'],['acidStockPct','Acid stock (%)']];
+  const sel=document.createElement('select');sel.append(opt('__default__','Default (all companies)'));(full||[]).forEach(x=>sel.append(opt(x.id,x.name)));
+  sel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;margin-bottom:6px';
+  c.appendChild(lw('Applies to',sel));
+  const hint=el('div','note');c.appendChild(hint);const body=el('div');body.style.marginTop='10px';c.appendChild(body);m.appendChild(c);
+  async function load(){
+    const isDef=sel.value==='__default__';
+    hint.textContent=isDef?'Global defaults applied to every company unless a company-specific override is saved.':'Company override. Companies without an override use the Default settings.';
+    const {data:gs}=await sb.from('settings').select('data').is('client_id',null).maybeSingle();
+    let base=Object.assign({},DEFAULTS,gs?.data||{}),cur=base;
+    if(!isDef){const {data:cs}=await sb.from('settings').select('data').eq('client_id',sel.value).maybeSingle();cur=Object.assign({},base,cs?.data||{});}
+    body.innerHTML='';
+    const keys=[['workingCapKg','Working capacity (kg)'],['feedCrO3','Spent CrO₃ (g/L)'],['feedFe','Spent Fe (g/L)'],['feedCr3','Spent Cr³⁺ (g/L)'],['ct2TargetL','CT2 recovered (L)'],['ct2TargetCrO3','CT2 CrO₃ (g/L)'],['diluteCutL','Dilute cut (L)'],['bedL','Resin bed (L)'],['voidL','Void (L)'],['regenBV','Regen BV'],['regenPct','Regen H₂SO₄ %'],['chromeRinseCond','Chrome-rinse end'],['h2so4RinseCond','H₂SO₄-rinse end'],['bathCeilingFe','Bath Fe ceiling'],['acidStockPct','Acid stock (%)'],['carwarsThreshKg','CARWARS CrO₃ threshold (kg)'],['rwrsThreshL','RWRS throughput (L)'],['rinseToWT1PerCycle','Rinse→WT1 per cycle (L)']];
     const g=el('div','grid g3'),inps={};keys.forEach(([k,l])=>{const i=inp('number');i.value=cur[k];i.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';inps[k]=i;g.appendChild(lw(l,i));});body.appendChild(g);
     body.appendChild(el('div','sec','Density tables <em>(concentration % : density kg/L, one pair per line)</em>'));
     const g2=el('div','grid g2'),h2ta=document.createElement('textarea'),nata=document.createElement('textarea');
     [h2ta,nata].forEach(x=>x.style.cssText='width:100%;min-height:150px;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;font-family:monospace;font-size:12px');
-    h2ta.value=(cur.h2so4_density||[]).map(p=>p.join(', ')).join('\n');nata.value=(cur.naoh_density||[]).map(p=>p.join(', ')).join('\n');
+    h2ta.value=(cur.h2so4_density||[]).map(pp=>pp.join(', ')).join('\n');nata.value=(cur.naoh_density||[]).map(pp=>pp.join(', ')).join('\n');
     g2.append(lw('H₂SO₄ density',h2ta),lw('NaOH density',nata));body.appendChild(g2);
-    const b=el('button','btn primary','Save settings');b.style.marginTop='12px';
-    b.onclick=async()=>{const parse=t=>t.split('\n').map(l=>l.split(',').map(x=>num(x))).filter(p=>p.length>=2&&p[0]>0);const data=Object.assign({},cur);keys.forEach(([k])=>data[k]=num(inps[k].value));data.h2so4_density=parse(h2ta.value);data.naoh_density=parse(nata.value);
-      const {error}=await sb.from('settings').upsert({client_id:sel.value,data,updated_at:new Date().toISOString()},{onConflict:'client_id'});toast(error?error.message:'Settings saved');};
-    body.appendChild(b);}
-  sel.onchange=load;if(full&&full.length){sel.value=full[0].id;}load();
+    const row=el('div','row');row.style.marginTop='12px';
+    const b=el('button','btn primary',isDef?'Save default settings':'Save company override');
+    b.onclick=async()=>{const parse=t=>t.split('\n').map(l=>l.split(',').map(x=>num(x))).filter(pp=>pp.length>=2&&pp[0]>0);const data=Object.assign({},cur);keys.forEach(([k])=>data[k]=num(inps[k].value));data.h2so4_density=parse(h2ta.value);data.naoh_density=parse(nata.value);
+      let error;
+      if(isDef){const {data:exist}=await sb.from('settings').select('id').is('client_id',null).maybeSingle();
+        if(exist){({error}=await sb.from('settings').update({data,updated_at:new Date().toISOString()}).is('client_id',null));}
+        else{({error}=await sb.from('settings').insert({client_id:null,data}));}}
+      else{({error}=await sb.from('settings').upsert({client_id:sel.value,data,updated_at:new Date().toISOString()},{onConflict:'client_id'}));}
+      toast(error?error.message:(isDef?'Default settings saved':'Company override saved'));};
+    row.append(b);
+    if(!isDef){const bClr=el('button','btn g','Remove override (use Default)');bClr.onclick=async()=>{if(!confirm('Remove this company’s override and fall back to Default settings?'))return;const {error}=await sb.from('settings').delete().eq('client_id',sel.value);toast(error?error.message:'Override removed');load();};row.append(bClr);}
+    body.appendChild(row);
+  }
+  sel.onchange=load;load();
 }
 
 /* ---- exports ---- */
 function labelOf(k){return({flow:'Flow (LPH)',cond:'Conductivity',spentFe:'Spent Fe',spentCr3:'Spent Cr³⁺',treatFe:'Treated Fe (live)',treatCr3:'Treated Cr³⁺ (live)',feedVol:'Chromic processed (L)',feedCrO3:'Feed CrO₃',feedFe:'Feed Fe',feedCr3:'Feed Cr³⁺',feedCu:'Feed Cu',ct2:'CT2 recovered (L)',treatCrO3:'Treated CrO₃',treatFeL:'Treated Fe',treatCr3L:'Treated Cr³⁺',treatCu:'Treated Cu',carsPct:'CARS H₂SO₄ %',carsVol:'CARS H₂SO₄ vol',recyc:'H₂SO₄ recycled L',cw1Pct:'CARWARS cat-1 %',cw1Vol:'CARWARS cat-1 vol',cwAnPct:'CARWARS anion %',cwAnVol:'CARWARS anion vol',cw2Pct:'CARWARS cat-2 %',cw2Vol:'CARWARS cat-2 vol',rwCatPct:'RWRS cation %',rwCatVol:'RWRS cation vol',rwAnPct:'RWRS WBA %',rwAnVol:'RWRS WBA vol',bathFe:'Bath Fe',reuseCount:'H₂SO₄ reuse #'}[k]||k);}
-function reportHTML(rows,from,to){
-  const logo=`<svg width="46" height="46" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" fill="#12203a"/><circle cx="60" cy="60" r="56" fill="none" stroke="#e8836b" stroke-width="6"/><text x="60" y="72" text-anchor="middle" font-family="Arial" font-weight="700" font-size="34" fill="#fff">PM</text></svg>`;
-  const head=`<div style="display:flex;align-items:center;gap:12px;border-bottom:3px solid #f2820c;padding-bottom:10px;margin-bottom:14px">${logo}<div><div style="font-weight:700;font-size:20px;color:#12203a">Polyfill Microns Pvt Ltd</div><div style="font-size:13px;color:#555">Chromic Acid Recycling — CARS report${from?` · ${from} to ${to}`:''}</div></div></div>`;
-  const secRow=(pairs)=>`<table style="width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 10px">${pairs.map(([a,b])=>`<tr><td style="padding:3px 6px;color:#555;width:26%">${a}</td><td style="padding:3px 6px;font-family:monospace">${b}</td></tr>`).join('')}</table>`;
-  const block=r=>{const d=r.data||{};const g=(k,dg=1)=>d[k]!==''&&d[k]!=null?fmt(num(d[k]),dg):'—';
-    const readings=[['Train',esc(d.train||r.train||'')],['Step',(typeof d.step==='number'?(d.step+1)+'. '+(STEPS[d.step]?STEPS[d.step].m:''):'—')],['Flow (LPH)',g('flow',0)],['Conductivity',g('cond')],['Spent Fe / Cr³⁺',g('spentFe')+' / '+g('spentCr3')],['Treated Fe / Cr³⁺',g('treatFe')+' / '+g('treatCr3')]];
-    const feed=[['Chromic processed (L)',g('feedVol',0)],['Feed CrO₃',g('feedCrO3')],['Feed Fe',g('feedFe')],['Feed Cr³⁺',g('feedCr3')],['Feed Cu',g('feedCu')]];
-    const treat=[['CT2 recovered (L)',g('ct2',0)],['Treated CrO₃',g('treatCrO3')],['Treated Fe',g('treatFeL')],['Treated Cr³⁺',g('treatCr3L')],['Treated Cu',g('treatCu')]];
-    const regen=[['CARS H₂SO₄',g('carsPct')+'% · '+g('carsVol',0)+' L'],['CARWARS cat-1',g('cw1Pct')+'% · '+g('cw1Vol',0)+' L'],['CARWARS anion (NaOH)',g('cwAnPct')+'% · '+g('cwAnVol',0)+' L'],['CARWARS cat-2',g('cw2Pct')+'% · '+g('cw2Vol',0)+' L'],['RWRS cation',g('rwCatPct')+'% · '+g('rwCatVol',0)+' L'],['RWRS WBA (NaOH)',g('rwAnPct')+'% · '+g('rwAnVol',0)+' L'],['H₂SO₄ recycled',g('recyc',0)+' L']];
-    const tanks=Object.keys(d.tanks||{}).length?[['Tank levels',Object.entries(d.tanks).map(([k,v])=>k+' '+fmt(num(v),0)).join(' · ')]]:[];
-    const totals=[['Chromic processed',fmt(r.chromic_processed_l,0)+' L'],['CrO₃ recovered',fmt(r.cro3_recovered_kg,1)+' kg'],['Fe removed',fmt(r.fe_removed_kg,1)+' kg'],['Recovery',fmt(r.recovery_pct,0)+'%'],['H₂SO₄ (50%)',fmt(r.h2so4_50_kg,1)+' kg'],['NaOH (100%)',fmt(r.naoh_100_kg,1)+' kg']];
-    return `<div style="page-break-inside:avoid;border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:8px">
-        <div style="font-weight:700;font-size:15px">${r.cycle_date||''} · ${esc(r.train||d.train||'')}</div>
-        <div style="font-size:12px;color:#888">${r.status} · ${esc(d.technician_name||'')} · ${esc(r.clients?.name||'')} / ${esc(r.locations?.name||'')}</div></div>
-      <b style="color:#c9640a;font-size:12px">Live readings</b>${secRow(readings)}
-      <b style="color:#c9640a;font-size:12px">Feed (spent)</b>${secRow(feed)}
-      <b style="color:#c9640a;font-size:12px">Treated (CT2)</b>${secRow(treat)}
-      <b style="color:#c9640a;font-size:12px">Regeneration</b>${secRow(regen)}
-      ${tanks.length?`<b style="color:#c9640a;font-size:12px">Tanks</b>${secRow(tanks)}`:''}
-      <b style="color:#c9640a;font-size:12px">Calculated totals</b>${secRow(totals)}
-      ${d.notes?`<div style="font-size:12px;margin-top:6px"><b>Notes:</b> ${esc(d.notes)}</div>`:''}
-      ${(d.bathFe!==''&&d.bathFe!=null)?`<div style="font-size:12px"><b>Bath Fe:</b> ${g('bathFe')} g/L · reuse #${g('reuseCount',0)}</div>`:''}
-    </div>`;};
-  return `<!doctype html><meta charset="utf-8"><title>CARS report</title><body style="font-family:system-ui,Segoe UI,Roboto,sans-serif;max-width:820px;margin:18px auto;padding:0 16px;color:#222">${head}${rows.map(block).join('')}<div style="text-align:center;color:#888;font-size:11px;margin-top:16px">© ${new Date().getFullYear()} Polyfill Microns Pvt Ltd — sole and exclusive property.</div></body>`;
+function rTech(r){return (r.data&&r.data.technician_name)||'';}
+function rCo(r){return (r.data&&r.data.client_name)||(r.clients&&r.clients.name)||'';}
+function rLoc(r){return (r.data&&r.data.location_name)||(r.locations&&r.locations.name)||'';}
+function reportDoc(rows,meta){
+  meta=meta||{};
+  var payload=JSON.stringify(rows).replace(/</g,'\\u003c');
+  var css="body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:0;background:#eef1f5;color:#1a2230}"+
+   ".hd{display:flex;align-items:center;gap:12px;background:#10141d;color:#fff;padding:12px 18px;border-bottom:3px solid #f2820c}"+
+   ".hd img{width:40px;height:40px;border-radius:50%}.hd b{font-size:17px}.hd .s{font-size:11px;color:#9fb;opacity:.8}"+
+   ".nav{display:flex;gap:8px;align-items:center;padding:10px 18px;background:#171d29;color:#cdd6e4;flex-wrap:wrap}"+
+   ".nav button{background:#1e2735;color:#cdd6e4;border:0;padding:7px 13px;border-radius:7px;font-weight:600;cursor:pointer}"+
+   ".nav button:hover{background:#28324a}.nav .np{background:#f2820c;color:#1a1206}.nav .cnt{font-size:12px;margin-left:auto}"+
+   ".tabs{display:flex;gap:6px;padding:10px 18px 0}.tabs button{background:#e7ebf1;border:0;padding:8px 14px;border-radius:8px 8px 0 0;font-weight:600;color:#5a6678;cursor:pointer}.tabs button.on{background:#fff;color:#c9640a}"+
+   ".wrap{max-width:900px;margin:0 auto;padding:0 18px 24px}.card{background:#fff;border:1px solid #dde3ea;border-top:0;border-radius:0 0 12px 12px;padding:16px}"+
+   ".board{background:#10141d;color:#e9eef6;border-radius:11px;padding:14px;margin-bottom:12px}"+
+   ".rail{display:flex;gap:5px;overflow-x:auto;background:#171d29;border-radius:9px;padding:5px}"+
+   ".step{min-width:88px;padding:8px 9px;border-radius:7px;border:1px solid transparent}.step.on{background:#241a09;border-color:#f2820c}.step .n{font-size:10px;color:#5f6c81;font-family:monospace}.step .m{font-size:11px;color:#8f9db1;font-weight:600}.step.on .m{color:#ffb84d}"+
+   ".rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin-top:11px}.rd .k{font-size:10px;color:#5f6c81;text-transform:uppercase}.rd .v{font-family:monospace;font-size:15px;color:#e9eef6}"+
+   ".tanks{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:11px}.tk{background:#171d29;border-radius:8px;padding:8px}.tk .n{font-size:11px;font-weight:600}.tk .vis{height:26px;background:#10141d;border-radius:5px;margin-top:5px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08)}.tk .vis i{position:absolute;left:0;right:0;bottom:0}.tk .val{font-family:monospace;font-size:10px;color:#8f9db1;margin-top:3px}"+
+   ".flds{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}@media(max-width:600px){.flds{grid-template-columns:1fr}}"+
+   ".fl{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #eef1f4;padding:4px 0;font-size:12.5px}.fl .k{color:#5a6678}.fl .v{font-family:monospace;font-weight:600}"+
+   ".sec{grid-column:1/-1;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#c9640a;border-bottom:1px solid #dde3ea;padding:8px 0 4px;margin-top:6px}"+
+   ".kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:11px}.kpi{border-left:3px solid #f2820c;padding-left:10px}.kpi .v{font-family:monospace;font-size:20px;font-weight:600}.kpi .l{font-size:10px;color:#5a6678;text-transform:uppercase}"+
+   ".pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase}.pd{background:rgba(240,164,28,.16);color:#a9700a}.pc{background:rgba(34,171,87,.14);color:#1a8f47}"+
+   "#printAll{display:none}"+
+   "@media print{@page{size:auto;margin:11mm}#screen{display:none!important}#printAll{display:block}.pcard{page-break-inside:avoid;border:1px solid #ccc;border-radius:8px;padding:10px;margin-bottom:12px}.pcard h4{margin:0 0 6px;font-size:13px;color:#12203a}.pflds{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px 16px}@media(max-width:700px){.pflds{grid-template-columns:1fr 1fr}}.pfl{display:flex;justify-content:space-between;border-bottom:1px solid #eee;font-size:11px;padding:2px 0}.psec{grid-column:1/-1;font-weight:700;color:#c9640a;font-size:10.5px;text-transform:uppercase;margin-top:4px}body{background:#fff}}";
+  var doc="<!doctype html><html><head><meta charset='utf-8'><title>CARS cycle report</title><style>"+css+"</style></head><body>"+
+   "<div id='screen'><div class='hd'><img src='"+((meta.logo)||'')+"'><div><b>Polyfill Microns Pvt Ltd</b><div class='s'>Chromic Acid Recycling — locked cycle view</div></div></div>"+
+   "<div class='nav'><button class='np' id='prev'>\u2039 Prev</button><button class='np' id='next'>Next \u203a</button><button id='prn'>Print all</button><span class='cnt' id='cnt'></span></div>"+
+   "<div class='tabs' id='tabs'></div><div class='wrap'><div class='card' id='body'></div></div></div>"+
+   "<div id='printAll'></div>"+
+   "<scr"+"ipt>var ROWS="+payload+",STEPS="+JSON.stringify(STEPS)+",TANKS="+JSON.stringify(TANKS)+",CAPS="+JSON.stringify(DEFAULTS.tankCaps)+";"+
+   "var idx=0,tab='board';"+
+   "function E(i){return document.getElementById(i);}"+
+   "function f(v,d){d=d==null?1:d;v=parseFloat(v);return isNaN(v)?'\u2014':v.toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});}"+
+   "function g(r,k,d){var x=(r.data||{})[k];return (x===''||x==null)?'\u2014':f(x,d);}"+
+   "function co(r){return (r.data&&r.data.client_name)||(r.clients&&r.clients.name)||'';}"+
+   "function lo(r){return (r.data&&r.data.location_name)||(r.locations&&r.locations.name)||'';}"+
+   "function te(r){return (r.data&&r.data.technician_name)||'';}"+
+   "function fl(k,v){return \"<div class='fl'><span class='k'>\"+k+\"</span><span class='v'>\"+v+\"</span></div>\";}"+
+   "function boardHTML(r){var d=r.data||{},st=(typeof d.step==='number'?d.step:0);"+
+   "var rail=STEPS.map(function(s,i){return \"<div class='step\"+(i===st?' on':'')+\"'><div class='n'>\"+(i+1)+\"</div><div class='m'>\"+s.m+\"</div></div>\";}).join('');"+
+   "var rd=[['Train',d.train||r.train||'\u2014'],['Step',(st+1)+'. '+(STEPS[st]?STEPS[st].m:'')],['Flow LPH',g(r,'flow',0)],['Conductivity',g(r,'cond')],['Spent Fe',g(r,'spentFe')],['Spent Cr\u00b3\u207a',g(r,'spentCr3')],['Treated Fe',g(r,'treatFe')],['Treated Cr\u00b3\u207a',g(r,'treatCr3')]].map(function(p){return \"<div><div class='k'>\"+p[0]+\"</div><div class='v'>\"+p[1]+\"</div></div>\";}).join('');"+
+   "var tanks=TANKS.map(function(a){var k=a[0],cap=CAPS[k]||1000,lv=parseFloat((d.tanks||{})[k])||0,pct=Math.min(100,lv/cap*100);return \"<div class='tk'><div class='n'>\"+(k==='H2'?'H\u2082SO\u2084':(k==='SP'?'Spent H\u2082SO\u2084':k))+\"</div><div class='vis'><i style='height:\"+pct+\"%;background:\"+a[2]+\"'></i></div><div class='val'>\"+f(lv,0)+' / '+f(cap,0)+\" L</div></div>\";}).join('');"+
+   "return \"<div class='board'><div class='rail'>\"+rail+\"</div><div class='rd'>\"+rd+\"</div></div><div class='board'><div style=\\\"font-size:11px;color:#5f6c81;text-transform:uppercase;margin-bottom:6px\\\">Tank board</div><div class='tanks'>\"+tanks+\"</div></div>\";}"+
+   "function logHTML(r){var out=\"<div class='flds'>\";"+
+   "out+=\"<div class='sec'>Header</div>\"+fl('Date',r.cycle_date||'\u2014')+fl('Train',(r.data&&r.data.train)||r.train||'\u2014')+fl('Chromic processed L',g(r,'feedVol',0));"+
+   "out+=\"<div class='sec'>Feed (spent)</div>\"+fl('Feed CrO\u2083',g(r,'feedCrO3'))+fl('Feed Fe',g(r,'feedFe'))+fl('Feed Cr\u00b3\u207a',g(r,'feedCr3'))+fl('Feed Cu',g(r,'feedCu'));"+
+   "out+=\"<div class='sec'>Treated (CT2)</div>\"+fl('CT2 recovered L',g(r,'ct2',0))+fl('Treated CrO\u2083',g(r,'treatCrO3'))+fl('Treated Fe',g(r,'treatFeL'))+fl('Treated Cr\u00b3\u207a',g(r,'treatCr3L'))+fl('Treated Cu',g(r,'treatCu'));"+
+   "out+=\"<div class='sec'>CARS / CARWARS / RWRS regeneration</div>\"+fl('CARS H\u2082SO\u2084',g(r,'carsPct')+'% \u00b7 '+g(r,'carsVol',0)+' L')+fl('H\u2082SO\u2084 recycled L',g(r,'recyc',0))+fl('CARWARS cat-1',g(r,'cw1Pct')+'% \u00b7 '+g(r,'cw1Vol',0)+' L')+fl('CARWARS anion',g(r,'cwAnPct')+'% \u00b7 '+g(r,'cwAnVol',0)+' L')+fl('CARWARS cat-2',g(r,'cw2Pct')+'% \u00b7 '+g(r,'cw2Vol',0)+' L')+fl('RWRS cation',g(r,'rwCatPct')+'% \u00b7 '+g(r,'rwCatVol',0)+' L')+fl('RWRS WBA',g(r,'rwAnPct')+'% \u00b7 '+g(r,'rwAnVol',0)+' L');"+
+   "if(r.data&&r.data.notes)out+=\"<div class='sec'>Notes</div><div style='grid-column:1/-1;font-size:12.5px'>\"+String(r.data.notes).replace(/</g,'&lt;')+\"</div>\";"+
+   "return out+\"</div>\";}"+
+   "function totHTML(r){var k=[['Chromic L',f(r.chromic_processed_l,0)],['CrO\u2083 rec kg',f(r.cro3_recovered_kg,1)],['Fe removed kg',f(r.fe_removed_kg,1)],['Recovery %',f(r.recovery_pct,0)],['H\u2082SO\u2084 50% kg',f(r.h2so4_50_kg,1)],['NaOH kg',f(r.naoh_100_kg,1)]];return \"<div class='kpis'>\"+k.map(function(p){return \"<div class='kpi'><div class='v'>\"+p[1]+\"</div><div class='l'>\"+p[0]+\"</div></div>\";}).join('')+\"</div>\";}"+
+   "function render(){var r=ROWS[idx];E('cnt').textContent=(idx+1)+' / '+ROWS.length+'  \u00b7  '+(r.cycle_date||'')+' \u00b7 '+te(r)+' \u00b7 '+co(r)+' / '+lo(r)+' \u00b7 '+r.status;"+
+   "E('tabs').innerHTML=[['board','Operator board'],['log','Cycle log'],['tot','Totals']].map(function(t){return \"<button class='\"+(tab===t[0]?'on':'')+\"' onclick=\\\"setTab('\"+t[0]+\"')\\\">\"+t[1]+\"</button>\";}).join('');"+
+   "E('body').innerHTML=tab==='board'?boardHTML(r):(tab==='log'?logHTML(r):totHTML(r));"+
+   "E('prev').disabled=idx===0;E('next').disabled=idx===ROWS.length-1;}"+
+   "window.setTab=function(t){tab=t;render();};"+
+   "E('prev').onclick=function(){if(idx>0){idx--;render();}};E('next').onclick=function(){if(idx<ROWS.length-1){idx++;render();}};E('prn').onclick=function(){window.print();};"+
+   "E('printAll').innerHTML=ROWS.map(function(r){return \"<div class='pcard'><h4>\"+(r.cycle_date||'')+' \u00b7 '+((r.data&&r.data.train)||r.train||'')+' \u00b7 '+te(r)+' \u00b7 '+co(r)+' / '+lo(r)+' \u00b7 '+r.status+\"</h4><div class='pflds'>\"+"+
+   "[\"<div class='psec'>Readings</div>\",fl('Flow LPH',g(r,'flow',0)),fl('Conductivity',g(r,'cond')),fl('Spent Fe/Cr\u00b3\u207a',g(r,'spentFe')+' / '+g(r,'spentCr3')),\"<div class='psec'>Feed</div>\",fl('Chromic L',g(r,'feedVol',0)),fl('Feed CrO\u2083',g(r,'feedCrO3')),fl('Feed Fe/Cr\u00b3\u207a',g(r,'feedFe')+' / '+g(r,'feedCr3')),fl('Feed Cu',g(r,'feedCu')),\"<div class='psec'>Treated</div>\",fl('CT2 L',g(r,'ct2',0)),fl('Treated CrO\u2083',g(r,'treatCrO3')),fl('Treated Fe/Cr\u00b3\u207a',g(r,'treatFeL')+' / '+g(r,'treatCr3L')),\"<div class='psec'>Regeneration</div>\",fl('CARS H\u2082SO\u2084',g(r,'carsPct')+'% \u00b7 '+g(r,'carsVol',0)+'L'),fl('CARWARS anion',g(r,'cwAnPct')+'% \u00b7 '+g(r,'cwAnVol',0)+'L'),fl('RWRS cation',g(r,'rwCatPct')+'% \u00b7 '+g(r,'rwCatVol',0)+'L'),\"<div class='psec'>Totals</div>\",fl('Chromic L',f(r.chromic_processed_l,0)),fl('CrO\u2083 rec kg',f(r.cro3_recovered_kg,1)),fl('Fe rem kg',f(r.fe_removed_kg,1)),fl('Recovery %',f(r.recovery_pct,0)),fl('H\u2082SO\u2084 50% kg',f(r.h2so4_50_kg,1)),fl('NaOH kg',f(r.naoh_100_kg,1))].join('')"+
+   "+\"</div></div>\";}).join('');"+
+   "render();"+
+   "<\/scr"+"ipt></body></html>";
+  return doc;
 }
-function htmlReport(rows,from,to,print){const w=window.open('','_blank');w.document.write(reportHTML(rows,from,to));w.document.close();if(print)setTimeout(()=>w.print(),400);}
+function htmlReport(rows,from,to,print){
+  if(!rows||!rows.length){toast('No cycles to show');return;}
+  var w=window.open('','_blank');var meta={from:from,to:to,logo:(location.origin||'')+'/pmpl-logo.jpg'};
+  w.document.write(reportDoc(rows,meta));w.document.close();
+  if(print)setTimeout(function(){try{w.print();}catch(e){}},500);
+}
 function excelExport(rows,from,to){
-  const detail=rows.map(r=>{const d=r.data||{};const base={Date:r.cycle_date,Technician:d.technician_name||'',Company:r.clients?.name||'',Location:r.locations?.name||'',Train:r.train,Status:r.status,
+  const detail=rows.map(r=>{const d=r.data||{};const base={Date:r.cycle_date,Technician:rTech(r),Company:rCo(r),Location:rLoc(r),Train:r.train,Status:r.status,
     'Chromic L':+r.chromic_processed_l||0,'CrO3 recovered kg':+r.cro3_recovered_kg||0,'Fe removed kg':+r.fe_removed_kg||0,'Recovery %':+r.recovery_pct||0,'H2SO4 50% kg':+r.h2so4_50_kg||0,'NaOH 100% kg':+r.naoh_100_kg||0};
-    ['flow','cond','spentFe','spentCr3','feedCrO3','feedFe','feedCr3','feedCu','ct2','treatCrO3','treatFeL','treatCr3L','treatCu','carsPct','carsVol','recyc','cw1Pct','cw1Vol','cwAnPct','cwAnVol','cw2Pct','cw2Vol','rwCatPct','rwCatVol','rwAnPct','rwAnVol','bathFe','reuseCount'].forEach(k=>base[labelOf(k)]=d[k]!==''&&d[k]!=null?+d[k]:'');base.Notes=d.notes||'';return base;});
+    ['flow','cond','spentFe','spentCr3','feedCrO3','feedFe','feedCr3','feedCu','ct2','treatCrO3','treatFeL','treatCr3L','treatCu','carsPct','carsVol','recyc','cw1Pct','cw1Vol','cwAnPct','cwAnVol','cw2Pct','cw2Vol','rwCatPct','rwCatVol','rwAnPct','rwAnVol'].forEach(k=>base[labelOf(k)]=d[k]!==''&&d[k]!=null?+d[k]:'');base.Notes=d.notes||'';return base;});
   const sum=f=>rows.reduce((a,x)=>a+(+f(x)||0),0);
   const summary=[['Cycles',rows.length],['Completed',rows.filter(x=>x.status==='completed').length],['Chromic processed L',sum(x=>x.chromic_processed_l)],['CrO3 recovered kg',sum(x=>x.cro3_recovered_kg)],['Fe removed kg',sum(x=>x.fe_removed_kg)],['H2SO4 50% kg',sum(x=>x.h2so4_50_kg)],['NaOH 100% kg',sum(x=>x.naoh_100_kg)]].map(([Metric,Value])=>({Metric,Value}));
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(summary),'Summary');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(detail),'Cycles');XLSX.writeFile(wb,`CARS_${from||'all'}_${to||''}.xlsx`);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(summary),'Summary');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(detail),'Cycles');XLSX.writeFile(wb,'CARS_'+(from||'all')+'_'+(to||'')+'.xlsx');
 }
-function jsonExport(rows,from,to){const blob=new Blob([JSON.stringify({owner:'Polyfill Microns Pvt Ltd',from,to,exported:new Date().toISOString(),cycles:rows},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`CARS_${from||'all'}.json`;a.click();URL.revokeObjectURL(a.href);}
+function jsonExport(rows,from,to){const blob=new Blob([JSON.stringify({owner:'Polyfill Microns Pvt Ltd',from,to,exported:new Date().toISOString(),cycles:rows},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='CARS_'+(from||'all')+'.json';a.click();URL.revokeObjectURL(a.href);}
 
 /* ---- tiny helpers ---- */
-function field(label,control){const w=el('div','f');w.appendChild(el('label',null,label));w.appendChild(control);return w;}
 function lw(label,control){const w=el('div','f');w.appendChild(el('label',null,label));w.appendChild(control);return w;}
 function add(p,cls,html){p.appendChild(el('div',cls,html));}
 function inp(type){const i=document.createElement('input');i.type=type;return i;}
 function opt(v,t){const o=document.createElement('option');o.value=v;o.textContent=t;return o;}
-function inp2(type,key,ph){const i=document.createElement('input');i.type=type;i.className='mono';if(cd()[key]!=null)i.value=cd()[key];if(ph)i.placeholder=ph;i.oninput=()=>{cd()[key]=i.value;updateBoard();};return i;}
-function sel2(opts,key){const s=document.createElement('select');opts.forEach(o=>s.append(opt(o,o)));s.value=cd()[key]||opts[0];s.onchange=()=>{cd()[key]=s.value;};return s;}
-function acidTriple(parent,label,pk,vk,type){
-  parent.appendChild(field(label+' — conc (%)',inp2('number',pk)));
-  parent.appendChild(field(label+' — vol (L)',inp2('number',vk)));
-  const calc=document.createElement('input');calc.readOnly=true;calc.className='mono';calc.dataset.calc=type+'|'+pk+'|'+vk;
-  parent.appendChild(field(label+' — qty (kg)',calc));
-}
 </script>
 </body>
 </html>
