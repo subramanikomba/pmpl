@@ -39,3 +39,21 @@ Backend: Supabase migrations applied (username/email_contact, company active fla
 single global-default settings, location_state); Edge Function `manage-technician`
 updated to v6 (username auth). Optional: enable "leaked password protection" in
 Supabase Auth settings.
+
+## v5 corrections (styling + report/print + reports table)
+1. Dashboard: active train shown in orange (title + outlined selector); status legend
+   now shows coloured Green/Red/Amber dots, spaced and readable; reminder cards have
+   their left status bar, a visible progress bar and styled action buttons; Discard is
+   light-red with red text; Technician / Company / Location shown in a prominent bar.
+2. Cycle view: Prev/Next hidden in single-record view; the print button is labelled "Print".
+3. Print layout includes Notes, Totals, Reminders & Flags, Completed date/time, and a
+   PMPL letterhead header (logo + company name + tagline + salmon rule) so it reads as a
+   company report. (Full postal address/phone can be added on request.)
+4. Reports open in an in-app full-screen panel with a clear ✕ Close button (and Print),
+   instead of a bare browser tab — the app menu is one click away.
+5. Reports table: added a Time column; sorting limited to Date, Time, Technician,
+   Company, Location, Train and Status; roomier row spacing.
+6. Technician email is a contact-only field with basic format validation; it is never
+   used for login or identity (login is Username + Password).
+
+Service worker cache: cars-cloud-v5.
