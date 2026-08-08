@@ -57,3 +57,12 @@ Supabase Auth settings.
    used for login or identity (login is Username + Password).
 
 Service worker cache: cars-cloud-v5.
+
+## v6 corrections
+1. Dashboard header train type (ETCHING/PLATING) now updates live when the train is toggled.
+2. Reminders & Flags progress bar: no-progress track is light grey (blends with card) instead of dark.
+3. Print: company-header separator restored (drawn as a border so it prints reliably).
+Also: all test data cleared from the database (cycles, technicians, companies, locations, stock,
+company settings overrides). Admin login and global default settings preserved; schema/auth/code unchanged.
+
+Service worker cache: cars-cloud-v6.
