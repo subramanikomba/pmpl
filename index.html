@@ -152,7 +152,7 @@ footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-
 .legend .lg{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim)}
 .legend .lg i{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
 .legend .lg.go i{background:var(--ok)}.legend .lg.stop i{background:var(--alarm)}.legend .lg.hold i{background:var(--warn)}
-.rbar{height:7px;background:var(--panel);border-radius:5px;overflow:hidden;margin-top:9px}
+.rbar{height:7px;background:#e9edf2;border-radius:5px;overflow:hidden;margin-top:9px}
 .rbar i{display:block;height:100%;border-radius:5px}
 .rmini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
 .rmini button{background:#fff;border:1px solid var(--line-l);color:var(--wink);padding:6px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
@@ -342,8 +342,8 @@ function renderCycle(m){
   m.appendChild(el('div','note',CUR.id?'<span class="pill draft">Draft</span> saved cycle in progress':'New cycle — press Save to start the draft'));
   m.appendChild(el('div','whobar','<span class="wb"><i>Technician</i><b>'+esc(ME.name)+'</b></span><span class="wb co"><i>Company</i><b>'+esc(ME.clientName||'—')+'</b></span><span class="wb loc"><i>Location</i><b>'+esc(ME.locationName||'—')+'</b></span>'));
   var b=el('div','board');
-  var ts=el('div','trainsel');['Etching','Plating'].forEach(function(tr){var bb=el('button',d.train===tr?'on':'',tr);bb.onclick=function(){d.train=tr;Array.prototype.forEach.call(ts.children,function(c){c.className=c.textContent===tr?'on':'';});if(REF.train)REF.train.value=tr;};ts.appendChild(bb);});
-  b.appendChild(el('h3',null,'CARS cycle — <span style="color:var(--chrome)">'+esc(d.train)+'</span>'));b.appendChild(ts);
+  var ts=el('div','trainsel');['Etching','Plating'].forEach(function(tr){var bb=el('button',d.train===tr?'on':'',tr);bb.onclick=function(){d.train=tr;Array.prototype.forEach.call(ts.children,function(c){c.className=c.textContent===tr?'on':'';});if(REF.train)REF.train.value=tr;var tn=document.getElementById('cyTrain');if(tn)tn.textContent=tr;};ts.appendChild(bb);});
+  b.appendChild(el('h3',null,'CARS cycle — <span id="cyTrain" style="color:var(--chrome)">'+esc(d.train)+'</span>'));b.appendChild(ts);
   var rail=el('div','rail');rail.id='cyRail';
   STEPS.forEach(function(s,i){var e=el('div','step','<div class="n">'+String(i+1).padStart(2,'0')+'</div><div class="m">'+s.m+'</div><div class="d">'+s.d+'</div>');e.onclick=function(){d.step=i;paint();};rail.appendChild(e);});
   b.appendChild(rail);
@@ -811,7 +811,7 @@ function reportDoc(rows,meta){
   var css="body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:0;background:#eef1f5;color:#1a2230}"+
    ".lh{display:flex;align-items:center;gap:14px;padding:14px 20px 8px}.lh img{width:54px;height:54px;border-radius:50%}"+
    ".lhn{font-size:20px;font-weight:800;color:#E8825A;letter-spacing:.5px}.lht{font-size:11px;color:#1B3A6B;margin-top:2px}"+
-   ".lhs{margin-left:auto;text-align:right;font-size:11px;color:#5a6678;line-height:1.5}.lhrule{height:3px;background:#E8825A;margin:0 20px 10px}"+
+   ".lhs{margin-left:auto;text-align:right;font-size:11px;color:#5a6678;line-height:1.5}.lhrule{border-top:3px solid #E8825A;margin:8px 20px 10px}"+
    ".nav{display:flex;gap:8px;align-items:center;padding:8px 20px;background:#171d29;color:#cdd6e4;flex-wrap:wrap}"+
    ".nav button{background:#1e2735;color:#cdd6e4;border:0;padding:7px 13px;border-radius:7px;font-weight:600;cursor:pointer}"+
    ".nav button:hover{background:#28324a}.nav .np{background:#f2820c;color:#1a1206}.nav .cnt{font-size:12px;margin-left:auto}"+
