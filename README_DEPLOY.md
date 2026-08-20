@@ -72,3 +72,10 @@ Service worker cache: cars-cloud-v6.
 - Technician profile: optional First Name + Last Name (display = First + Last if given, else username). Login unchanged.
 - CARS Cycle Report print layout redesigned to the approved prototype (letterhead with web/email, bordered meta + section cards, single-row TOTALS, reminders + Notes card, calendar footer with "FOR POLYFILL MICRONS PVT. LTD." signature).
 - Requires Edge Function manage-technician v8 and profiles.first_name/last_name columns (already deployed).
+
+
+## v8 (this build)
+- CARS Cycle Report: removed the TOTALS section (Chromic L, CrO3 rec kg, Fe removed kg, H2SO4 50% kg, NaOH kg) from print/PDF, the report-view tab, the Admin Reports summary, and the Excel summary sheet. Per-cycle values (individual cycle information) are retained everywhere.
+- Footer: "Cycle Completed On" is hidden for draft/incomplete cycles.
+- Added comfortable signature space above the "FOR POLYFILL MICRONS PVT. LTD." placeholder.
+- Print @page margin set to 0 (margins moved into content padding) so the browser no longer prints the page URL at the bottom of the report.
