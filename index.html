@@ -269,10 +269,10 @@ sb.auth.onAuthStateChange(async(_e,session)=>{
   else{$('#app').classList.add('hide');$('#login').classList.remove('hide');ME=null;CUR=null;}
 });
 async function boot(user){
-  const {data:prof,error}=await sb.from('profiles').select('id,full_name,role,active,client_id,location_id,clients(name),locations(name)').eq('id',user.id).single();
+  const {data:prof,error}=await sb.from('profiles').select('id,full_name,username,role,active,client_id,location_id,clients(name),locations(name)').eq('id',user.id).single();
   if(error||!prof){$('#liErr').textContent='Profile not found. Contact admin.';await sb.auth.signOut();return;}
   if(!prof.active){$('#liErr').textContent='Your account is deactivated. Contact admin.';await sb.auth.signOut();return;}
-  ME={id:prof.id,role:prof.role,name:prof.full_name||user.email,email:user.email,client_id:prof.client_id,location_id:prof.location_id,
+  ME={id:prof.id,role:prof.role,name:prof.full_name||prof.username||user.email,email:user.email,client_id:prof.client_id,location_id:prof.location_id,
       clientName:prof.clients?.name||'',locationName:prof.locations?.name||''};
   {const {data:gs}=await sb.from('settings').select('data').is('client_id',null).maybeSingle();
    let cs=null; if(ME.client_id){const r=await sb.from('settings').select('data').eq('client_id',ME.client_id).maybeSingle();cs=r.data;}
@@ -637,18 +637,18 @@ async function loadCL(){const {data:cl}=await sb.from('clients').select('id,name
 async function screenTechs(m){
   const c=el('div','card');c.innerHTML='<h2>Technicians</h2>';
   const {clients,locations}=await loadCL();
-  const un=inp('text'),em=inp('email'),pw=inp('text');un.placeholder='login username';em.placeholder='optional contact email';pw.placeholder='temp password';
+  const fn=inp('text'),ln=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');fn.placeholder='first name (optional)';ln.placeholder='last name (optional)';un.placeholder='login username';em.placeholder='optional contact email';pw.placeholder='temp password';
   const cSel=document.createElement('select');clients.filter(x=>x.active!==false).forEach(x=>cSel.append(opt(x.id,x.name)));
   const lSel=document.createElement('select');function fillLoc(){lSel.innerHTML='';lSel.append(opt('','—'));locations.filter(l=>l.client_id===cSel.value&&l.active!==false).forEach(l=>lSel.append(opt(l.id,l.name)));}
   cSel.onchange=fillLoc;if(cSel.options.length)cSel.value=cSel.options[0].value;fillLoc();
-  [un,em,pw,cSel,lSel].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
-  const f=el('div','grid g3');f.append(lw('Username',un),lw('Contact email (optional)',em),lw('Temp password',pw),lw('Company',cSel),lw('Location',lSel));
+  [fn,ln,un,em,pw,cSel,lSel].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
+  const f=el('div','grid g3');f.append(lw('First name (optional)',fn),lw('Last name (optional)',ln),lw('Username',un),lw('Contact email (optional)',em),lw('Temp password',pw),lw('Company',cSel),lw('Location',lSel));
   c.appendChild(f);
   const bAdd=el('button','btn primary','Create technician');bAdd.style.marginTop='12px';
   bAdd.onclick=async()=>{if(!un.value.trim()||!pw.value){toast('Username and password required');return;}
     if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){toast('Enter a valid contact email, or leave it blank');return;}
     bAdd.disabled=true;bAdd.textContent='Creating…';
-    try{await callFn('create',{username:un.value.trim(),email_contact:em.value.trim()||null,password:pw.value,full_name:un.value.trim(),client_id:cSel.value||null,location_id:lSel.value||null});toast('Technician created');un.value=em.value=pw.value='';list();}catch(e){toast('Failed: '+e.message);}
+    try{await callFn('create',{username:un.value.trim(),first_name:fn.value.trim(),last_name:ln.value.trim(),email_contact:em.value.trim()||null,password:pw.value,client_id:cSel.value||null,location_id:lSel.value||null});toast('Technician created');fn.value=ln.value=un.value=em.value=pw.value='';list();}catch(e){toast('Failed: '+e.message);}
     bAdd.disabled=false;bAdd.textContent='Create technician';};
   c.appendChild(bAdd);const lb=el('div');lb.style.marginTop='16px';c.appendChild(lb);m.appendChild(c);
   async function list(){lb.innerHTML='<div class="note">Loading…</div>';
@@ -666,16 +666,16 @@ async function screenTechs(m){
   list();
 }
 function editTech(u,clients,locations,after){
-  const md=el('div','modal');const nm=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');
+  const md=el('div','modal');const fn=inp('text'),ln=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');
   const cS=document.createElement('select'),lS=document.createElement('select');
   clients.filter(x=>x.active!==false).forEach(x=>cS.append(opt(x.id,x.name)));function fl(){lS.innerHTML='';lS.append(opt('','—'));locations.filter(l=>l.client_id===cS.value&&l.active!==false).forEach(l=>lS.append(opt(l.id,l.name)));}
-  cS.onchange=fl;nm.value=u.full_name||'';un.value=u.username||'';em.value=u.email_contact||'';cS.value=u.client_id||(cS.options[0]&&cS.options[0].value);fl();if(u.location_id)lS.value=u.location_id;
-  const mc=el('div','mc');mc.innerHTML='<h3>Edit technician</h3><p>Username is the login. Contact email is optional and not used for login.</p>';
-  const g=el('div','grid g2');g.append(lw('Full name',nm),lw('Username',un),lw('Contact email (optional)',em),lw('New password (optional)',pw),lw('Company',cS),lw('Location',lS));mc.appendChild(g);
+  cS.onchange=fl;fn.value=u.first_name||'';ln.value=u.last_name||'';un.value=u.username||'';em.value=u.email_contact||'';cS.value=u.client_id||(cS.options[0]&&cS.options[0].value);fl();if(u.location_id)lS.value=u.location_id;
+  const mc=el('div','mc');mc.innerHTML='<h3>Edit technician</h3><p>Display name is First + Last name if given, otherwise the username. Username is the login. Contact email is optional and not used for login.</p>';
+  const g=el('div','grid g2');g.append(lw('First name (optional)',fn),lw('Last name (optional)',ln),lw('Username',un),lw('Contact email (optional)',em),lw('New password (optional)',pw),lw('Company',cS),lw('Location',lS));mc.appendChild(g);
   const err=el('div','err');mc.appendChild(err);
   const rr=el('div','row');rr.style.cssText='justify-content:flex-end;margin-top:16px';
   const bc=el('button','btn g','Cancel');bc.onclick=()=>md.remove();
-  const bs=el('button','btn primary','Save');bs.onclick=async()=>{err.textContent='';if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){err.textContent='Enter a valid contact email, or leave it blank.';return;}bs.disabled=true;try{await callFn('update',{user_id:u.id,full_name:nm.value.trim(),username:un.value.trim()||undefined,email_contact:em.value.trim(),client_id:cS.value||null,location_id:lS.value||null,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){err.textContent=e.message;}bs.disabled=false;};
+  const bs=el('button','btn primary','Save');bs.onclick=async()=>{err.textContent='';if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){err.textContent='Enter a valid contact email, or leave it blank.';return;}bs.disabled=true;try{await callFn('update',{user_id:u.id,first_name:fn.value.trim(),last_name:ln.value.trim(),username:un.value.trim()||undefined,email_contact:em.value.trim(),client_id:cS.value||null,location_id:lS.value||null,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){err.textContent=e.message;}bs.disabled=false;};
   rr.append(bc,bs);mc.appendChild(rr);md.appendChild(mc);document.body.appendChild(md);
 }
 
@@ -833,10 +833,27 @@ function reportDoc(rows,meta){
    ".rmb{font-size:11px;color:#5a6678;margin-top:3px}"+
    ".blk{margin-top:14px}.blkh{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#c9640a;margin-bottom:6px}"+
    "#printAll{display:none}"+
-   "@media print{@page{size:auto;margin:12mm}#screen{display:none!important}#printAll{display:block}"+
-   ".pcard{page-break-inside:avoid;border:1px solid #ccc;border-radius:8px;padding:10px;margin-bottom:12px}.pcard h4{margin:0 0 6px;font-size:13px;color:#12203a;border-bottom:1px solid #eee;padding-bottom:4px}"+
-   ".pflds{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px 16px}.pfl{display:flex;justify-content:space-between;border-bottom:1px solid #eee;font-size:11px;padding:2px 0}.psec{grid-column:1/-1;font-weight:700;color:#c9640a;font-size:10.5px;text-transform:uppercase;margin-top:5px}"+
-   ".rems{grid-template-columns:1fr 1fr 1fr}.pnote{font-size:11px;margin-top:6px;border:1px solid #eee;border-radius:6px;padding:6px;background:#fafafa}body{background:#fff}}";
+   "@media print{@page{size:A4;margin:12mm}#screen{display:none!important}#printAll{display:block}"+
+   "body{background:#fff;color:#2a3342;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-family:Arial,Helvetica,sans-serif}"+
+   ".preport{page-break-after:always}.preport:last-child{page-break-after:auto}"+
+   ".plh{display:flex;align-items:center;gap:14px}.plh .lg{width:54px;height:54px;flex:none;border-radius:50%}.plh .co{flex:1}.plh .nm{font-size:22px;font-weight:800;letter-spacing:.3px;color:#1B3A6B}.plh .tg{font-size:11px;color:#6b7686;margin-top:2px}.plh .ct{text-align:right;font-size:10.5px;color:#3a4453}.plh .ct .r{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin:3px 0}"+
+   ".plhrule{border-top:2px solid #E8825A;margin-top:9px}"+
+   ".prh{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px 0 14px;color:#5a6472;font-size:15px;font-weight:600;letter-spacing:2px}.prh .ln{width:46px;border-top:1px solid #c7cfd9}"+
+   ".card2{border:1px solid #e2e7ee;border-radius:10px;padding:11px 16px}.tcard{margin-top:12px}"+
+   ".metac{margin-bottom:12px}.metagrid{display:grid;grid-template-columns:1fr 1fr;gap:0 44px}"+
+   ".prow2{display:grid;grid-template-columns:150px 10px 1fr;align-items:baseline;padding:5px 0;font-size:12px}.prow2 .k{color:#3a4453}.prow2 .cln{color:#8a94a3}.prow2 .v{color:#2a3342}.metac .prow2 .k{font-weight:700}"+
+   ".secgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}"+
+   ".sh{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#E8825A;margin-bottom:7px}.sh2{margin:16px 0 8px}"+
+   ".totrow{display:flex;text-align:center}.totc{flex:1}.tv{font-size:22px;font-weight:800;color:#1B3A6B}.tl{font-size:10px;color:#7a8496;margin-top:3px}"+
+   ".rnwrap{display:grid;grid-template-columns:2.3fr 1fr;gap:12px}"+
+   ".rems{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}"+
+   ".rmi{border:1px solid #e2e7ee;border-left:4px solid #35b06a;border-radius:8px;padding:8px 10px;background:#fff}.rmi.wn{border-left-color:#E8825A}.rmi.al{border-left-color:#d1493a}"+
+   ".rmh{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}.rmh b{font-size:11px;color:#2a3342}"+
+   ".rmg{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:2px 6px;border-radius:9px;background:rgba(53,176,106,.12);color:#2f9d5e}.rmg.wn{background:rgba(232,130,90,.15);color:#c56a3a}.rmg.al{background:rgba(209,73,58,.12);color:#c0392b}"+
+   ".rmb{font-size:9px;color:#5a6472;margin-top:4px;line-height:1.4}"+
+   ".notesc{border:1px solid #e2e7ee;border-radius:10px;padding:11px 14px}.notesc .nh{font-size:11px;color:#7a8496;margin-bottom:8px}.notesc .nt{font-size:10px;color:#3a4453;margin-bottom:8px;line-height:1.45}.notesc .nl{border-bottom:1px solid #e6eaef;height:19px}"+
+   ".pfoot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #e2e7ee;margin-top:16px;padding-top:16px}.sig{text-align:center}.sig .sl{width:210px;border-top:1px solid #3a4453;margin-bottom:5px}.sig .st{font-size:11px;color:#3a4453}.cc{display:flex;align-items:center;gap:11px}.cc .l{font-size:10px;color:#7a8496}.cc .d{font-size:12.5px;font-weight:700;color:#2a3342;margin-top:1px}"+
+   ".disc{font-size:9px;color:#9aa4b2;margin-top:10px}}";
   var doc="<!doctype html><html><head><meta charset='utf-8'><title>CARS cycle report</title><style>"+css+"</style></head><body>"+
    "<div id='screen'><div id='lhScreen'></div>"+
    "<div class='nav'><button class='np' id='prev'>\u2039 Prev</button><button class='np' id='next'>Next \u203a</button><button id='prn'>Print</button><span class='cnt' id='cnt'></span></div>"+
@@ -890,9 +907,31 @@ function reportDoc(rows,meta){
    "if(!single){E('prev').disabled=idx===0;E('next').disabled=idx===ROWS.length-1;}}"+
    "window.setTab=function(t){tab=t;render();};"+
    "E('prev').onclick=function(){if(idx>0){idx--;render();}};E('next').onclick=function(){if(idx<ROWS.length-1){idx++;render();}};E('prn').onclick=function(){window.print();};"+
-   "E('printAll').innerHTML=letterhead()+ROWS.map(function(r){return \"<div class='pcard'><h4>\"+(r.cycle_date||'')+' \u00b7 '+((r.data&&r.data.train)||r.train||'')+' \u00b7 '+te(r)+' \u00b7 '+co(r)+' / '+lo(r)+' \u00b7 '+r.status+\"</h4><div class='pflds'>\"+"+
-   "[\"<div class='psec'>Readings</div>\",fl('Flow LPH',g(r,'flow',0)),fl('Conductivity',g(r,'cond')),fl('Spent Fe/Cr\u00b3\u207a',g(r,'spentFe')+' / '+g(r,'spentCr3')),fl('Completed',dt(r.completed_at)),\"<div class='psec'>Feed</div>\",fl('Chromic L',g(r,'feedVol',0)),fl('Feed CrO\u2083',g(r,'feedCrO3')),fl('Feed Fe/Cr\u00b3\u207a',g(r,'feedFe')+' / '+g(r,'feedCr3')),fl('Feed Cu',g(r,'feedCu')),\"<div class='psec'>Treated</div>\",fl('CT2 L',g(r,'ct2',0)),fl('Treated CrO\u2083',g(r,'treatCrO3')),fl('Treated Fe/Cr\u00b3\u207a',g(r,'treatFeL')+' / '+g(r,'treatCr3L')),\"<div class='psec'>Regeneration</div>\",fl('CARS H\u2082SO\u2084',g(r,'carsPct')+'% \u00b7 '+g(r,'carsVol',0)+'L'),fl('CARWARS anion',g(r,'cwAnPct')+'% \u00b7 '+g(r,'cwAnVol',0)+'L'),fl('RWRS cation',g(r,'rwCatPct')+'% \u00b7 '+g(r,'rwCatVol',0)+'L'),\"<div class='psec'>Totals</div>\",fl('Chromic L',f(r.chromic_processed_l,0)),fl('CrO\u2083 rec kg',f(r.cro3_recovered_kg,1)),fl('Fe rem kg',f(r.fe_removed_kg,1)),fl('Recovery %',f(r.recovery_pct,0)),fl('H\u2082SO\u2084 50% kg',f(r.h2so4_50_kg,1)),fl('NaOH kg',f(r.naoh_100_kg,1))].join('')"+
-   "+\"</div><div class='psec' style='color:#c9640a'>Reminders &amp; Flags</div>\"+remCards(r)+(r.data&&r.data.notes?\"<div class='pnote'><b>Notes:</b> \"+esc(r.data.notes)+\"</div>\":'')+\"</div>\";}).join('');"+
+   "var ICG=\"<svg viewBox='0 0 24 24' width='12' height='12' style='vertical-align:middle'><circle cx='12' cy='12' r='9.2' fill='none' stroke='#1B3A6B' stroke-width='1.5'/><ellipse cx='12' cy='12' rx='4' ry='9.2' fill='none' stroke='#1B3A6B' stroke-width='1.1'/><path d='M3 12h18' stroke='#1B3A6B' stroke-width='1.1'/></svg>\";"+
+   "var ICM=\"<svg viewBox='0 0 24 24' width='12' height='12' style='vertical-align:middle'><rect x='2.5' y='5' width='19' height='14' rx='2.2' fill='none' stroke='#1B3A6B' stroke-width='1.5'/><path d='M3.5 6.5l8.5 6 8.5-6' fill='none' stroke='#1B3A6B' stroke-width='1.3'/></svg>\";"+
+   "var ICC=\"<svg viewBox='0 0 24 24' width='26' height='26'><rect x='3' y='4.5' width='18' height='16.5' rx='2.2' fill='none' stroke='#1B3A6B' stroke-width='1.5'/><path d='M3 9.5h18M8 2.5v4M16 2.5v4' stroke='#1B3A6B' stroke-width='1.5' fill='none'/><circle cx='16.6' cy='15.4' r='3.7' fill='#fff' stroke='#1B3A6B' stroke-width='1.2'/><path d='M16.6 13.6v1.9l1.3.9' stroke='#1B3A6B' stroke-width='1' fill='none'/></svg>\";"+
+   "function dd(x){if(!x)return '\u2014';var d=new Date(x);return isNaN(d.getTime())?String(x):d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}"+
+   "function cap(s){s=String(s||'');return s?s.charAt(0).toUpperCase()+s.slice(1):'\u2014';}"+
+   "function fr(k,v){return \"<div class='prow2'><span class='k'>\"+k+\"</span><span class='cln'>:</span><span class='v'>\"+v+\"</span></div>\";}"+
+   "function sc(t,b){return \"<div class='card2'><div class='sh'>\"+t+\"</div>\"+b+\"</div>\";}"+
+   "function plh(){return \"<div class='plh'><img class='lg' width='54' height='54' src='\"+(META.logo||'')+\"'><div class='co'><div class='nm'>POLYFILL MICRONS PVT. LTD.</div><div class='tg'>Air &amp; Water Pollution Control Systems \u00b7 Chromic Acid Recycling (CARS)</div></div><div class='ct'><div class='r'>\"+ICG+\"<span>www.polyfillmicrons.in</span></div><div class='r'>\"+ICM+\"<span>info@polyfillmicrons.in</span></div></div></div><div class='plhrule'></div>\";}"+
+   "function metaCard(r){return \"<div class='card2 metac'><div class='metagrid'><div>\"+fr('Cycle Date',dd(r.cycle_date))+fr('Completed On',dt(r.completed_at))+fr('Train',esc((r.data&&r.data.train)||r.train||'\u2014'))+fr('Technician',esc(te(r))||'\u2014')+\"</div><div>\"+fr('Company',esc(co(r))||'\u2014')+fr('Location',esc(lo(r))||'\u2014')+fr('Cycle Status',cap(r.status))+\"</div></div></div>\";}"+
+   "function totCard(r){var k=[['Chromic L',f(r.chromic_processed_l,0)],['CrO\u2083 rec kg',f(r.cro3_recovered_kg,1)],['Fe rem kg',f(r.fe_removed_kg,1)],['Recovery %',f(r.recovery_pct,0)],['H\u2082SO\u2084 50% kg',f(r.h2so4_50_kg,1)],['NaOH kg',f(r.naoh_100_kg,1)]];return \"<div class='card2 tcard'><div class='totrow'>\"+k.map(function(pp){return \"<div class='totc'><div class='tv'>\"+pp[1]+\"</div><div class='tl'>\"+pp[0]+\"</div></div>\";}).join('')+\"</div></div>\";}"+
+   "function notesCard(r){var n=r.data&&r.data.notes?esc(r.data.notes):'';return \"<div class='notesc'><div class='nh'>Notes (if any)</div>\"+(n?\"<div class='nt'>\"+n+\"</div>\":'')+\"<div class='nl'></div><div class='nl'></div><div class='nl'></div>\"+(n?'':\"<div class='nl'></div><div class='nl'></div>\")+\"</div>\";}"+
+   "function pfoot(r){return \"<div class='pfoot'><div class='sig'><div class='sl'></div><div class='st'>FOR POLYFILL MICRONS PVT. LTD.</div></div><div class='cc'>\"+ICC+\"<div><div class='l'>Cycle Completed On</div><div class='d'>\"+dd(r.completed_at||r.cycle_date)+\"</div></div></div></div><div class='disc'>This is a system generated report and does not require any signature.</div>\";}"+
+   "E('printAll').innerHTML=ROWS.map(function(r){return \"<div class='preport'>\"+plh()+"+
+   "\"<div class='prh'><span class='ln'></span>CARS CYCLE REPORT<span class='ln'></span></div>\"+"+
+   "metaCard(r)+"+
+   "\"<div class='secgrid'>\"+"+
+   "sc('Readings',fr('Flow LPH',g(r,'flow',0))+fr('Conductivity',g(r,'cond'))+fr('Spent Fe / Cr\u00b3\u207a (g/L)',g(r,'spentFe')+' / '+g(r,'spentCr3'))+fr('Completed',dt(r.completed_at)))+"+
+   "sc('Feed',fr('Chromic L',g(r,'feedVol',0))+fr('Feed CrO\u2083',g(r,'feedCrO3'))+fr('Feed Fe / Cr\u00b3\u207a (g/L)',g(r,'feedFe')+' / '+g(r,'feedCr3'))+fr('Feed Cu (g/L)',g(r,'feedCu')))+"+
+   "sc('Treated',fr('CT2 L',g(r,'ct2',0))+fr('Treated CrO\u2083 (g/L)',g(r,'treatCrO3'))+fr('Treated Fe / Cr\u00b3\u207a (g/L)',g(r,'treatFeL')+' / '+g(r,'treatCr3L')))+"+
+   "sc('Regeneration',fr('CARS H\u2082SO\u2084',g(r,'carsPct')+'% \u2022 '+g(r,'carsVol',0)+' L')+fr('CARWARS anion',g(r,'cwAnPct')+'% \u2022 '+g(r,'cwAnVol',0)+' L')+fr('RWRS cation',g(r,'rwCatPct')+'% \u2022 '+g(r,'rwCatVol',0)+' L'))+"+
+   "\"</div>\"+"+
+   "totCard(r)+"+
+   "\"<div class='sh sh2'>Reminders &amp; Flags (current status)</div><div class='rnwrap'>\"+remCards(r)+notesCard(r)+\"</div>\"+"+
+   "pfoot(r)+"+
+   "\"</div>\";}).join('');"+
    "render();"+
    "<\/scr"+"ipt></body></html>";
   return doc;

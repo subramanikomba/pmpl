@@ -66,3 +66,9 @@ Also: all test data cleared from the database (cycles, technicians, companies, l
 company settings overrides). Admin login and global default settings preserved; schema/auth/code unchanged.
 
 Service worker cache: cars-cloud-v6.
+
+
+## v7 (this build)
+- Technician profile: optional First Name + Last Name (display = First + Last if given, else username). Login unchanged.
+- CARS Cycle Report print layout redesigned to the approved prototype (letterhead with web/email, bordered meta + section cards, single-row TOTALS, reminders + Notes card, calendar footer with "FOR POLYFILL MICRONS PVT. LTD." signature).
+- Requires Edge Function manage-technician v8 and profiles.first_name/last_name columns (already deployed).
