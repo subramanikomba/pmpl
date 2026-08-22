@@ -269,11 +269,11 @@ sb.auth.onAuthStateChange(async(_e,session)=>{
   else{$('#app').classList.add('hide');$('#login').classList.remove('hide');ME=null;CUR=null;}
 });
 async function boot(user){
-  const {data:prof,error}=await sb.from('profiles').select('id,full_name,username,role,active,client_id,location_id,clients(name),locations(name)').eq('id',user.id).single();
+  const {data:prof,error}=await sb.from('profiles').select('id,full_name,username,role,active,client_id,location_id,designation,pan,access_attendance,access_cars,clients(name),locations(name)').eq('id',user.id).single();
   if(error||!prof){$('#liErr').textContent='Profile not found. Contact admin.';await sb.auth.signOut();return;}
   if(!prof.active){$('#liErr').textContent='Your account is deactivated. Contact admin.';await sb.auth.signOut();return;}
   ME={id:prof.id,role:prof.role,name:prof.full_name||prof.username||user.email,email:user.email,client_id:prof.client_id,location_id:prof.location_id,
-      clientName:prof.clients?.name||'',locationName:prof.locations?.name||''};
+      clientName:prof.clients?.name||'',locationName:prof.locations?.name||'',accessCars:!!prof.access_cars,accessAttendance:!!prof.access_attendance,designation:prof.designation||'',pan:prof.pan||''};
   {const {data:gs}=await sb.from('settings').select('data').is('client_id',null).maybeSingle();
    let cs=null; if(ME.client_id){const r=await sb.from('settings').select('data').eq('client_id',ME.client_id).maybeSingle();cs=r.data;}
    SETTINGS=Object.assign({},DEFAULTS,gs?.data||{},cs?.data||{});}
@@ -287,10 +287,11 @@ async function boot(user){
   buildTabs();
 }
 function buildTabs(){
-  const tabs=ME.role==='admin'
-    ?[['reports','Reports'],['techs','Technicians'],['company','Companies & stock'],['settings','Settings']]
-    :[['cycle','Current cycle'],['mine','My cycles']];
+  let tabs;
+  if(ME.role==='admin'){tabs=[['reports','Reports'],['techs','Employees'],['company','Companies & stock'],['settings','Settings'],['payset','Payroll Settings']];}
+  else{tabs=[];if(ME.accessCars)tabs.push(['cycle','Current cycle'],['mine','My cycles']);}
   const nav=$('#tabs');nav.innerHTML='';
+  if(!tabs.length){$('#main').innerHTML='<div class="card"><div class="note">No modules are enabled for your account yet. Please contact the administrator.</div></div>';return;}
   const last=sessionStorage.getItem('cars_tab');let si=tabs.findIndex(t=>t[0]===last);if(si<0)si=0;
   tabs.forEach(([k,l])=>{const b=el('button',null,l);b.onclick=()=>go(k,b);nav.appendChild(b);});
   go(tabs[si][0],nav.children[si]);
@@ -298,7 +299,7 @@ function buildTabs(){
 function go(tab,btn){document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
   try{sessionStorage.setItem('cars_tab',tab);}catch(e){}
   const m=$('#main');m.innerHTML='';
-  ({cycle:screenCycle,mine:screenMine,reports:screenReports,techs:screenTechs,company:screenCompany,settings:screenSettings})[tab](m);}
+  ({cycle:screenCycle,mine:screenMine,reports:screenReports,techs:screenTechs,company:screenCompany,settings:screenSettings,payset:screenPayrollSettings})[tab](m);}
 
 /* ---- technician: dashboard cycle ---- */
 function blankData(){return{train:'Etching',step:0,cycle_date:today(),
@@ -630,28 +631,29 @@ async function loadCL(){const {data:cl}=await sb.from('clients').select('id,name
 
 /* ---- admin: technicians ---- */
 async function screenTechs(m){
-  const c=el('div','card');c.innerHTML='<h2>Technicians</h2>';
+  const c=el('div','card');c.innerHTML='<h2>Employees</h2><p class="note" style="margin:2px 0 10px">Company &amp; Location apply to CARS technicians. Module access controls which sections the employee can use.</p>';
   const {clients,locations}=await loadCL();
-  const fn=inp('text'),ln=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');fn.placeholder='first name (optional)';ln.placeholder='last name (optional)';un.placeholder='login username';em.placeholder='optional contact email';pw.placeholder='temp password';
+  const fn=inp('text'),ln=inp('text'),dg=inp('text'),pn=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');fn.placeholder='first name (optional)';ln.placeholder='last name (optional)';dg.placeholder='e.g. Technician, Engineer';pn.placeholder='PAN (optional)';un.placeholder='login username';em.placeholder='optional contact email';pw.placeholder='temp password';const acCars=inp('checkbox'),acAtt=inp('checkbox');acCars.checked=true;acAtt.checked=true;
   const cSel=document.createElement('select');clients.filter(x=>x.active!==false).forEach(x=>cSel.append(opt(x.id,x.name)));
   const lSel=document.createElement('select');function fillLoc(){lSel.innerHTML='';lSel.append(opt('','—'));locations.filter(l=>l.client_id===cSel.value&&l.active!==false).forEach(l=>lSel.append(opt(l.id,l.name)));}
   cSel.onchange=fillLoc;if(cSel.options.length)cSel.value=cSel.options[0].value;fillLoc();
-  [fn,ln,un,em,pw,cSel,lSel].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
-  const f=el('div','grid g3');f.append(lw('First name (optional)',fn),lw('Last name (optional)',ln),lw('Username',un),lw('Contact email (optional)',em),lw('Temp password',pw),lw('Company',cSel),lw('Location',lSel));
+  [fn,ln,dg,pn,un,em,pw,cSel,lSel].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
+  const f=el('div','grid g3');f.append(lw('First name (optional)',fn),lw('Last name (optional)',ln),lw('Designation (optional)',dg),lw('PAN (optional)',pn),lw('Username',un),lw('Contact email (optional)',em),lw('Temp password',pw),lw('Company',cSel),lw('Location',lSel));
   c.appendChild(f);
-  const bAdd=el('button','btn primary','Create technician');bAdd.style.marginTop='12px';
+  const macc=el('div');macc.style.marginTop='10px';const ml=el('label',null,'Module access');ml.style.cssText='display:block;font-size:12px;color:var(--wink-dim);margin-bottom:6px';const mrow=el('div','row');mrow.append(cbx('Attendance',acAtt),cbx('CARS',acCars));macc.append(ml,mrow);c.appendChild(macc);
+  const bAdd=el('button','btn primary','Create employee');bAdd.style.marginTop='12px';
   bAdd.onclick=async()=>{if(!un.value.trim()||!pw.value){toast('Username and password required');return;}
     if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){toast('Enter a valid contact email, or leave it blank');return;}
     bAdd.disabled=true;bAdd.textContent='Creating…';
-    try{await callFn('create',{username:un.value.trim(),first_name:fn.value.trim(),last_name:ln.value.trim(),email_contact:em.value.trim()||null,password:pw.value,client_id:cSel.value||null,location_id:lSel.value||null});toast('Technician created');fn.value=ln.value=un.value=em.value=pw.value='';list();}catch(e){toast('Failed: '+e.message);}
-    bAdd.disabled=false;bAdd.textContent='Create technician';};
+    try{await callFn('create',{username:un.value.trim(),first_name:fn.value.trim(),last_name:ln.value.trim(),designation:dg.value.trim(),pan:pn.value.trim(),access_cars:acCars.checked,access_attendance:acAtt.checked,email_contact:em.value.trim()||null,password:pw.value,client_id:cSel.value||null,location_id:lSel.value||null});toast('Employee created');fn.value=ln.value=dg.value=pn.value=un.value=em.value=pw.value='';acCars.checked=true;acAtt.checked=true;list();}catch(e){toast('Failed: '+e.message);}
+    bAdd.disabled=false;bAdd.textContent='Create employee';};
   c.appendChild(bAdd);const lb=el('div');lb.style.marginTop='16px';c.appendChild(lb);m.appendChild(c);
   async function list(){lb.innerHTML='<div class="note">Loading…</div>';
     try{const {technicians}=await callFn('list',{});
-      if(!technicians.length){lb.innerHTML='<div class="note">No technicians yet.</div>';return;}
-      const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Name</th><th>Username</th><th>Contact email</th><th>Company</th><th>Location</th><th>Status</th><th></th></tr></thead>';const tb=el('tbody');
+      if(!technicians.length){lb.innerHTML='<div class="note">No employees yet.</div>';return;}
+      const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Name</th><th>Designation</th><th>Username</th><th>Contact email</th><th>Access</th><th>Company</th><th>Location</th><th>Status</th><th></th></tr></thead>';const tb=el('tbody');
       technicians.forEach(u=>{const tr=el('tr');
-        tr.innerHTML='<td>'+esc(u.full_name||'')+'</td><td class="mono">'+esc(u.username||'')+'</td><td>'+esc(u.email_contact||'')+'</td><td>'+esc(u.clients?.name||'')+'</td><td>'+esc(u.locations?.name||'')+'</td><td><span class="pill '+(u.active?'done':'off')+'">'+(u.active?'active':'inactive')+'</span></td><td></td>';
+        tr.innerHTML='<td>'+esc(u.full_name||'')+'</td><td>'+esc(u.designation||'')+'</td><td class="mono">'+esc(u.username||'')+'</td><td>'+esc(u.email_contact||'')+'</td><td>'+accBadges(u)+'</td><td>'+esc(u.clients?.name||'')+'</td><td>'+esc(u.locations?.name||'')+'</td><td><span class="pill '+(u.active?'done':'off')+'">'+(u.active?'active':'inactive')+'</span></td><td></td>';
         const act=tr.lastChild;const be=el('button','btn sm g','Edit');be.onclick=()=>editTech(u,clients,locations,list);
         const ba=el('button','btn sm g',u.active?'Deactivate':'Activate');ba.onclick=async()=>{try{await callFn('set_active',{user_id:u.id,active:!u.active});list();}catch(e){toast('Failed: '+e.message);}};
         const bd=el('button','btn sm danger','Delete');bd.onclick=async()=>{if(!confirm('Delete '+(u.full_name||u.username)+'? Only possible if they have no cycle records.'))return;try{await callFn('delete',{user_id:u.id});toast('Deleted');list();}catch(e){toast(e.message);}};
@@ -661,17 +663,91 @@ async function screenTechs(m){
   list();
 }
 function editTech(u,clients,locations,after){
-  const md=el('div','modal');const fn=inp('text'),ln=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');
+  const md=el('div','modal');const fn=inp('text'),ln=inp('text'),dg=inp('text'),pn=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');const acCars=inp('checkbox'),acAtt=inp('checkbox');
   const cS=document.createElement('select'),lS=document.createElement('select');
   clients.filter(x=>x.active!==false).forEach(x=>cS.append(opt(x.id,x.name)));function fl(){lS.innerHTML='';lS.append(opt('','—'));locations.filter(l=>l.client_id===cS.value&&l.active!==false).forEach(l=>lS.append(opt(l.id,l.name)));}
-  cS.onchange=fl;fn.value=u.first_name||'';ln.value=u.last_name||'';un.value=u.username||'';em.value=u.email_contact||'';cS.value=u.client_id||(cS.options[0]&&cS.options[0].value);fl();if(u.location_id)lS.value=u.location_id;
-  const mc=el('div','mc');mc.innerHTML='<h3>Edit technician</h3><p>Display name is First + Last name if given, otherwise the username. Username is the login. Contact email is optional and not used for login.</p>';
-  const g=el('div','grid g2');g.append(lw('First name (optional)',fn),lw('Last name (optional)',ln),lw('Username',un),lw('Contact email (optional)',em),lw('New password (optional)',pw),lw('Company',cS),lw('Location',lS));mc.appendChild(g);
+  cS.onchange=fl;fn.value=u.first_name||'';ln.value=u.last_name||'';dg.value=u.designation||'';pn.value=u.pan||'';un.value=u.username||'';em.value=u.email_contact||'';acCars.checked=!!u.access_cars;acAtt.checked=!!u.access_attendance;cS.value=u.client_id||(cS.options[0]&&cS.options[0].value);fl();if(u.location_id)lS.value=u.location_id;
+  const mc=el('div','mc');mc.innerHTML='<h3>Edit employee</h3><p>Display name is First + Last name if given, otherwise the username. Username is the login. Contact email is optional and not used for login.</p>';
+  const g=el('div','grid g2');g.append(lw('First name (optional)',fn),lw('Last name (optional)',ln),lw('Designation (optional)',dg),lw('PAN (optional)',pn),lw('Username',un),lw('Contact email (optional)',em),lw('New password (optional)',pw),lw('Company',cS),lw('Location',lS));mc.appendChild(g);const macc=el('div');macc.style.marginTop='10px';const ml=el('label',null,'Module access');ml.style.cssText='display:block;font-size:12px;color:var(--wink-dim);margin-bottom:6px';const mrow=el('div','row');mrow.append(cbx('Attendance',acAtt),cbx('CARS',acCars));macc.append(ml,mrow);mc.appendChild(macc);
   const err=el('div','err');mc.appendChild(err);
   const rr=el('div','row');rr.style.cssText='justify-content:flex-end;margin-top:16px';
   const bc=el('button','btn g','Cancel');bc.onclick=()=>md.remove();
-  const bs=el('button','btn primary','Save');bs.onclick=async()=>{err.textContent='';if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){err.textContent='Enter a valid contact email, or leave it blank.';return;}bs.disabled=true;try{await callFn('update',{user_id:u.id,first_name:fn.value.trim(),last_name:ln.value.trim(),username:un.value.trim()||undefined,email_contact:em.value.trim(),client_id:cS.value||null,location_id:lS.value||null,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){err.textContent=e.message;}bs.disabled=false;};
+  const bs=el('button','btn primary','Save');bs.onclick=async()=>{err.textContent='';if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){err.textContent='Enter a valid contact email, or leave it blank.';return;}bs.disabled=true;try{await callFn('update',{user_id:u.id,first_name:fn.value.trim(),last_name:ln.value.trim(),designation:dg.value.trim(),pan:pn.value.trim(),access_cars:acCars.checked,access_attendance:acAtt.checked,username:un.value.trim()||undefined,email_contact:em.value.trim(),client_id:cS.value||null,location_id:lS.value||null,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){err.textContent=e.message;}bs.disabled=false;};
   rr.append(bc,bs);mc.appendChild(rr);md.appendChild(mc);document.body.appendChild(md);
+}
+
+/* ---- admin: payroll settings (owner company + rules + holidays) ---- */
+async function screenPayrollSettings(m){
+  const c=el('div','card');c.innerHTML='<h2>Payroll Settings</h2><p class="note" style="margin:2px 0 12px">Owner company details for salary slips, the working calendar, Professional Tax, allowance/bonus rules, and company holidays (paid).</p>';
+  m.appendChild(c);
+  let org={},ps={};
+  try{const o=await sb.from('org_profile').select('*').maybeSingle();org=o.data||{};}catch(e){}
+  try{const pr=await sb.from('payroll_settings').select('data').maybeSingle();ps=pr.data?.data||{};}catch(e){}
+  const rules=ps.rules||{};
+  const sec=(t)=>{const h=el('div');h.style.cssText='font-weight:700;color:var(--ink,#12203a);margin:18px 0 8px;font-size:14px';h.textContent=t;c.appendChild(h);};
+  const style='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
+  const numI=(v)=>{const i=inp('number');i.step='any';i.value=(v==null?'':v);i.style.cssText=style;return i;};
+  const txtI=(v)=>{const i=inp('text');i.value=v||'';i.style.cssText=style;return i;};
+  // Owner company
+  sec('Owner Company (for Salary Slips)');
+  const coName=txtI(org.company_name),coCin=txtI(org.cin),coGst=txtI(org.gst);
+  const coAddr=document.createElement('textarea');coAddr.value=org.registered_address||'';coAddr.rows=2;coAddr.style.cssText=style;
+  const g1=el('div','grid g2');g1.append(lw('Company Name',coName),lw('CIN',coCin),lw('GST Number',coGst));c.appendChild(g1);
+  const ga=el('div');ga.style.marginTop='10px';ga.append(lw('Registered Address',coAddr));c.appendChild(ga);
+  // Working calendar
+  sec('Working Calendar');
+  const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const wd=Array.isArray(ps.workingDays)?ps.workingDays:[1,2,3,4,5,6];const dayCbx=[];
+  const wrow=el('div');wrow.style.cssText='display:flex;flex-wrap:wrap;gap:12px';
+  for(let d=0;d<7;d++){const cb=inp('checkbox');cb.checked=wd.indexOf(d)>=0;dayCbx.push(cb);wrow.append(cbx(dayNames[d],cb));}
+  c.appendChild(wrow);
+  const woPaid=inp('checkbox');woPaid.checked=ps.weeklyOffPaid!==false;const wpr=el('div');wpr.style.marginTop='8px';wpr.append(cbx('Weekly off is a Paid Day',woPaid));c.appendChild(wpr);
+  // Professional tax
+  sec('Professional Tax');
+  const ptN=numI(ps.ptNormal!=null?ps.ptNormal:200),ptF=numI(ps.ptFeb!=null?ps.ptFeb:300);
+  const g2=el('div','grid g2');g2.append(lw('Normal month (₹)',ptN),lw('February (₹)',ptF));c.appendChild(g2);
+  // Allowance/bonus rules
+  sec('Allowance / Bonus Rules (% of applicable salary)');
+  const rAtt=numI(rules.attendanceBonusPct!=null?rules.attendanceBonusPct:1),
+        rON=numI(rules.outdoorOvernightPct!=null?rules.outdoorOvernightPct:2.5),
+        rEm=numI(rules.emergencyPct!=null?rules.emergencyPct:1),
+        rDVmin=numI(rules.outdoorDayVisitPctMin!=null?rules.outdoorDayVisitPctMin:1.5),
+        rDVmax=numI(rules.outdoorDayVisitPctMax!=null?rules.outdoorDayVisitPctMax:3),
+        rSCmin=numI(rules.siteCompletionPctMin!=null?rules.siteCompletionPctMin:2),
+        rSCmax=numI(rules.siteCompletionPctMax!=null?rules.siteCompletionPctMax:5);
+  const g3=el('div','grid g3');g3.append(lw('Attendance Bonus',rAtt),lw('Outdoor Overnight / night',rON),lw('Emergency / Weekend / day',rEm),lw('Outdoor Day Visit — min',rDVmin),lw('Outdoor Day Visit — max',rDVmax),lw('Site Completion — min',rSCmin),lw('Site Completion — max',rSCmax));c.appendChild(g3);
+  // Company holidays
+  sec('Company Holidays (treated as Paid Days)');
+  let holidays=Array.isArray(ps.holidays)?ps.holidays.slice():[];
+  const hlist=el('div');c.appendChild(hlist);
+  function renderH(){hlist.innerHTML='';if(!holidays.length){hlist.innerHTML='<div class="note">No holidays added.</div>';return;}
+    holidays.forEach((h,i)=>{const r=el('div','row');r.style.cssText='align-items:center;gap:10px;margin:4px 0';
+      r.innerHTML='<span class="mono">'+esc(h.date||'')+'</span><span>'+esc(h.name||'')+'</span>';
+      const x=el('button','btn sm danger','Remove');x.onclick=()=>{holidays.splice(i,1);renderH();};r.append(x);hlist.append(r);});}
+  renderH();
+  const hd=inp('date');hd.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
+  const hn=txtI('');hn.placeholder='Holiday name';hn.style.maxWidth='260px';
+  const addRow=el('div','row');addRow.style.cssText='gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap';
+  const bAddH=el('button','btn g','Add holiday');bAddH.onclick=()=>{if(!hd.value){toast('Pick a date');return;}holidays.push({date:hd.value,name:hn.value.trim()});holidays.sort((a,b)=>(a.date<b.date?-1:a.date>b.date?1:0));hd.value='';hn.value='';renderH();};
+  addRow.append(hd,hn,bAddH);c.appendChild(addRow);
+  // Save
+  const berr=el('div','err');berr.style.marginTop='12px';c.appendChild(berr);
+  const bSave=el('button','btn primary','Save payroll settings');bSave.style.marginTop='8px';
+  bSave.onclick=async()=>{berr.textContent='';bSave.disabled=true;bSave.textContent='Saving…';
+    const workingDays=[];for(let d=0;d<7;d++)if(dayCbx[d].checked)workingDays.push(d);
+    let weeklyOff=0;for(let d=0;d<7;d++){if(workingDays.indexOf(d)<0){weeklyOff=d;break;}}
+    const data={workingDays,weeklyOff,weeklyOffPaid:woPaid.checked,ptNormal:+ptN.value||0,ptFeb:+ptF.value||0,
+      rules:{attendanceBonusPct:+rAtt.value||0,outdoorOvernightPct:+rON.value||0,outdoorDayVisitPctMin:+rDVmin.value||0,outdoorDayVisitPctMax:+rDVmax.value||0,emergencyPct:+rEm.value||0,siteCompletionPctMin:+rSCmin.value||0,siteCompletionPctMax:+rSCmax.value||0},
+      holidays};
+    try{
+      const e1=await sb.from('org_profile').update({company_name:coName.value.trim(),registered_address:coAddr.value.trim(),cin:coCin.value.trim(),gst:coGst.value.trim(),updated_at:new Date().toISOString()}).eq('id',true);
+      if(e1.error)throw e1.error;
+      const e2=await sb.from('payroll_settings').update({data,updated_at:new Date().toISOString()}).eq('id',true);
+      if(e2.error)throw e2.error;
+      toast('Payroll settings saved');
+    }catch(e){berr.textContent=(e&&e.message)||String(e);}
+    bSave.disabled=false;bSave.textContent='Save payroll settings';};
+  c.appendChild(bSave);
 }
 
 /* ---- admin: locations ---- */
@@ -960,6 +1036,8 @@ function excelExport(rows,from,to){
 function jsonExport(rows,from,to){const blob=new Blob([JSON.stringify({owner:'Polyfill Microns Pvt Ltd',from,to,exported:new Date().toISOString(),cycles:rows},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='CARS_'+(from||'all')+'.json';a.click();URL.revokeObjectURL(a.href);}
 
 /* ---- tiny helpers ---- */
+function cbx(label,input){const l=el('label');l.style.cssText='display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-size:13px;cursor:pointer';input.style.cssText='width:16px;height:16px';l.append(input,document.createTextNode(label));return l;}
+function accBadges(u){var b='';if(u.access_attendance)b+='<span class="pill done" style="margin-right:4px">Att</span>';if(u.access_cars)b+='<span class="pill done">CARS</span>';return b||'<span class="note">\u2014</span>';}
 function lw(label,control){const w=el('div','f');w.appendChild(el('label',null,label));w.appendChild(control);return w;}
 function add(p,cls,html){p.appendChild(el('div',cls,html));}
 function inp(type){const i=document.createElement('input');i.type=type;return i;}
