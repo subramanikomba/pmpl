@@ -79,3 +79,10 @@ Service worker cache: cars-cloud-v6.
 - Footer: "Cycle Completed On" is hidden for draft/incomplete cycles.
 - Added comfortable signature space above the "FOR POLYFILL MICRONS PVT. LTD." placeholder.
 - Print @page margin set to 0 (margins moved into content padding) so the browser no longer prints the page URL at the bottom of the report.
+
+## v9 (HRMS Phase 1a — additive; CARS unchanged)
+- profiles: + designation, pan, access_attendance, access_cars. Existing technicians backfilled access_cars=true, access_attendance=true.
+- Technician management extended to Employee management (Designation, PAN, Module Access: Attendance/CARS). Edge Function manage-technician v9 (derives role technician/employee from CARS access; backward compatible).
+- New tables: org_profile (owner company for salary slips), payroll_settings (calendar, PT, allowance/bonus rules, holidays) — RLS mirrors the existing settings pattern.
+- New admin screen: Payroll Settings. Non-admin navigation is now module-access-driven (CARS still shown for technicians).
+- CARS cycle entry, reports, printing, companies/stock, settings: byte-identical, untouched.
