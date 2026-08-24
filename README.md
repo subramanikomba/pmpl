@@ -1,88 +1,93 @@
-# CARS Cloud App — deploy
+# PMPL HRMS
 
-Push the contents of this zip to the **pmpl** GitHub repo (root), keeping the
-custom domain `service.polyfillmicrons.in`. Files: index.html, config.js,
-pmpl-logo.jpg, icon-192.png, icon-512.png, manifest.webmanifest, sw.js, CNAME.
+**Polyfill Microns Pvt. Ltd. — Employee Management, Attendance & Payroll System**
 
-The service worker cache is **cars-cloud-v4** — phones/PWA installs will pull
-the new build on next open (may take one refresh).
+Live URL: https://hrms.polyfillmicrons.in  
+Backend: Supabase Project `pyuybtrkdlbpldffnyzy` (Mumbai / ap-south-1)
 
-## What changed in this build (admin + login batch)
-1. Company = Company name + Location (no Address). One company → many locations;
-   a location name can recur across companies. (Company + Location) is unique.
-2. Locations are managed inside **Companies & stock** (separate Locations tab removed).
-   Add a company with one or more locations, edit associations, add/remove locations,
-   deactivate/delete with safeguards. Company & location fields have generic
-   autocomplete (Indian industrial towns + existing companies) and accept new values.
-3. Technicians now log in with **Username + Password**. Optional contact email is
-   profile-only (not used for login). Internally the username maps to
-   `<username>@pmpl.local` for auth.
-4. Deleting a technician or company that has historical cycles is blocked with a
-   clear message recommending **Deactivate**; history keeps its original
-   technician/company/location (snapshotted on each cycle).
-5. Reports: filter by Technician / Company / Location (combined), sort key columns,
-   click a row to open a **locked, read-only dashboard** of that cycle (Operator board /
-   Cycle log / Totals tabs). The HTML report is cumulative with **Prev / Next**.
-6. Print/PDF: fixed the blank first page on Letter and uses an efficient multi-column
-   layout (fields side-by-side, no wasted right margin).
-7. Switching browser tabs and back keeps you on the same screen. Closing the browser
-   logs you out (session storage); reopening requires login.
-8. Sign-out button has a subtle hover effect.
-9. Settings: **Default (all companies)** is the first option and applies globally;
-   pick a company to save an override just for it. Override can be removed to fall
-   back to Default.
-10. Tank level entry uses an in-app modal (no browser `prompt()`); dashboard fields,
-    tabs and calculations refresh immediately on change.
-11. Authorised PMPL logo used on login, header and reports; PWA icons regenerated.
+---
 
-Backend: Supabase migrations applied (username/email_contact, company active flag,
-single global-default settings, location_state); Edge Function `manage-technician`
-updated to v6 (username auth). Optional: enable "leaked password protection" in
-Supabase Auth settings.
+## First-Time Setup
 
-## v5 corrections (styling + report/print + reports table)
-1. Dashboard: active train shown in orange (title + outlined selector); status legend
-   now shows coloured Green/Red/Amber dots, spaced and readable; reminder cards have
-   their left status bar, a visible progress bar and styled action buttons; Discard is
-   light-red with red text; Technician / Company / Location shown in a prominent bar.
-2. Cycle view: Prev/Next hidden in single-record view; the print button is labelled "Print".
-3. Print layout includes Notes, Totals, Reminders & Flags, Completed date/time, and a
-   PMPL letterhead header (logo + company name + tagline + salmon rule) so it reads as a
-   company report. (Full postal address/phone can be added on request.)
-4. Reports open in an in-app full-screen panel with a clear ✕ Close button (and Print),
-   instead of a bare browser tab — the app menu is one click away.
-5. Reports table: added a Time column; sorting limited to Date, Time, Technician,
-   Company, Location, Train and Status; roomier row spacing.
-6. Technician email is a contact-only field with basic format validation; it is never
-   used for login or identity (login is Username + Password).
+### 1. Create the Admin User in Supabase
 
-Service worker cache: cars-cloud-v5.
+Go to **Supabase Dashboard → Authentication → Users → Invite User**  
+Enter the admin email and send invitation. The admin sets their own password.
 
-## v6 corrections
-1. Dashboard header train type (ETCHING/PLATING) now updates live when the train is toggled.
-2. Reminders & Flags progress bar: no-progress track is light grey (blends with card) instead of dark.
-3. Print: company-header separator restored (drawn as a border so it prints reliably).
-Also: all test data cleared from the database (cycles, technicians, companies, locations, stock,
-company settings overrides). Admin login and global default settings preserved; schema/auth/code unchanged.
+Then in **Supabase Dashboard → Table Editor → employees**, insert a row:
+```
+auth_user_id  → (paste the Auth user's UUID from Authentication → Users)
+first_name    → Subramani
+last_name     → (your last name)
+username      → admin
+contact_email → your@email.com
+designation   → Director
+is_admin      → true
+status        → active
+```
 
-Service worker cache: cars-cloud-v6.
+### 2. Deploy to GitHub Pages
 
+Push this repository to `pmpl-hrms` on GitHub.  
+Go to **Settings → Pages → Source → GitHub Actions**.  
+The `deploy.yml` workflow will auto-deploy on every push to `main`.
 
-## v7 (this build)
-- Technician profile: optional First Name + Last Name (display = First + Last if given, else username). Login unchanged.
-- CARS Cycle Report print layout redesigned to the approved prototype (letterhead with web/email, bordered meta + section cards, single-row TOTALS, reminders + Notes card, calendar footer with "FOR POLYFILL MICRONS PVT. LTD." signature).
-- Requires Edge Function manage-technician v8 and profiles.first_name/last_name columns (already deployed).
+### 3. Custom Domain (hrms.polyfillmicrons.in)
 
+In your DNS provider, add:
+```
+Type: CNAME
+Name: hrms
+Value: subramanikomba.github.io
+```
 
-## v8 (this build)
-- CARS Cycle Report: removed the TOTALS section (Chromic L, CrO3 rec kg, Fe removed kg, H2SO4 50% kg, NaOH kg) from print/PDF, the report-view tab, the Admin Reports summary, and the Excel summary sheet. Per-cycle values (individual cycle information) are retained everywhere.
-- Footer: "Cycle Completed On" is hidden for draft/incomplete cycles.
-- Added comfortable signature space above the "FOR POLYFILL MICRONS PVT. LTD." placeholder.
-- Print @page margin set to 0 (margins moved into content padding) so the browser no longer prints the page URL at the bottom of the report.
+In GitHub Pages Settings → Custom Domain, enter `hrms.polyfillmicrons.in` and enable HTTPS.
 
-## v9 (HRMS Phase 1a — additive; CARS unchanged)
-- profiles: + designation, pan, access_attendance, access_cars. Existing technicians backfilled access_cars=true, access_attendance=true.
-- Technician management extended to Employee management (Designation, PAN, Module Access: Attendance/CARS). Edge Function manage-technician v9 (derives role technician/employee from CARS access; backward compatible).
-- New tables: org_profile (owner company for salary slips), payroll_settings (calendar, PT, allowance/bonus rules, holidays) — RLS mirrors the existing settings pattern.
-- New admin screen: Payroll Settings. Non-admin navigation is now module-access-driven (CARS still shown for technicians).
-- CARS cycle entry, reports, printing, companies/stock, settings: byte-identical, untouched.
+---
+
+## Project Structure
+
+```
+pmpl-hrms/
+├── index.html              — Single-page application
+├── manifest.json           — PWA manifest
+├── sw.js                   — Service worker (offline support)
+├── assets/
+│   └── pmpl_logo.jpg       — Company logo
+├── css/
+│   └── style.css           — Application styles
+├── js/
+│   ├── config.js           — Supabase credentials
+│   ├── app.js              — Auth, routing, shared utilities
+│   └── screens/
+│       ├── attendance.js        — Employee attendance dashboard
+│       ├── admin-dashboard.js   — Admin overview
+│       ├── admin-employees.js   — Employee & salary management
+│       ├── admin-payroll.js     — Payroll calculation
+│       ├── leave-expense.js     — Leave, expenses, advance ledger
+│       ├── salary-slips.js      — PDF & Word slip generation
+│       └── admin-settings.js    — Company settings & rules
+└── .github/workflows/
+    └── deploy.yml          — Auto-deploy to GitHub Pages
+```
+
+## Supabase Database
+
+| Table | Purpose |
+|-------|---------|
+| `employees` | Employee profiles (linked to Auth) |
+| `salary_structures` | Effective-dated salary components |
+| `attendance` | Daily attendance records |
+| `attendance_audit` | All attendance changes with history |
+| `leave_requests` | Leave applications and approvals |
+| `company_advances` | Company money given to employees |
+| `company_expenses` | Employee expense claims |
+| `company_advance_ledger` | View — running balance per employee |
+| `salary_advances` | Salary advance records |
+| `salary_advance_recoveries` | Payroll-wise recovery tracking |
+| `payroll` | Monthly payroll records |
+| `payroll_audit` | Lock/reopen audit trail |
+| `company_settings` | PMPL company info and PT rates |
+| `company_holidays` | Admin-configured paid holidays |
+| `allowance_rules` | Configurable bonus/allowance percentages |
+| `client_companies` | Client list for expense tagging |

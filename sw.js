@@ -1,17 +1,48 @@
-/* CARS cloud PWA service worker — © Polyfill Microns Pvt. Ltd. */
-const CACHE = 'cars-cloud-v9';
-const SHELL = ['./','./index.html','./config.js','./manifest.webmanifest','./pmpl-logo.jpg','./icon-192.png','./icon-512.png'];
-self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+// PMPL HRMS — Service Worker
+const CACHE = 'pmpl-hrms-v3';
+const STATIC = [
+  '/',
+  '/index.html',
+  '/css/style.css',
+  '/js/config.js',
+  '/js/app.js',
+  '/js/screens/attendance.js',
+  '/js/screens/admin-dashboard.js',
+  '/js/screens/admin-employees.js',
+  '/js/screens/admin-payroll.js',
+  '/js/screens/admin-payroll-summary.js',
+  '/js/screens/admin-attendance.js',
+  '/js/screens/admin-leave-approval.js',
+  '/js/screens/admin-expense-approval.js',
+  '/js/screens/admin-expense-reports.js',
+  '/js/screens/admin-salary-advance.js',
+  '/js/screens/leave-expense.js',
+  '/js/screens/salary-slips.js',
+  '/js/screens/admin-settings.js',
+  '/assets/pmpl_logo.jpg',
+  '/assets/icon-192.png',
+  '/assets/icon-512.png',
+  '/assets/icon-maskable-192.png',
+  '/assets/icon-maskable-512.png',
+  '/manifest.json'
+];
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)));
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ));
+  self.clients.claim();
+});
+
 self.addEventListener('fetch', e => {
-  const req = e.request;
-  const url = new URL(req.url);
-  // Never cache API / auth / functions or non-GET — always go to network
-  if (req.method !== 'GET' || url.hostname.endsWith('supabase.co') || url.pathname.includes('/functions/') || url.hostname.includes('esm.sh') || url.hostname.includes('cloudflare')) {
-    return; // default network handling
-  }
-  // App shell: cache-first, fall back to network
-  e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
-    const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return res;
-  }).catch(() => caches.match('./index.html'))));
+  // Network first for Supabase API calls
+  if (e.request.url.includes('supabase.co')) return;
+  e.respondWith(
+    caches.match(e.request).then(cached => cached || fetch(e.request))
+  );
 });

@@ -1,1047 +1,637 @@
-<!doctype html>
-<!-- ============================================================
-     CARS Operator Application (cloud) — v2
-     © Polyfill Microns Pvt. Ltd. Sole and exclusive property.
-     Unauthorised copying, modification or distribution prohibited.
-     ============================================================ -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#10141d">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="CARS">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>CARS — Polyfill Microns Pvt. Ltd.</title>
-<script src="config.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<style>
-:root{--panel:#10141d;--panel2:#171d29;--panel3:#1e2735;--ink:#e9eef6;--ink-dim:#8f9db1;--ink-faint:#5f6c81;
---work:#eef1f5;--card:#fff;--wink:#1a2230;--wink-dim:#5a6678;--acid:#f2820c;--acid-deep:#c9640a;--chrome:#ffb84d;
---ok:#22ab57;--warn:#f0a41c;--alarm:#e53a3a;--idle:#55617a;--teal:#2ba6a4;--violet:#8b7bd8;--line-l:#dde3ea;--line-d:rgba(255,255,255,.09)}
-*{box-sizing:border-box}html,body{margin:0}
-body{font-family:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--work);color:var(--wink);font-size:14px;line-height:1.45}
-.mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
-.hide{display:none!important}button{font:inherit;cursor:pointer}input,select,textarea{font:inherit}
-/* login */
-#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--panel);padding:20px}
-.lcard{background:var(--card);border-radius:16px;padding:28px 26px;width:min(400px,94vw);box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center}
-.lcard img{width:64px;height:64px;margin-bottom:10px}
-.lcard h1{margin:0 0 3px;font-size:19px}.lcard .sub{color:var(--wink-dim);font-size:12.5px;margin-bottom:16px}
-.lcard label{display:block;text-align:left;font-size:12px;color:var(--wink-dim);margin:12px 0 5px}
-.lcard input{width:100%;padding:11px;border:1px solid var(--line-l);border-radius:9px;background:#fafbfc}
-.lcard input:focus{outline:none;border-color:var(--acid)}
-.lbtn{width:100%;margin-top:18px;padding:12px;border:0;border-radius:9px;background:var(--acid);color:#fff;font-weight:600;font-size:15px}
-.lbtn:disabled{opacity:.6}.lerr{color:var(--alarm);font-size:12.5px;margin-top:12px;min-height:16px}
-.lbrand{font-weight:700;color:var(--acid-deep);font-size:12px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:10px}
-/* shell */
-header{background:var(--panel);color:var(--ink);padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:2px solid var(--acid);padding-top:max(10px,env(safe-area-inset-top))}
-.ctx{line-height:1.25}.ctx .c1{font-weight:700;font-size:14px}.ctx .c2{font-size:11px;color:var(--ink-dim)}
-.sp{flex:1}
-.brandR{display:flex;align-items:center;gap:9px}
-.brandR img{width:34px;height:34px}
-.brandR .bt{line-height:1.15;text-align:right}.brandR .bt b{font-size:13px}.brandR .bt span{display:block;font-size:9.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.5px}
-.who{text-align:right;font-size:11.5px;color:var(--ink-dim);line-height:1.25}.who b{color:var(--ink);display:block}
-.ghost{background:var(--panel2);color:var(--ink-dim);border:1px solid var(--line-d);padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;transition:background .15s,color .15s,border-color .15s}
-.ghost:hover{background:var(--panel3);color:var(--ink);border-color:var(--acid)}
-.modal input,.modal select,.modal textarea{width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;font-family:'IBM Plex Mono',monospace}
-.modal input:focus,.modal select:focus{outline:none;border-color:var(--acid)}
-.modal .err{color:var(--alarm);font-size:12px;min-height:15px;margin-top:6px}
-th.sortable{cursor:pointer;user-select:none}th.sortable:hover{color:var(--acid-deep)}th .ar{font-size:9px;opacity:.7;margin-left:2px}
-.locrow{display:flex;gap:7px;align-items:center;margin-bottom:6px}.locrow input{flex:1}
-.chip{display:inline-flex;align-items:center;gap:6px;background:#eef1f4;border-radius:15px;padding:4px 7px 4px 11px;font-size:12px;margin:4px 5px 0 0}
-.chip button{border:0;background:#d9dee5;color:#556;border-radius:50%;width:18px;height:18px;line-height:16px;cursor:pointer;font-size:12px}
-.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:10px 0}
-.filters .f{min-width:150px}
-nav.tabs{background:var(--panel2);display:flex;gap:4px;padding:6px 12px;overflow-x:auto}
-nav.tabs button{background:transparent;border:0;color:var(--ink-dim);padding:8px 14px;border-radius:7px;font-weight:600;font-size:13px;white-space:nowrap}
-nav.tabs button.on{background:var(--acid);color:#1a1206}
-main{max-width:1200px;margin:0 auto;padding:16px}
-/* dark board */
-.board{background:var(--panel);color:var(--ink);border-radius:14px;padding:16px 16px 18px;margin-bottom:16px}
-.board h3{font-size:11px;letter-spacing:1.3px;text-transform:uppercase;color:var(--ink-dim);margin:0 0 12px;display:flex;align-items:center;gap:8px}
-.board h3::before{content:"";width:18px;height:2px;background:var(--acid)}
-.trainsel{display:inline-flex;gap:5px;background:var(--panel2);padding:5px;border-radius:9px;margin-bottom:10px}
-.trainsel button{background:transparent;border:0;color:var(--ink-dim);padding:6px 14px;border-radius:6px;font-weight:600;font-size:13px}
-.trainsel button.on{background:var(--acid);color:#1a1206}
-.rail{display:flex;background:var(--panel2);border-radius:11px;padding:6px;overflow-x:auto}
-.step{flex:1 0 auto;min-width:96px;cursor:pointer;padding:10px 11px 12px;border-radius:8px;border:1px solid transparent}
-.step:hover{background:var(--panel3)}.step .n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint)}
-.step .m{font-weight:600;font-size:12px;color:var(--ink-dim);margin-top:2px}.step .d{font-size:9.5px;color:var(--ink-faint);margin-top:2px}
-.step.done .n{color:var(--ok)}.step.active{background:linear-gradient(180deg,#3a2a0e,#241a09);border-color:var(--acid)}
-.step.active .m{color:var(--chrome)}.step.active .n{color:var(--acid)}
-.railnav{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
-.railnav button{border:0;border-radius:7px;padding:8px 15px;font-weight:600;font-size:13px}
-.np{background:var(--panel3);color:var(--ink-dim)}.nn{background:var(--acid);color:#1a1206}.rl{color:var(--ink-dim);font-size:12px}
-.rgrid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-top:14px}@media(max-width:820px){.rgrid{grid-template-columns:1fr}}
-.rc{background:var(--panel2);border-radius:11px;padding:14px}
-.rc .t{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-faint);margin-bottom:9px}
-.inrow{display:flex;gap:9px;flex-wrap:wrap}.fieldd{flex:1;min-width:104px}
-.fieldd label{display:block;font-size:10.5px;color:var(--ink-dim);margin-bottom:4px}
-.fieldd input{width:100%;font-family:'IBM Plex Mono',monospace;font-size:15px;background:var(--panel);border:1px solid var(--line-d);color:var(--ink);padding:9px;border-radius:7px}
-.fieldd input:focus{outline:none;border-color:var(--acid)}.fieldd .u{font-size:10px;color:var(--ink-faint)}
-.impb{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}@media(max-width:520px){.impb{grid-template-columns:1fr}}
-.impc{background:var(--panel);border:1px solid var(--line-d);border-radius:9px;padding:10px}
-.impc .it{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-faint);display:block;margin-bottom:8px}
-.improw{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-dim)}
-.simp{width:58px;font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--panel2);border:1px solid var(--line-d);color:var(--ink);padding:6px;border-radius:6px}
-.imptot{font-family:'IBM Plex Mono',monospace;color:var(--chrome);font-weight:600}
-.prog{margin-top:12px}.prog .pl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-dim);margin-bottom:5px}
-.pbar{height:9px;background:var(--panel);border-radius:6px;overflow:hidden}.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--acid),var(--chrome))}
-.cue{border-radius:9px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start;background:var(--panel);border:1px solid var(--line-d)}
-.cue .dot{width:11px;height:11px;border-radius:50%;margin-top:4px;flex:none;background:var(--idle)}
-.cue.go .dot{background:var(--ok);box-shadow:0 0 0 4px rgba(34,171,87,.18)}
-.cue.stop .dot{background:var(--alarm);box-shadow:0 0 0 4px rgba(229,58,58,.18)}
-.cue.hold .dot{background:var(--warn);box-shadow:0 0 0 4px rgba(240,164,28,.18)}
-.cue b{display:block;font-size:13.5px;margin-bottom:2px;color:var(--ink)}.cue span{font-size:12px;color:var(--ink-dim);line-height:1.45}
-.tanks{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:9px;margin-top:6px}
-.tank{background:var(--panel2);border-radius:10px;padding:10px;position:relative;cursor:pointer}.tank:hover{background:var(--panel3)}
-.tank .tk{font-weight:600;font-size:12px;color:var(--ink)}.tank .td{font-size:9.5px;color:var(--ink-faint);height:22px;line-height:1.1}
-.tvis{height:38px;border-radius:6px;background:var(--panel);margin:7px 0 5px;position:relative;overflow:hidden;border:1px solid var(--line-d)}
-.tvis i{position:absolute;left:0;right:0;bottom:0}.tank .tval{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-dim)}.tank .tval b{color:var(--ink)}
-.tflag{position:absolute;top:8px;right:8px;font-size:8.5px;font-weight:700;padding:2px 5px;border-radius:5px}
-.tflag.hi{background:rgba(229,58,58,.16);color:#ff8f8f}.tflag.lo{background:rgba(240,164,28,.16);color:#f8c15f}
-/* light cards */
-.card{background:var(--card);border:1px solid var(--line-l);border-radius:13px;padding:16px 18px;margin-bottom:16px}
-.card h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#7a8699;margin:0 0 14px;display:flex;align-items:center;gap:8px}
-.card h2::before{content:"";width:20px;height:2px;background:var(--acid-deep)}
-.grid{display:grid;gap:11px 12px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
-@media(max-width:640px){.g3,.g4{grid-template-columns:1fr 1fr}}
-.f label{display:block;font-size:11px;color:var(--wink-dim);margin-bottom:4px}
-.f input,.f select,.f textarea{width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;font-family:'IBM Plex Mono',monospace}
-.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--acid)}
-.f input[readonly]{background:#eef1f4;color:var(--acid-deep);font-weight:600}
-.sec{grid-column:1/-1;margin-top:8px;font-weight:600;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--acid-deep);border-bottom:1px solid var(--line-l);padding-bottom:5px}
-.sec em{font-weight:400;text-transform:none;letter-spacing:0;color:var(--wink-dim)}
-.btn{padding:11px 18px;border:0;border-radius:9px;font-weight:600;font-size:14px}
-.btn.primary{background:var(--acid);color:#fff}.btn.primary:hover{background:var(--acid-deep)}
-.btn.done{background:var(--ok);color:#fff}.btn.g{background:#eef0f3;color:var(--wink-dim)}.btn.danger{background:#fdecec;color:#c62828}
-.btn.sm{padding:7px 12px;font-size:12.5px;border-radius:7px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
-.pill.draft{background:rgba(240,164,28,.16);color:#a9700a}.pill.done{background:rgba(34,171,87,.14);color:#1a8f47}
-.pill.off{background:#eceef1;color:#77808d}
-table{width:100%;border-collapse:collapse;font-size:12.5px}
-th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--wink-dim);padding:7px 8px;border-bottom:1.5px solid var(--line-l)}
-td{padding:8px;border-bottom:1px solid #eef1f4}td.m,th.m{font-family:'IBM Plex Mono',monospace;text-align:right}
-tr.clk{cursor:pointer}tr.clk:hover td{background:#fafbfc}.hwrap{overflow-x:auto}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
-.kpi{border-left:3px solid var(--acid);padding-left:11px}.kpi .v{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600}
-.kpi .l{font-size:10px;color:var(--wink-dim);text-transform:uppercase;letter-spacing:.4px}
-.kpi.a2{border-color:var(--teal)}.kpi.a3{border-color:var(--violet)}.kpi.a4{border-color:var(--ok)}
-.rem{display:flex;flex-direction:column;gap:10px}
-.rmi{border-radius:11px;padding:12px 14px;border:1px solid var(--line-l);background:#fafbfc;position:relative;overflow:hidden}
-.rmi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
-.rmi.ok::before{background:var(--ok)}.rmi.warn::before{background:var(--warn)}.rmi.alarm::before{background:var(--alarm)}
-.rmi .rh{display:flex;justify-content:space-between;gap:8px;margin-bottom:5px}.rmi .rt{font-weight:600;font-size:13px}
-.rmi .rg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase}
-.rg.ok{background:rgba(34,171,87,.12);color:#1a8f47}.rg.warn{background:rgba(240,164,28,.14);color:#a9700a}.rg.alarm{background:rgba(229,58,58,.12);color:#c62828}
-.rmi .rb{font-size:12px;color:var(--wink-dim);line-height:1.45}.rmi .rb b{color:var(--wink);font-family:'IBM Plex Mono',monospace}
-.note{font-size:12px;color:var(--wink-dim);background:#fafbfc;border:1px solid var(--line-l);border-radius:9px;padding:10px 12px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel);color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.3);z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
-.toast.show{opacity:1}
-.modal{position:fixed;inset:0;background:rgba(10,14,22,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:18px}
-.modal .mc{background:#fff;border-radius:14px;padding:22px;width:min(460px,94vw);max-height:90vh;overflow:auto}
-.modal h3{margin:0 0 6px}.modal p{color:var(--wink-dim);font-size:13.5px;margin:0 0 16px}
-footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-height:1.6}
-/* --- dashboard styling corrections --- */
-.trainsel button.on{background:rgba(242,130,12,.14);color:var(--chrome);border:1.5px solid var(--acid)}
-.legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:12px}
-.legend .lg{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim)}
-.legend .lg i{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
-.legend .lg.go i{background:var(--ok)}.legend .lg.stop i{background:var(--alarm)}.legend .lg.hold i{background:var(--warn)}
-.rbar{height:7px;background:#e9edf2;border-radius:5px;overflow:hidden;margin-top:9px}
-.rbar i{display:block;height:100%;border-radius:5px}
-.rmini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
-.rmini button{background:#fff;border:1px solid var(--line-l);color:var(--wink);padding:6px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
-.rmini button:hover{border-color:var(--acid);background:#fff7ef}
-.rmini input{width:82px;padding:6px 8px;border:1px solid var(--line-l);border-radius:7px;font-family:'IBM Plex Mono',monospace}
-.rmi::before{width:5px}
-.btn.discard{background:#fdecec;color:var(--alarm);border:1px solid #f6c9c9}
-.btn.discard:hover{background:#fbdede;border-color:var(--alarm)}
-.whobar{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:flex-end;margin:10px 0 6px;padding:12px 15px;background:linear-gradient(180deg,#fff,#fbfcfe);border:1px solid var(--line-l);border-left:4px solid var(--acid);border-radius:11px}
-.whobar .wb i{display:block;font-size:9.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--wink-dim);font-style:normal;margin-bottom:3px}
-.whobar .wb b{font-size:17px;font-weight:700;color:var(--wink);line-height:1.05}
-.whobar .wb.co b{color:var(--acid-deep)}
-.whobar .wb.loc b{font-size:13px;color:var(--wink-dim);font-weight:600}
-table.rep td,table.rep th{padding:11px 12px}
-table.rep tbody tr{border-bottom:1px solid var(--line-l)}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#E64B3C">
+  <title>PMPL HRMS</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<div id="app">
 
-<div id="login">
-  <div class="lcard">
-    <img src="pmpl-logo.jpg" alt="Polyfill Microns" style="border-radius:50%">
-    <div class="lbrand">Polyfill Microns Pvt. Ltd.</div>
-    <h1>CARS Operator Portal</h1>
-    <div class="sub">Chromic Acid Recycling · sign in to continue</div>
-    <label>Username</label><input id="liEmail" type="text" autocomplete="username" placeholder="username (admins: your email)">
-    <label>Password</label><input id="liPass" type="password" autocomplete="current-password">
-    <button class="lbtn" id="liBtn">Sign in</button>
-    <div class="lerr" id="liErr"></div>
+  <!-- ═══ TOP BAR ══════════════════════════════════════════════ -->
+  <div id="top-bar" class="hidden">
+    <img src="assets/pmpl_logo.jpg" alt="PMPL" class="top-logo">
+    <span class="top-title">PMPL HRMS</span>
+    <span class="top-user" id="user-name-display"></span>
+    <button class="top-logout" onclick="doLogout()">Sign Out</button>
   </div>
-</div>
 
-<div id="app" class="hide">
-  <header>
-    <div class="ctx"><div class="c1" id="hCtx1">CARS</div><div class="c2" id="hCtx2"></div></div>
-    <div class="who"><b id="hName">—</b><span id="hRole"></span></div>
-    <div class="sp"></div>
-    <div class="brandR"><img src="pmpl-logo.jpg" alt="Polyfill Microns" style="border-radius:50%"><div class="bt"><b>Polyfill Microns Pvt Ltd</b><span>Recycling &amp; pollution control</span></div></div>
-    <button class="ghost" id="hOut">Sign out</button>
-  </header>
-  <nav class="tabs" id="tabs"></nav>
-  <main id="main"></main>
-  <footer><strong>Polyfill Microns Pvt Ltd</strong> · CARS · RWRS · CARWARS operator application.<br><span id="copy"></span></footer>
-</div>
+  <!-- ═══ LOGIN SCREEN ════════════════════════════════════════= -->
+  <div id="screen-login">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="login-logo"><img src="assets/pmpl_logo.jpg" alt="PMPL Logo"></div>
+        <div class="login-title">PMPL HRMS</div>
+        <div class="login-sub">Employee Management & Payroll</div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input id="login-email" type="email" class="form-control" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input id="login-pass" type="password" class="form-control" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter') doLogin()">
+        </div>
+        <button id="login-btn" class="btn btn-primary btn-full" onclick="doLogin()">Sign In</button>
+        <div class="text-center mt-2" style="font-size:11px;color:var(--muted);">
+          Polyfill Microns Pvt. Ltd. — Internal System
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="toast" id="toast"></div>
+  <!-- ═══ EMPLOYEE: ATTENDANCE DASHBOARD ══════════════════════= -->
+  <div id="screen-attendance" class="screen hidden">
+    <div class="card att-hero">
+      <div id="att-emp-name" style="font-size:17px;font-weight:700;"></div>
+      <div style="font-size:12px;color:var(--muted);">
+        <span id="att-month"></span> &nbsp;|&nbsp; <span id="att-today"></span>
+      </div>
+      <div class="att-status-big">📋</div>
+      <div class="att-status-text" id="att-today-status">—</div>
+      <button id="att-mark-btn" class="btn btn-primary btn-full" onclick="markPresent()">Mark Present Today</button>
+    </div>
 
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-const CFG = window.CARS_CONFIG;
-const sb = createClient(CFG.url, CFG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true, storage: window.sessionStorage } });
+    <div id="att-advance-balance" class="card hidden" style="background:#FEF9E7;color:#9A7D0A;font-weight:600;"></div>
 
-const $=s=>document.querySelector(s);
-const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
-const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
-const fmt=(n,d=1)=>Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
-const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const today=()=>new Date().toISOString().slice(0,10);
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);}
+    <div class="summary-grid">
+      <div class="summary-card"><div class="s-val" id="att-summary-present">—</div><div class="s-lbl">Present</div></div>
+      <div class="summary-card"><div class="s-val" id="att-summary-leave">—</div><div class="s-lbl">Paid Leave</div></div>
+      <div class="summary-card"><div class="s-val" id="att-summary-weekly">—</div><div class="s-lbl">Weekly Offs</div></div>
+      <div class="summary-card"><div class="s-val" id="att-summary-holidays">—</div><div class="s-lbl">Holidays</div></div>
+      <div class="summary-card"><div class="s-val" id="att-summary-paid">—</div><div class="s-lbl">Paid Days</div></div>
+    </div>
 
-const DEFAULTS={
-  feedFlowLPH:1500, regenFlowLPH:750, bedL:500, voidL:150,
-  feedCrO3:250, feedFe:13, feedCr3:6, workingCapKg:5,
-  diluteCutL:150, ct2TargetL:500, ct2TargetCrO3:220,
-  regenBV:2, regenPct:15, condUnit:'mS/cm', chromeRinseCond:5, h2so4RinseCond:8,
-  bathCeilingFe:0, acidStockPct:50,
-  carwarsThreshKg:15, carwarsCat1L:100, carwarsAnionL:250, carwarsCat2L:250,
-  rwrsThreshL:5000, rwrsCationL:100, rwrsAnionL:200, rinseToWT1PerCycle:500, carwarsNaOHpct:13,
-  h2so4_density:[[5,1.032],[10,1.066],[15,1.102],[20,1.139],[25,1.178],[30,1.219],[35,1.260],[40,1.303],[50,1.395]],
-  naoh_density:[[5,1.054],[10,1.109],[15,1.164],[20,1.219],[25,1.274],[30,1.328],[40,1.430],[50,1.525]],
-  tankCaps:{CT1A:1000,CT1B:1000,CT2A:1000,CT2B:1000,CT3:3000,CT4:1000,WT1:3000,DM:2000,H2:1000,SP:1000}
-};
-const TANKS=[['CT1A','Spent chromic · Etching','#e4571b'],['CT1B','Spent chromic · Plating','#e4571b'],
- ['CT2A','Treated ~220 · Etching','#f2820c'],['CT2B','Treated ~220 · Plating','#f2820c'],
- ['CT3','Dilute → CARWARS','#ffb84d'],['CT4','Recovered chromic acid','#ffcf7a'],
- ['WT1','Sulphate rinse → RWRS','#2ba6a4'],['DM','DM water (RWRS out)','#4d9de0'],
- ['H2','H₂SO₄ regenerant store','#8b7bd8'],['SP','Spent H₂SO₄ (reuse)','#a78b4a']];
-const STEPS=[
- {m:'Acid load',d:'spent acid · bottom→top',ep:'feed',route:'Feeding column'},
- {m:'Dilute cut',d:'displaced water → CT3',ep:'dilute',route:'Outlet → CT3'},
- {m:'Recover acid',d:'treated acid → CT2',ep:'ct2',route:'Outlet → CT2'},
- {m:'Water push',d:'displace void',ep:'void',route:'Balancing CT2'},
- {m:'Chrome rinse',d:'wash Cr⁶⁺ → CT3',ep:'cond',route:'Outlet → CT3',sp:'chromeRinseCond'},
- {m:'H₂SO₄ regen',d:'acid · top→bottom',ep:'regen',route:'Drain / reuse tank'},
- {m:'Overnight soak',d:'hold last BV',ep:'manual',route:'Column standing'},
- {m:'H₂SO₄ rinse',d:'sulphate → WT1',ep:'cond',route:'Outlet → WT1',sp:'h2so4RinseCond'},
- {m:'Void drain',d:'air purge',ep:'manual',route:'Column emptying'}];
+    <!-- Apply Leave -->
+    <div class="card">
+      <div class="card-title">Apply Leave</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>From Date</label>
+          <input id="leave-from" type="date" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>To Date</label>
+          <input id="leave-to" type="date" class="form-control">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Reason (optional)</label>
+        <input id="leave-reason" type="text" class="form-control" placeholder="Reason…">
+      </div>
+      <button class="btn btn-outline" onclick="applyLeave()">Submit Leave Request</button>
+    </div>
 
-let ME=null, SETTINGS=Object.assign({},DEFAULTS), CUR=null, INV=[], LS={}, REF={};
+    <!-- Quick expense shortcut -->
+    <div class="card">
+      <div class="card-title">Quick Expense</div>
+      <button class="btn btn-outline btn-full" onclick="showScreen('my-expenses')">➕ Raise Company Expense</button>
+    </div>
 
-function rho(tb,c){if(!c)return 1;const t=(tb||[]).slice().sort((a,b)=>a[0]-b[0]);if(!t.length)return 1;
- if(c<=t[0][0])return t[0][1];if(c>=t[t.length-1][0])return t[t.length-1][1];
- for(let i=0;i<t.length-1;i++){if(c>=t[i][0]&&c<=t[i+1][0]){const[x0,y0]=t[i],[x1,y1]=t[i+1];return y0+(y1-y0)*(c-x0)/(x1-x0);}}return 1;}
-const h2so4_50=(c,v)=>(c>0&&v>0)?v*rho(SETTINGS.h2so4_density,c)*(c/100)/((SETTINGS.acidStockPct||50)/100):0;
-const naoh_100=(c,v)=>(c>0&&v>0)?v*rho(SETTINGS.naoh_density,c)*(c/100):0;
+    <!-- Notifications -->
+    <div class="card">
+      <div class="card-title">Notifications</div>
+      <div id="att-notifications"></div>
+    </div>
 
-/* ---- auth ---- */
-$('#liBtn').onclick=doLogin;
-$('#liPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-async function doLogin(){
-  const raw=$('#liEmail').value.trim(),password=$('#liPass').value;
-  const email=raw.includes('@')?raw:(raw.toLowerCase()+'@pmpl.local');
-  $('#liErr').textContent='';$('#liBtn').disabled=true;$('#liBtn').textContent='Signing in…';
-  const {error}=await sb.auth.signInWithPassword({email,password});
-  $('#liBtn').disabled=false;$('#liBtn').textContent='Sign in';
-  if(error)$('#liErr').textContent=(raw.includes('@')?'':'Check your username and password. ')+(error.message||'Sign-in failed');
-}
-$('#hOut').onclick=async()=>{
-  if(CUR&&CUR.id&&CUR.status==='draft'){const g=await confirmComplete();if(g==='cancel')return;if(g==='complete'){await saveCurrent(true);}else{await saveCurrent(false);}}
-  await sb.auth.signOut();
-};
-sb.auth.onAuthStateChange(async(_e,session)=>{
-  if(session&&session.user){ if(ME&&ME.id===session.user.id) return; await boot(session.user); }
-  else{$('#app').classList.add('hide');$('#login').classList.remove('hide');ME=null;CUR=null;}
-});
-async function boot(user){
-  const {data:prof,error}=await sb.from('profiles').select('id,full_name,username,role,active,client_id,location_id,designation,pan,access_attendance,access_cars,clients(name),locations(name)').eq('id',user.id).single();
-  if(error||!prof){$('#liErr').textContent='Profile not found. Contact admin.';await sb.auth.signOut();return;}
-  if(!prof.active){$('#liErr').textContent='Your account is deactivated. Contact admin.';await sb.auth.signOut();return;}
-  ME={id:prof.id,role:prof.role,name:prof.full_name||prof.username||user.email,email:user.email,client_id:prof.client_id,location_id:prof.location_id,
-      clientName:prof.clients?.name||'',locationName:prof.locations?.name||'',accessCars:!!prof.access_cars,accessAttendance:!!prof.access_attendance,designation:prof.designation||'',pan:prof.pan||''};
-  {const {data:gs}=await sb.from('settings').select('data').is('client_id',null).maybeSingle();
-   let cs=null; if(ME.client_id){const r=await sb.from('settings').select('data').eq('client_id',ME.client_id).maybeSingle();cs=r.data;}
-   SETTINGS=Object.assign({},DEFAULTS,gs?.data||{},cs?.data||{});}
-  if(ME.client_id){const {data:inv}=await sb.from('inventory').select('*').eq('client_id',ME.client_id).eq('location_id',ME.location_id);INV=inv||[];
-    if(ME.location_id){const {data:st}=await sb.from('location_state').select('data').eq('location_id',ME.location_id).maybeSingle();LS=st?.data||{};}}
-  $('#login').classList.add('hide');$('#app').classList.remove('hide');
-  $('#hCtx1').textContent=ME.role==='admin'?'Administrator':(ME.clientName||'CARS');
-  $('#hCtx2').textContent=ME.role==='admin'?'Console':(ME.locationName||'');
-  $('#hName').textContent=ME.name;$('#hRole').textContent=ME.role;
-  $('#copy').textContent='© '+new Date().getFullYear()+' Polyfill Microns Pvt Ltd — sole and exclusive property. Unauthorised copying, modification or distribution prohibited.';
-  buildTabs();
-}
-function buildTabs(){
-  let tabs;
-  if(ME.role==='admin'){tabs=[['reports','Reports'],['techs','Employees'],['company','Companies & stock'],['settings','Settings'],['payset','Payroll Settings']];}
-  else{tabs=[];if(ME.accessCars)tabs.push(['cycle','Current cycle'],['mine','My cycles']);}
-  const nav=$('#tabs');nav.innerHTML='';
-  if(!tabs.length){$('#main').innerHTML='<div class="card"><div class="note">No modules are enabled for your account yet. Please contact the administrator.</div></div>';return;}
-  const last=sessionStorage.getItem('cars_tab');let si=tabs.findIndex(t=>t[0]===last);if(si<0)si=0;
-  tabs.forEach(([k,l])=>{const b=el('button',null,l);b.onclick=()=>go(k,b);nav.appendChild(b);});
-  go(tabs[si][0],nav.children[si]);
-}
-function go(tab,btn){document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
-  try{sessionStorage.setItem('cars_tab',tab);}catch(e){}
-  const m=$('#main');m.innerHTML='';
-  ({cycle:screenCycle,mine:screenMine,reports:screenReports,techs:screenTechs,company:screenCompany,settings:screenSettings,payset:screenPayrollSettings})[tab](m);}
+    <!-- Recent Attendance -->
+    <div class="card">
+      <div class="card-title">Recent Attendance</div>
+      <div id="att-recent"></div>
+    </div>
+  </div>
 
-/* ---- technician: dashboard cycle ---- */
-function blankData(){return{train:'Etching',step:0,cycle_date:today(),
- flow:'',vol:'',cond:'',spentFe:'',spentCr3:'',treatFe:'',treatCr3:'',
- feedVol:'',feedCrO3:'',feedFe:'',feedCr3:'',feedCu:'',ct2:'',treatCrO3:'',treatFeL:'',treatCr3L:'',treatCu:'',
- carsPct:'',carsVol:'',recyc:'',cw1Pct:'',cw1Vol:'',cwAnPct:'',cwAnVol:'',cw2Pct:'',cw2Vol:'',rwCatPct:'',rwCatVol:'',rwAnPct:'',rwAnVol:'',
- notes:'',tanks:{}};}
-async function screenCycle(m){
-  if(!CUR){const {data}=await sb.from('cars_cycles').select('*').eq('technician_id',ME.id).eq('status','draft').order('updated_at',{ascending:false}).limit(1);
-    CUR=(data&&data.length)?{id:data[0].id,status:'draft',data:Object.assign(blankData(),data[0].data||{})}:{id:null,status:'draft',data:blankData()};}
-  renderCycle(m);
-}
-function cd(){return CUR.data;}
-function impurity(){var v=num(cd().spentFe)+num(cd().spentCr3);return v||(SETTINGS.feedFe+SETTINGS.feedCr3);}
-function feedTarget(){var i=impurity();return i>0?SETTINGS.workingCapKg*1000/i:0;}
-function stepTarget(i){var s=STEPS[i];switch(s.ep){case'feed':return feedTarget();case'dilute':return SETTINGS.diluteCutL;case'ct2':return SETTINGS.ct2TargetL;case'void':return SETTINGS.voidL;case'regen':return SETTINGS.regenBV*SETTINGS.bedL;default:return SETTINGS.bedL;}}
+  <!-- ═══ EMPLOYEE: LEAVE HISTORY ══════════════════════════════ -->
+  <div id="screen-leave-history" class="screen hidden">
+    <div class="page-header">
+      <div class="page-title">Leave History</div>
+    </div>
+    <div id="leave-history-list"></div>
+  </div>
 
-function ddField(label,key,unit,cross){var w=el('div','fieldd');w.appendChild(el('label',null,label));
-  var i=document.createElement('input');i.className='mono';i.value=cd()[key]||'';i.addEventListener('input',function(){cd()[key]=i.value;if(cross)cross(i.value);syncImp();paint();totals();});
-  w.appendChild(i);if(unit)w.appendChild(el('span','u',unit));REF['lv_'+key]=i;return w;}
-function impCol(title,keys,totId,hint){var c=el('div','impc');c.innerHTML='<span class="it">'+title+'</span>';
-  var r=el('div','improw'),labels=['Fe','Cr³⁺'];
-  keys.forEach(function(k,idx){if(idx)r.appendChild(document.createTextNode(' + '));r.appendChild(document.createTextNode(labels[idx]+' '));
-    var i=document.createElement('input');i.className='simp';i.value=cd()[k]||'';i.addEventListener('input',function(){cd()[k]=i.value;liveCross(k,i.value);syncImp();paint();totals();});r.appendChild(i);});
-  r.appendChild(document.createTextNode(' = '));var t=el('span','imptot');t.id=totId;r.appendChild(t);
-  c.appendChild(r);c.appendChild(el('div',null,'<small style="color:var(--ink-faint);font-size:10px">'+hint+'</small>'));return c;}
-function liveCross(k,v){var d=cd();
-  if(k==='spentFe'){d.feedFe=v;if(REF.feedFe)REF.feedFe.value=v;}
-  else if(k==='spentCr3'){d.feedCr3=v;if(REF.feedCr3)REF.feedCr3.value=v;}
-  else if(k==='treatFe'){d.treatFeL=v;if(REF.treatFeL)REF.treatFeL.value=v;}
-  else if(k==='treatCr3'){d.treatCr3L=v;if(REF.treatCr3L)REF.treatCr3L.value=v;}}
-function logField(label,key,opt){opt=opt||{};var w=el('div','f');var lb=el('label',null,label+(opt.auto?' <span style="color:var(--acid-deep);font-weight:700;font-size:9px;letter-spacing:.3px;margin-left:5px;text-transform:uppercase">auto</span>':''));w.appendChild(lb);
-  var i=document.createElement('input');i.className='mono';if(opt.auto)i.style.cssText='background:#fff5ec;border-color:#f3c79b;color:var(--acid-deep);font-weight:600';if(opt.ro){i.readOnly=true;}i.value=(cd()[key]!=null?cd()[key]:'');
-  if(!opt.ro)i.addEventListener('input',function(){cd()[key]=i.value;totals();});REF[key]=i;w.appendChild(i);return w;}
-function acidCalc(parent,label,pk,vk,type){parent.appendChild(logField(label+' — conc (%)',pk));parent.appendChild(logField(label+' — vol (L)',vk));
-  var w=el('div','f');w.appendChild(el('label',null,label+' — qty (kg) <span style="color:var(--acid-deep);font-weight:700;font-size:9px;margin-left:5px;text-transform:uppercase">auto</span>'));
-  var i=document.createElement('input');i.className='mono';i.readOnly=true;i.setAttribute('data-calc',type+'|'+pk+'|'+vk);w.appendChild(i);parent.appendChild(w);}
+  <!-- ═══ EMPLOYEE: MY EXPENSES ════════════════════════════════ -->
+  <div id="screen-my-expenses" class="screen hidden">
+    <div class="page-header">
+      <div class="page-title">Company Expenses</div>
+    </div>
+    <div class="card">
+      <div class="card-title">New Expense</div>
+      <form id="exp-form" onsubmit="return false">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date *</label>
+            <input id="exp-date" type="date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="exp-category" class="form-control">
+              <option value="Travel">Travel</option>
+              <option value="Food">Food</option>
+              <option value="Local Conveyance">Local Conveyance</option>
+              <option value="Parts/Components">Parts/Components</option>
+              <option value="Accommodation">Accommodation</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Amount (₹) *</label>
+            <input id="exp-amount" type="number" class="form-control" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label>Bill Number</label>
+            <input id="exp-bill" type="text" class="form-control" placeholder="Bill/Receipt No.">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Client (if applicable)</label>
+          <select id="exp-client" class="form-control"></select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="exp-desc" class="form-control" rows="2" placeholder="Details…"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="submitExpense()">Submit Expense</button>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-title">My Expense History</div>
+      <div id="my-exp-list"></div>
+    </div>
+  </div>
 
-function renderCycle(m){
-  REF={};var d=cd();
-  m.appendChild(el('div','note',CUR.id?'<span class="pill draft">Draft</span> saved cycle in progress':'New cycle — press Save to start the draft'));
-  m.appendChild(el('div','whobar','<span class="wb"><i>Technician</i><b>'+esc(ME.name)+'</b></span><span class="wb co"><i>Company</i><b>'+esc(ME.clientName||'—')+'</b></span><span class="wb loc"><i>Location</i><b>'+esc(ME.locationName||'—')+'</b></span>'));
-  var b=el('div','board');
-  var ts=el('div','trainsel');['Etching','Plating'].forEach(function(tr){var bb=el('button',d.train===tr?'on':'',tr);bb.onclick=function(){d.train=tr;Array.prototype.forEach.call(ts.children,function(c){c.className=c.textContent===tr?'on':'';});if(REF.train)REF.train.value=tr;var tn=document.getElementById('cyTrain');if(tn)tn.textContent=tr;};ts.appendChild(bb);});
-  b.appendChild(el('h3',null,'CARS cycle — <span id="cyTrain" style="color:var(--chrome)">'+esc(d.train)+'</span>'));b.appendChild(ts);
-  var rail=el('div','rail');rail.id='cyRail';
-  STEPS.forEach(function(s,i){var e=el('div','step','<div class="n">'+String(i+1).padStart(2,'0')+'</div><div class="m">'+s.m+'</div><div class="d">'+s.d+'</div>');e.onclick=function(){d.step=i;paint();};rail.appendChild(e);});
-  b.appendChild(rail);
-  var rn=el('div','railnav');
-  var bp=el('button','np','‹ Previous');bp.onclick=function(){d.step=Math.max(0,d.step-1);paint();};
-  var bnx=el('button','nn','Advance step ›');bnx.onclick=function(){d.step=Math.min(STEPS.length-1,d.step+1);paint();};
-  rn.appendChild(bp);rn.appendChild(bnx);rn.appendChild(el('span','rl','','cyHint'));rn.lastChild.id='cyHint';b.appendChild(rn);
-  var rg=el('div','rgrid');
-  var rc1=el('div','rc');rc1.innerHTML='<div class="t">Live readings — this step</div>';
-  var ir=el('div','inrow');
-  ir.appendChild(ddField('Flow (LPH)','flow','target <b id="tFlow">—</b>'));
-  ir.appendChild(ddField('Volume this step','vol','L · target <b id="tVol">—</b> · → Chromic processed',function(v){cd().feedVol=v;if(REF.feedVol)REF.feedVol.value=v;}));
-  ir.appendChild(ddField('Outlet conductivity','cond',SETTINGS.condUnit));
-  rc1.appendChild(ir);
-  var ib=el('div','impb');
-  ib.appendChild(impCol('Spent acid impurity → Feed',['spentFe','spentCr3'],'spentImp','Fe + Cr³⁺ auto-fills Feed Fe/Cr³⁺ and sizes the batch'));
-  ib.appendChild(impCol('Treated acid impurity → Treated',['treatFe','treatCr3'],'treatImp','auto-fills Treated Fe/Cr³⁺ in the log'));
-  rc1.appendChild(ib);
-  rc1.appendChild(el('div','prog','<div class="pl"><span id="progName">Progress</span><span class="mono" id="progTxt">0 / 0 L</span></div><div class="pbar"><i id="progBar" style="width:0%"></i></div>'));
-  var rc2=el('div','rc');rc2.innerHTML='<div class="t">Operator action</div><div class="cue" id="cue"><span class="dot"></span><div><b id="cueT">—</b><span id="cueS"></span></div></div>'+
-    '<div class="legend"><span class="lg go"><i></i> Green — proceed / on track</span><span class="lg stop"><i></i> Red — stop, endpoint reached</span><span class="lg hold"><i></i> Amber — manual step / hold</span></div>';
-  rg.appendChild(rc1);rg.appendChild(rc2);b.appendChild(rg);
-  b.appendChild(el('h3',null,'Tank board — tap a tank to set level'));
-  var tk=el('div','tanks');tk.id='cyTanks';b.appendChild(tk);
-  m.appendChild(b);
-  var lc=el('div','card');lc.innerHTML='<h2>Cycle log</h2>';var lg=el('div','grid g3');
-  add2(lg,'sec','Header');
-  lg.appendChild(logField('Cycle date','cycle_date'));
-  lg.appendChild(logField('Train','train',{ro:true}));
-  lg.appendChild(logField('Chromic acid processed (L)','feedVol',{auto:true}));
-  add2(lg,'sec','Feed (spent) — chromic acid &amp; impurities');
-  lg.appendChild(logField('Feed CrO₃ (g/L)','feedCrO3'));
-  lg.appendChild(logField('Feed Fe (g/L)','feedFe',{auto:true}));
-  lg.appendChild(logField('Feed Cr³⁺ (g/L)','feedCr3',{auto:true}));
-  lg.appendChild(logField('Feed Cu (g/L)','feedCu'));
-  add2(lg,'sec','Treated (CT2)');
-  lg.appendChild(logField('CT2 recovered (L)','ct2'));
-  lg.appendChild(logField('Treated CrO₃ (g/L)','treatCrO3'));
-  lg.appendChild(logField('Treated Cu (g/L)','treatCu'));
-  lg.appendChild(logField('Treated Fe (g/L)','treatFeL',{auto:true}));
-  lg.appendChild(logField('Treated Cr³⁺ (g/L)','treatCr3L',{auto:true}));
-  add2(lg,'sec','CARS regeneration — H₂SO₄ <em>(qty auto = 50% stock)</em>');
-  acidCalc(lg,'CARS H₂SO₄','carsPct','carsVol','h2');
-  lg.appendChild(logField('H₂SO₄ recycled this cycle (L)','recyc'));
-  add2(lg,'sec','CARWARS regeneration <em>(blank if not done)</em>');
-  acidCalc(lg,'Cation-1 H₂SO₄','cw1Pct','cw1Vol','h2');
-  acidCalc(lg,'Anion NaOH','cwAnPct','cwAnVol','na');
-  acidCalc(lg,'Cation-2 H₂SO₄','cw2Pct','cw2Vol','h2');
-  add2(lg,'sec','RWRS regeneration <em>(blank if not done)</em>');
-  acidCalc(lg,'Cation H₂SO₄','rwCatPct','rwCatVol','h2');
-  acidCalc(lg,'WBA anion NaOH','rwAnPct','rwAnVol','na');
-  var nf=logField('Observations / notes','notes');nf.style.gridColumn='span 3';lg.appendChild(nf);
-  lc.appendChild(lg);
-  var tot=el('div','kpis');tot.id='cyTot';tot.style.marginTop='14px';lc.appendChild(tot);
-  var rb=el('div','row');rb.style.marginTop='16px';
-  var bs=el('button','btn primary','Save draft');bs.onclick=function(){saveCurrent(false);};
-  var bdn=el('button','btn done','Mark cycle complete');bdn.onclick=function(){completeFlow();};
-  var bdc=el('button','btn discard','Discard');bdc.onclick=function(){discardCurrent();};
-  rb.appendChild(bs);rb.appendChild(bdn);rb.appendChild(bdc);lc.appendChild(rb);
-  m.appendChild(lc);
-  var rcard=el('div','card');rcard.innerHTML='<h2>Reminders &amp; Flags</h2>';var rembox=el('div','rem');rembox.id='cyRem';rcard.appendChild(rembox);m.appendChild(rcard);
-  renderTanks();syncImp();paint();totals();renderRem();
-}
-function add2(p,cls,html){p.appendChild(el('div',cls,html));}
-function syncImp(){var si=num(cd().spentFe)+num(cd().spentCr3),ti=num(cd().treatFe)+num(cd().treatCr3);
-  if($('#spentImp'))$('#spentImp').textContent=(si?fmt(si,1):'—')+' g/L';if($('#treatImp'))$('#treatImp').textContent=(ti?fmt(ti,1):'—')+' g/L';}
-function renderTanks(){var tk=$('#cyTanks');if(!tk)return;tk.innerHTML='';var d=cd();
-  TANKS.forEach(function(a){var k=a[0],desc=a[1],col=a[2],cap=SETTINGS.tankCaps[k]||1000,lvl=num(d.tanks[k]),pct=cap>0?Math.min(100,lvl/cap*100):0;
-    var flag=pct>=95?'<span class="tflag hi">HIGH</span>':(pct<=5&&lvl>0?'<span class="tflag lo">LOW</span>':'');
-    var e=el('div','tank',flag+'<div class="tk">'+(k==='H2'?'H₂SO₄':(k==='SP'?'Spent H₂SO₄':k))+'</div><div class="td">'+desc+'</div><div class="tvis"><i style="height:'+pct+'%;background:'+col+'"></i></div><div class="tval"><b>'+fmt(lvl,0)+'</b> / '+fmt(cap,0)+' L</div>');
-    e.onclick=function(){tankModal(k,desc,cap,lvl);};tk.appendChild(e);});}
-function tankModal(k,desc,cap,lvl){
-  var name=(k==='H2'?'H₂SO₄':(k==='SP'?'Spent H₂SO₄':k));
-  var md=el('div','modal');
-  md.innerHTML='<div class="mc"><h3>'+name+' — set level</h3><p>'+esc(desc)+' · capacity '+fmt(cap,0)+' L</p>'+
-    '<label style="font-size:12px;color:var(--wink-dim)">Level (L)</label><input id="tkIn" type="number" min="0" max="'+cap+'" value="'+lvl+'">'+
-    '<div class="err" id="tkErr"></div>'+
-    '<div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn g" id="tkC">Cancel</button><button class="btn primary" id="tkS">Save</button></div></div>';
-  document.body.appendChild(md);
-  var inp=md.querySelector('#tkIn');inp.focus();inp.select();
-  md.querySelector('#tkC').onclick=function(){md.remove();};
-  md.querySelector('#tkS').onclick=function(){var v=num(inp.value);if(inp.value===''||isNaN(parseFloat(inp.value))){md.querySelector('#tkErr').textContent='Enter a number.';return;}
-    if(v<0){md.querySelector('#tkErr').textContent='Level cannot be negative.';return;}
-    if(v>cap){md.querySelector('#tkErr').textContent='Level cannot exceed capacity ('+fmt(cap,0)+' L).';return;}
-    cd().tanks[k]=v;md.remove();renderTanks();};
-  inp.addEventListener('keydown',function(ev){if(ev.key==='Enter')md.querySelector('#tkS').click();if(ev.key==='Escape')md.remove();});
-}
-function paint(){var d=cd(),i=d.step,s=STEPS[i],tv=stepTarget(i),rail=$('#cyRail');if(!rail)return;
-  Array.prototype.forEach.call(rail.children,function(e,k){e.className='step'+(k<i?' done':'')+(k===i?' active':'');});
-  if($('#cyHint'))$('#cyHint').textContent='Step '+(i+1)+' of '+STEPS.length+' · '+s.route;
-  if($('#tFlow'))$('#tFlow').textContent=fmt(i===5?SETTINGS.regenFlowLPH:SETTINGS.feedFlowLPH,0);
-  if($('#tVol'))$('#tVol').textContent=tv?fmt(tv,0):'—';
-  var vol=num(d.vol),pct=tv>0?Math.min(100,vol/tv*100):0;
-  if($('#progTxt'))$('#progTxt').textContent=fmt(vol,0)+' / '+fmt(tv,0)+' L';if($('#progBar'))$('#progBar').style.width=pct+'%';
-  if($('#progName'))$('#progName').textContent=s.ep==='manual'?'Manual step':(s.ep==='cond'?'Rinsing — watch conductivity':'Progress');
-  cue();}
-function cue(){var d=cd(),i=d.step,s=STEPS[i],c=$('#cue');if(!c)return;var cond=num(d.cond),vol=num(d.vol),tv=stepTarget(i);c.className='cue';var cls='go',t=s.route,x='';
-  if(s.ep==='feed'){var im=impurity();if(vol>=tv&&tv>0){cls='stop';t='Batch complete';x=fmt(vol,0)+' L processed for '+fmt(im,1)+' g/L impurity. Advance.';}else{cls='go';t='Load '+fmt(tv,0)+' L this batch';x='Sized: '+fmt(SETTINGS.workingCapKg,1)+' kg ÷ '+fmt(im,1)+' g/L. '+fmt(Math.max(0,tv-vol),0)+' L remaining.';}}
-  else if(s.ep==='dilute'){if(vol>=tv&&tv>0){cls='stop';t='Switch outlet CT3 → CT2';x='Dilute cut of '+fmt(tv,0)+' L collected. Divert to CT2.';}else{cls='go';t='Collect dilute cut → CT3';x='First '+fmt(tv,0)+' L to CT3. '+fmt(Math.max(0,tv-vol),0)+' L to go.';}}
-  else if(s.ep==='ct2'){if(vol>=tv&&tv>0){cls='stop';t='CT2 target reached';x=fmt(vol,0)+' L recovered. Advance.';}else{cls='go';t='Recover treated acid → CT2';x='Collect ~'+fmt(tv,0)+' L. '+fmt(Math.max(0,tv-vol),0)+' L remaining.';}}
-  else if(s.ep==='void'){if(vol>=tv&&tv>0){cls='stop';t='Void displaced';x='CT2 balanced. Advance.';}else{cls='go';t='Water push · bottom';x='Push ~'+fmt(tv,0)+' L. '+fmt(Math.max(0,tv-vol),0)+' L remaining.';}}
-  else if(s.ep==='cond'){var sp=SETTINGS[s.sp];if(cond>0&&cond<=sp){cls='stop';t='STOP — endpoint reached';x='Conductivity '+fmt(cond,1)+' ≤ '+fmt(sp,1)+' '+SETTINGS.condUnit+'. Stop and advance.';}else{cls='go';t=i===4?'Continue chrome rinse':'Continue sulphuric rinse';x='Conductivity '+(cond>0?fmt(cond,1):'—')+' > '+fmt(sp,1)+' '+SETTINGS.condUnit+'. Keep rinsing.';}}
-  else if(s.ep==='regen'){if(vol>=tv&&tv>0){cls='stop';t='Regeneration volume done';x=fmt(vol,0)+' L of '+fmt(SETTINGS.regenPct,0)+'% H₂SO₄ passed. Soak next.';}else{cls='go';t='Regenerate — '+fmt(SETTINGS.regenPct,0)+'% H₂SO₄';x='Pass '+fmt(tv,0)+' L ('+fmt(SETTINGS.regenBV,1)+' BV). '+fmt(Math.max(0,tv-vol),0)+' L remaining.';}}
-  else{cls='hold';t=s.m;x=i===6?'Hold the last bed volume overnight, then advance.':'Purge the void with air; column ready for next batch.';}
-  c.classList.add(cls);$('#cueT').textContent=t;$('#cueS').textContent=x;}
-function metrics(d){var imp=(num(d.feedFe)+num(d.feedCr3))||(SETTINGS.feedFe+SETTINGS.feedCr3);var fv=num(d.feedVol)||(imp>0?SETTINGS.workingCapKg*1000/imp:0);
-  var fc=num(d.feedCrO3)||SETTINGS.feedCrO3,ct2=num(d.ct2)||SETTINGS.ct2TargetL,tc=num(d.treatCrO3)||SETTINGS.ct2TargetCrO3,tf=num(d.treatFeL!==''?d.treatFeL:d.treatFe);
-  var rec=ct2*tc/1000,fer=Math.max(0,fv*num(d.feedFe)/1000-ct2*tf/1000),ck=fv*fc/1000,rp=ck>0?Math.min(100,rec/ck*100):0;
-  var H=h2so4_50(num(d.carsPct),num(d.carsVol))+h2so4_50(num(d.cw1Pct),num(d.cw1Vol))+h2so4_50(num(d.cw2Pct),num(d.cw2Vol))+h2so4_50(num(d.rwCatPct),num(d.rwCatVol));
-  var O=naoh_100(num(d.cwAnPct),num(d.cwAnVol))+naoh_100(num(d.rwAnPct),num(d.rwAnVol));return{feedVol:fv,cro3rec:rec,feRem:fer,recov:rp,h2so4_50_kg:H,naoh_100_kg:O};}
-function totals(){var list=document.querySelectorAll('[data-calc]');Array.prototype.forEach.call(list,function(sp){var p=sp.getAttribute('data-calc').split('|'),c=num(cd()[p[1]]),v=num(cd()[p[2]]);var kg=p[0]==='h2'?h2so4_50(c,v):naoh_100(c,v);sp.value=(c>0&&v>0)?fmt(kg,2):'';});
-  var mm=metrics(cd()),box=$('#cyTot');if(box)box.innerHTML='<div class="kpi"><div class="v mono">'+fmt(mm.feedVol,0)+'</div><div class="l">Chromic L</div></div>'+
-    '<div class="kpi a2"><div class="v mono">'+fmt(mm.cro3rec,1)+'</div><div class="l">CrO₃ rec kg</div></div>'+
-    '<div class="kpi a3"><div class="v mono">'+fmt(mm.feRem,1)+'</div><div class="l">Fe removed kg</div></div>'+
-    '<div class="kpi a4"><div class="v mono">'+fmt(mm.recov,0)+'%</div><div class="l">Recovery</div></div>'+
-    '<div class="kpi"><div class="v mono">'+fmt(mm.h2so4_50_kg,1)+'</div><div class="l">H₂SO₄ 50% kg</div></div>'+
-    '<div class="kpi a2"><div class="v mono">'+fmt(mm.naoh_100_kg,1)+'</div><div class="l">NaOH kg</div></div>';}
+  <!-- ═══ ADMIN: DASHBOARD ══════════════════════════════════════ -->
+  <div id="screen-admin-dashboard" class="screen hidden">
+    <div class="page-header">
+      <div class="page-title">Admin Dashboard</div>
+    </div>
 
-function h2PerRegen50(){return SETTINGS.regenBV*SETTINGS.bedL*rho(SETTINGS.h2so4_density,SETTINGS.regenPct)*(SETTINGS.regenPct/100)/((SETTINGS.acidStockPct||50)/100);}
-function naPerCarwars(){var c=SETTINGS.carwarsNaOHpct||13;return SETTINGS.carwarsAnionL*rho(SETTINGS.naoh_density,c)*(c/100);}
-function invRow(chem){for(var i=0;i<INV.length;i++){if(INV[i].chemical===chem)return INV[i];}return null;}
-function renderRem(){var box=$('#cyRem');if(!box)return;var out='';
-  var reuse=num(LS.reuse),metals=reuse*5,freeAcid=Math.max(0,15-reuse*1.4),bleed=reuse>=5;
-  out+='<div class="rmi '+(bleed?'alarm':'ok')+'"><div class="rh"><span class="rt">H₂SO₄ regenerant</span><span class="rg '+(bleed?'alarm':'ok')+'">'+(bleed?'Bleed now':(reuse?'Reuse #'+reuse:'Fresh'))+'</span></div>'+
-    '<div class="rb">Batch is on <b>reuse</b> #'+reuse+' · est. free acid <b>~'+fmt(freeAcid,1)+'%</b> · est. dissolved metals <b>~'+fmt(metals,0)+' kg</b>/1000 L. '+(bleed?'<b>Bleed to ETP and prepare a fresh batch.</b>':'Titrate free acidity and top up to 12–15% before reusing.')+'</div>'+
-    '<div class="rbar"><i style="width:'+Math.min(100,metals/20*100)+'%;background:'+(bleed?'var(--alarm)':'var(--acid)')+'"></i></div>'+
-    '<div class="rmini"><button data-a="reuse">Log a regen (+1)</button><button data-a="bleed">Bled / fresh batch</button></div></div>';
-  var cwK=num(LS.carwarsKg),cdue=cwK>=SETTINGS.carwarsThreshKg;
-  out+='<div class="rmi '+(cdue?'alarm':'ok')+'"><div class="rh"><span class="rt">CARWARS anion regen</span><span class="rg '+(cdue?'alarm':'ok')+'">'+(cdue?'Due':'Building')+'</span></div>'+
-    '<div class="rb">CrO₃ accumulated in CT3 since last regen: <b>'+fmt(cwK,1)+'</b> / <b>'+fmt(SETTINGS.carwarsThreshKg,0)+' kg</b>. '+(cdue?'Regeneration due.':'Regen not yet due.')+'</div>'+
-    '<div class="rbar"><i style="width:'+Math.min(100,cwK/SETTINGS.carwarsThreshKg*100)+'%;background:'+(cdue?'var(--alarm)':'var(--teal)')+'"></i></div>'+
-    '<div class="rmini"><button data-a="cwreset">Regen done — reset</button></div></div>';
-  var rL=num(LS.rwrsL),rdue=rL>=SETTINGS.rwrsThreshL;
-  out+='<div class="rmi '+(rdue?'alarm':'ok')+'"><div class="rh"><span class="rt">RWRS regen (cation + WBA)</span><span class="rg '+(rdue?'alarm':'ok')+'">'+(rdue?'Due':'Building')+'</span></div>'+
-    '<div class="rb">Sulphate rinse treated since last regen: <b>'+fmt(rL,0)+'</b> / <b>'+fmt(SETTINGS.rwrsThreshL,0)+' L</b>. '+(rdue?'Regeneration due.':'Regen not yet due.')+' <em style="color:var(--warn)">Throughput provisional.</em></div>'+
-    '<div class="rbar"><i style="width:'+Math.min(100,rL/SETTINGS.rwrsThreshL*100)+'%;background:'+(rdue?'var(--alarm)':'var(--violet)')+'"></i></div>'+
-    '<div class="rmini"><button data-a="rwreset">Regen done — reset</button></div></div>';
-  var h2=invRow('H2SO4_50'),hOn=h2?num(h2.on_hand_kg):0,hLo=h2?num(h2.low_limit_kg):200,hlo=hOn<=hLo;
-  out+='<div class="rmi '+(hlo?'warn':'ok')+'"><div class="rh"><span class="rt">H₂SO₄ stock</span><span class="rg '+(hlo?'warn':'ok')+'">'+(hlo?'Reorder':'OK')+'</span></div>'+
-    '<div class="rb">On hand <b>'+fmt(hOn,0)+' kg</b> (50% stock). One fresh regen ≈ <b>'+fmt(h2PerRegen50(),0)+' kg</b> · low-stock alert at '+fmt(hLo,0)+' kg.</div>'+
-    '<div class="rmini"><button data-a="h2set">Update stock</button></div></div>';
-  var na=invRow('NaOH_100'),nOn=na?num(na.on_hand_kg):0,nLo=na?num(na.low_limit_kg):40,nlo=nOn<=nLo;
-  out+='<div class="rmi '+(nlo?'warn':'ok')+'"><div class="rh"><span class="rt">Caustic (NaOH) stock</span><span class="rg '+(nlo?'warn':'ok')+'">'+(nlo?'Reorder':'OK')+'</span></div>'+
-    '<div class="rb">On hand <b>'+fmt(nOn,0)+' kg</b> · one CARWARS regen ≈ <b>'+fmt(naPerCarwars(),0)+' kg</b> · low-stock alert at '+fmt(nLo,0)+' kg.</div>'+
-    '<div class="rmini"><button data-a="naset">Update stock</button></div></div>';
-  var ceil=num(SETTINGS.bathCeilingFe),bf=num(LS.bathFe),over=ceil>0&&bf>ceil;
-  out+='<div class="rmi '+(over?'alarm':'ok')+'"><div class="rh"><span class="rt">Bath iron control</span><span class="rg '+(over?'alarm':'ok')+'">'+(ceil>0?(over?'Above ceiling':'In range'):'No ceiling set')+'</span></div>'+
-    '<div class="rb">Last bath Fe <b>'+fmt(bf,1)+' g/L</b>'+(ceil>0?' vs ceiling <b>'+fmt(ceil,1)+' g/L</b>.':' · set a ceiling in admin Settings.')+'</div>'+
-    '<div class="rmini">Record bath Fe <input id="bathIn" value="'+bf+'"><button data-a="bathset">Update</button></div></div>';
-  box.innerHTML=out;
-  Array.prototype.forEach.call(box.querySelectorAll('button[data-a]'),function(bn){bn.onclick=function(){remAct(bn.getAttribute('data-a'));};});
-}
-async function saveLS(){if(!ME.location_id)return;await sb.from('location_state').upsert({location_id:ME.location_id,data:LS,updated_at:new Date().toISOString()},{onConflict:'location_id'});}
-async function refreshINV(){var {data:inv}=await sb.from('inventory').select('*').eq('client_id',ME.client_id).eq('location_id',ME.location_id);INV=inv||[];}
-async function setStock(chem,label){var cur=invRow(chem);var v=prompt(label+' stock (kg):',cur?cur.on_hand_kg:0);if(v===null)return;await sb.from('inventory').update({on_hand_kg:Math.max(0,num(v)),updated_at:new Date().toISOString()}).eq('client_id',ME.client_id).eq('location_id',ME.location_id).eq('chemical',chem);await refreshINV();renderRem();}
-async function remAct(a){
-  if(a==='reuse'){LS.reuse=num(LS.reuse)+1;await saveLS();renderRem();}
-  else if(a==='bleed'){LS.reuse=0;await saveLS();renderRem();toast('Fresh batch logged');}
-  else if(a==='cwreset'){LS.carwarsKg=0;await saveLS();renderRem();toast('CARWARS regen reset');}
-  else if(a==='rwreset'){LS.rwrsL=0;await saveLS();renderRem();toast('RWRS regen reset');}
-  else if(a==='h2set'){await setStock('H2SO4_50','H₂SO₄ (50%)');}
-  else if(a==='naset'){await setStock('NaOH_100','NaOH (100%)');}
-  else if(a==='bathset'){var e=$('#bathIn');if(e){LS.bathFe=Math.max(0,num(e.value));await saveLS();renderRem();}}
-}
-function completeFlow(){var d=cd(),miss=[];if(!d.cycle_date)miss.push('cycle date');if(!d.train)miss.push('train');var mm=metrics(d);if(mm.feedVol<=0)miss.push('feed (impurity or chromic processed)');
-  if(miss.length){toast('Cannot complete — missing: '+miss.join(', '));return;}
-  if(confirm('Mark this cycle Completed?\n\nChromic '+fmt(mm.feedVol,0)+' L · CrO₃ rec '+fmt(mm.cro3rec,1)+' kg · H₂SO₄ '+fmt(mm.h2so4_50_kg,1)+' kg · NaOH '+fmt(mm.naoh_100_kg,1)+' kg.\n\nIt will lock and cannot be edited.'))saveCurrent(true);}
-async function saveCurrent(complete){
-  var d=cd(),mm=metrics(d);d.technician_name=ME.name;d.client_name=ME.clientName;d.location_name=ME.locationName;
-  var row={technician_id:ME.id,client_id:ME.client_id,location_id:ME.location_id,status:complete?'completed':'draft',
-    train:d.train,cycle_date:d.cycle_date||today(),chromic_processed_l:mm.feedVol,cro3_recovered_kg:mm.cro3rec,fe_removed_kg:mm.feRem,
-    recovery_pct:mm.recov,h2so4_50_kg:mm.h2so4_50_kg,naoh_100_kg:mm.naoh_100_kg,data:d,notes:d.notes||null};
-  var res;
-  if(CUR.id){res=await sb.from('cars_cycles').update(row).eq('id',CUR.id).select().single();}
-  else if(complete){var ins=await sb.from('cars_cycles').insert(Object.assign({},row,{status:'draft'})).select().single();if(ins.error){toast('Save failed: '+ins.error.message);return;}CUR.id=ins.data.id;res=await sb.from('cars_cycles').update({status:'completed'}).eq('id',CUR.id).select().single();}
-  else{res=await sb.from('cars_cycles').insert(row).select().single();}
-  if(res.error){toast('Save failed: '+res.error.message);return;}
-  CUR.id=res.data.id;
-  if(complete){
-    var feedCrO3kg=mm.feedVol*(num(d.feedCrO3)||SETTINGS.feedCrO3)/1000,toCT3=Math.max(0,feedCrO3kg-mm.cro3rec);
-    LS.carwarsKg=num(LS.carwarsKg)+toCT3;if(num(d.cwAnPct)>0&&num(d.cwAnVol)>0)LS.carwarsKg=0;
-    LS.rwrsL=num(LS.rwrsL)+(SETTINGS.rinseToWT1PerCycle||500);if((num(d.rwCatPct)>0&&num(d.rwCatVol)>0)||(num(d.rwAnPct)>0&&num(d.rwAnVol)>0))LS.rwrsL=0;
-    await saveLS();await refreshINV();
-    toast('Cycle completed and locked');CUR=null;go('mine',document.querySelectorAll('#tabs button')[1]);
-  }else{CUR.status='draft';toast('Draft saved');}
-}
-async function discardCurrent(){
-  if(!confirm('Discard this cycle? All entered values will be cleared and the draft removed.'))return;
-  if(CUR.id){var r=await sb.from('cars_cycles').delete().eq('id',CUR.id);if(r.error){toast('Could not discard: '+r.error.message);return;}}
-  CUR=null;toast('Cycle discarded');go('cycle',document.querySelectorAll('#tabs button')[0]);
-}
-function confirmComplete(){return new Promise(function(r){var md=el('div','modal');md.innerHTML='<div class="mc"><h3>Mark this cycle as complete?</h3><p>You have an open cycle. Completing saves the latest data, records the completion time and locks it.</p><div class="row" style="justify-content:flex-end"><button class="btn g" id="mc1">Continue editing</button><button class="btn done" id="mc2">Mark cycle as complete</button></div></div>';document.body.appendChild(md);md.querySelector('#mc1').onclick=function(){md.remove();r('continue');};md.querySelector('#mc2').onclick=function(){md.remove();r('complete');};});}
+    <div class="summary-grid">
+      <div class="summary-card"><div class="s-val" id="dash-active-emp">—</div><div class="s-lbl">Active Employees</div></div>
+      <div class="summary-card"><div class="s-val" id="dash-present-today">—</div><div class="s-lbl">Present Today</div></div>
+      <div class="summary-card"><div class="s-val" id="dash-leave-today">—</div><div class="s-lbl">On Leave</div></div>
+      <div class="summary-card"><div class="s-val" id="dash-pending">—</div><div class="s-lbl">Pending Approvals</div></div>
+    </div>
 
-/* ---- technician: my cycles ---- */
-async function screenMine(m){
-  const c=el('div','card');c.innerHTML='<h2>My cycles</h2>';
-  const {data,error}=await sb.from('cars_cycles').select('*').eq('technician_id',ME.id).order('created_at',{ascending:false});
-  if(error){c.appendChild(el('div','note',esc(error.message)));m.appendChild(c);return;}
-  if(!data.length){c.appendChild(el('div','note','No cycles yet. Start one in Current cycle.'));m.appendChild(c);return;}
-  c.appendChild(cycleTable(data,true));m.appendChild(c);
-}
-function cycleTable(rows,mine){
-  const w=el('div','hwrap'),t=el('table');
-  t.innerHTML='<thead><tr><th>Date</th><th>Train</th><th>Status</th><th class="m">Chromic L</th><th class="m">CrO₃ rec</th><th class="m">Fe rem</th><th class="m">Recovery</th><th class="m">H₂SO₄ 50%</th><th class="m">NaOH</th><th></th></tr></thead>';
-  const tb=el('tbody');
-  rows.forEach(r=>{const tr=el('tr','clk');
-    tr.innerHTML=`<td>${r.cycle_date||''}</td><td>${esc(r.train||'')}</td><td><span class="pill ${r.status==='completed'?'done':'draft'}">${r.status}</span></td>
-      <td class="m">${fmt(r.chromic_processed_l,0)}</td><td class="m">${fmt(r.cro3_recovered_kg,1)}</td><td class="m">${fmt(r.fe_removed_kg,1)}</td><td class="m">${fmt(r.recovery_pct,0)}%</td><td class="m">${fmt(r.h2so4_50_kg,1)}</td><td class="m">${fmt(r.naoh_100_kg,1)}</td>
-      <td><span class="btn sm g">${r.status==='draft'&&mine?'Resume':'View'}</span></td>`;
-    tr.onclick=()=>{if(r.status==='draft'&&mine){CUR={id:r.id,status:'draft',data:Object.assign(blankData(),r.data||{})};go('cycle',document.querySelectorAll('#tabs button')[0]);}else htmlReport([r]);};
-    tb.appendChild(tr);});
-  t.appendChild(tb);w.appendChild(t);return w;
-}
+    <div class="card">
+      <div class="card-title">Pending Leave Requests</div>
+      <div id="dash-leave-list"></div>
+    </div>
 
-/* ---- admin: reports ---- */
-function screenReports(m){
-  const c=el('div','card');c.innerHTML='<h2>Reports</h2>';
-  const ctl=el('div','row');
-  const from=document.createElement('input');from.type='date';from.value=today().slice(0,8)+'01';
-  const to=document.createElement('input');to.type='date';to.value=today();
-  [from,to].forEach(x=>x.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
-  const range=document.createElement('select');['Today','This week','This month','Custom'].forEach(o=>range.append(opt(o,o)));range.value='This month';range.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
-  range.onchange=()=>{const d=new Date();if(range.value==='Today')from.value=today();else if(range.value==='This week'){d.setDate(d.getDate()-6);from.value=d.toISOString().slice(0,10);}else if(range.value==='This month')from.value=today().slice(0,8)+'01';to.value=today();load();};
-  const bLoad=el('button','btn sm primary','Load');bLoad.onclick=load;
-  ctl.append(lw('Range',range),lw('From',from),lw('To',to),bLoad);c.appendChild(ctl);
-  const fbar=el('div','filters');fbar.style.display='none';c.appendChild(fbar);
-  const out=el('div');out.style.marginTop='6px';c.appendChild(out);m.appendChild(c);
-  const fTech=document.createElement('select'),fCo=document.createElement('select'),fLoc=document.createElement('select');
-  [fTech,fCo,fLoc].forEach(s=>{s.style.cssText='padding:8px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';s.onchange=render;});
-  fbar.append(lw('Technician',fTech),lw('Company',fCo),lw('Location',fLoc));
-  let allRows=[],sortKey='cycle_date',sortDir='desc';
-  const SORTABLE={cycle_date:1,time:1,tech:1,co:1,loc:1,train:1,status:1};
-  const rTimeVal=r=>r.completed_at||r.created_at||'';
-  const rTimeDisp=r=>{const x=r.completed_at||r.created_at;if(!x)return '—';const d=new Date(x);return isNaN(d.getTime())?'—':d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});};
-  function fillF(sel,vals,lbl){const cur=sel.value;sel.innerHTML='';sel.append(opt('','All '+lbl));vals.forEach(v=>sel.append(opt(v,v)));if(vals.indexOf(cur)>=0)sel.value=cur;}
-  async function load(){
-    out.innerHTML='<div class="note">Loading…</div>';fbar.style.display='none';
-    const {data,error}=await sb.from('cars_cycles').select('*, clients(name), locations(name)').gte('cycle_date',from.value).lte('cycle_date',to.value).order('cycle_date',{ascending:false});
-    if(error){out.innerHTML='<div class="note">'+esc(error.message)+'</div>';return;}
-    allRows=data||[];
-    const locIds=[...new Set(allRows.map(r=>r.location_id).filter(Boolean))];
-    if(locIds.length){
-      const [{data:st},{data:iv}]=await Promise.all([
-        sb.from('location_state').select('*').in('location_id',locIds),
-        sb.from('inventory').select('*').in('location_id',locIds)]);
-      const lsMap={},invMap={};(st||[]).forEach(s=>lsMap[s.location_id]=s.data||{});(iv||[]).forEach(v=>{(invMap[v.location_id]=invMap[v.location_id]||{})[v.chemical]=v;});
-      allRows.forEach(r=>{r._ls=lsMap[r.location_id]||{};r._inv=invMap[r.location_id]||{};});
-    }
-    fillF(fTech,[...new Set(allRows.map(rTech).filter(Boolean))].sort(),'technicians');
-    fillF(fCo,[...new Set(allRows.map(rCo).filter(Boolean))].sort(),'companies');
-    fillF(fLoc,[...new Set(allRows.map(rLoc).filter(Boolean))].sort(),'locations');
-    fbar.style.display=allRows.length?'flex':'none';render();
+    <div class="card">
+      <div class="card-title">Pending Expense Claims</div>
+      <div id="dash-expense-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Payroll Snapshot — <span id="dash-payroll-month"></span></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-val" id="dash-payroll-processed">—</div><div class="stat-lbl">Processed</div></div>
+        <div class="stat-card"><div class="stat-val" id="dash-net-payable">—</div><div class="stat-lbl">Net Payable</div></div>
+      </div>
+      <div class="mt-2">Outstanding Company Advances: <strong id="dash-outstanding-advance">—</strong></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Quick Actions</div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="showScreen('admin-payroll')">💰 Run Payroll</button>
+        <button class="btn btn-outline" onclick="showScreen('admin-advance-ledger')">💵 Give Advance</button>
+        <button class="btn btn-outline" onclick="showScreen('admin-employees')">👥 Employees</button>
+        <button class="btn btn-outline" onclick="showScreen('admin-salary-slips')">📄 Salary Slips</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN: EMPLOYEES ══════════════════════════════════════ -->
+  <div id="screen-admin-employees" class="screen hidden">
+    <div class="page-header">
+      <div class="page-title">Employee Management</div>
+      <button class="btn btn-primary btn-sm" onclick="showAddEmployee()">+ Add Employee</button>
+    </div>
+    <div id="emp-list"></div>
+
+    <!-- Add/Edit Employee Modal -->
+    <div id="emp-modal" class="modal-overlay hidden">
+      <div class="modal-box">
+        <button class="modal-close" onclick="closeEmpModal()">×</button>
+        <div class="modal-title" id="emp-modal-title">Add Employee</div>
+        <input type="hidden" id="emp-form-id">
+        <div class="form-row">
+          <div class="form-group"><label>First Name *</label><input id="emp-first-name" type="text" class="form-control"></div>
+          <div class="form-group"><label>Last Name *</label><input id="emp-last-name" type="text" class="form-control"></div>
+        </div>
+        <div class="form-group"><label>Username *</label><input id="emp-username" type="text" class="form-control"></div>
+        <div class="form-group"><label>Email *</label><input id="emp-email" type="email" class="form-control"></div>
+        <div class="form-group"><label>Designation</label><input id="emp-designation" type="text" class="form-control"></div>
+        <div class="form-group"><label>PAN</label><input id="emp-pan" type="text" class="form-control" maxlength="10"></div>
+        <div id="emp-modal-pw-section" class="form-group">
+          <label>Password (min 6 chars)</label>
+          <input id="emp-password" type="password" class="form-control">
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+          <input id="emp-is-admin" type="checkbox">
+          <label for="emp-is-admin" style="margin:0;">Admin User</label>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="saveEmployee()">Save Employee</button>
+      </div>
+    </div>
+
+    <!-- Salary Structure Modal -->
+    <div id="sal-modal" class="modal-overlay hidden">
+      <div class="modal-box">
+        <button class="modal-close" onclick="closeSalModal()">×</button>
+        <div class="modal-title" id="sal-modal-title">Salary Structure</div>
+        <input type="hidden" id="sal-form-empid">
+        <div class="card-title">Revision History</div>
+        <div id="sal-history" style="margin-bottom:16px;"></div>
+        <hr class="divider">
+        <div class="card-title">Add / Update Salary (Effective From)</div>
+        <div class="form-group">
+          <label>Effective Date</label>
+          <input id="sal-effective" type="date" class="form-control">
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Basic (₹)</label><input id="sal-basic" type="number" class="form-control" min="0"></div>
+          <div class="form-group"><label>HRA (₹)</label><input id="sal-hra" type="number" class="form-control" min="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Special Allowance (₹)</label><input id="sal-special" type="number" class="form-control" min="0"></div>
+          <div class="form-group"><label>Transport Allowance (₹)</label><input id="sal-transport" type="number" class="form-control" min="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Medical Allowance (₹)</label><input id="sal-medical" type="number" class="form-control" min="0"></div>
+          <div class="form-group"><label>Conveyance / Other (₹)</label><input id="sal-conv" type="number" class="form-control" min="0"></div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="saveSalaryStructure()">Save Salary Structure</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN: ATTENDANCE REPORTS ════════════════════════════ -->
+  <div id="screen-admin-attendance" class="screen hidden">
+    <div class="page-header"><div class="page-title">Attendance Reports</div></div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Month</label>
+          <input id="att-report-month" type="month" class="form-control" onchange="loadAttReport()">
+        </div>
+        <div class="form-group">
+          <label>Employee</label>
+          <select id="att-report-emp" class="form-control" onchange="loadAttReport()">
+            <option value="">All Employees</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="att-report-output"></div>
+  </div>
+
+  <!-- ═══ ADMIN: LEAVE APPROVAL ════════════════════════════════ -->
+  <div id="screen-admin-leave-approval" class="screen hidden">
+    <div class="page-header"><div class="page-title">Leave Approvals</div></div>
+    <div class="card">
+      <div class="form-group">
+        <label>Filter by Status</label>
+        <select id="leave-filter" class="form-control" onchange="filterLeaves()">
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+    </div>
+    <div id="leave-approval-list"></div>
+  </div>
+
+  <!-- ═══ ADMIN: EXPENSE APPROVAL ══════════════════════════════ -->
+  <div id="screen-admin-expense-approval" class="screen hidden">
+    <div class="page-header"><div class="page-title">Expense Approvals</div></div>
+    <div class="card">
+      <div class="form-group">
+        <label>Filter by Status</label>
+        <select id="exp-approval-filter" class="form-control" onchange="filterExpenses()">
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+    </div>
+    <div id="expense-approval-list"></div>
+
+    <!-- Approve Expense Modal -->
+    <div id="exp-approve-modal" class="modal-overlay hidden">
+      <div class="modal-box">
+        <button class="modal-close" onclick="closeExpApproveModal()">×</button>
+        <div class="modal-title">Approve Expense</div>
+        <p>Expense Amount: <strong id="exp-approve-amount"></strong></p>
+        <div id="exp-advance-section" style="margin:16px 0;"></div>
+        <div class="btn-row mt-2">
+          <button class="btn btn-success" onclick="confirmApproveExpense()">✅ Confirm Approval</button>
+          <button class="btn btn-outline" onclick="closeExpApproveModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN: COMPANY ADVANCE LEDGER ════════════════════════ -->
+  <div id="screen-admin-advance-ledger" class="screen hidden">
+    <div class="page-header"><div class="page-title">Company Advance &amp; Expense Ledger</div></div>
+    <div class="card">
+      <div class="form-group">
+        <label>Select Employee</label>
+        <select id="ledger-emp-select" class="form-control" onchange="loadLedgerForEmp()"></select>
+      </div>
+    </div>
+    <div id="ledger-table"></div>
+
+    <div id="give-advance-section" class="card hidden">
+      <div class="card-title">Give Company Advance</div>
+      <div class="form-row">
+        <div class="form-group"><label>Date</label><input id="adv-date" type="date" class="form-control"></div>
+        <div class="form-group"><label>Amount (₹)</label><input id="adv-amount" type="number" class="form-control" min="0"></div>
+      </div>
+      <div class="form-group"><label>Reference</label><input id="adv-ref" type="text" class="form-control" placeholder="Cheque/UTR/Cash"></div>
+      <div class="form-group"><label>Note</label><input id="adv-note" type="text" class="form-control" placeholder="Purpose…"></div>
+      <button class="btn btn-primary" onclick="giveCompanyAdvance()">Record Advance</button>
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN: SALARY ADVANCE ════════════════════════════════ -->
+  <div id="screen-admin-salary-advance" class="screen hidden">
+    <div class="page-header"><div class="page-title">Salary Advance</div></div>
+
+    <div class="card">
+      <div class="card-title">Give Salary Advance</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Employee</label>
+          <select id="sa-give-emp" class="form-control"></select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input id="sa-give-date" type="date" class="form-control">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input id="sa-give-amount" type="number" class="form-control" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Note</label>
+          <input id="sa-give-note" type="text" class="form-control" placeholder="Purpose…">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="giveSalaryAdvance()">Record Salary Advance</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Outstanding Summary — All Employees</div>
+      <div id="sa-summary"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Employee Ledger</div>
+      <div class="form-group">
+        <label>Select Employee</label>
+        <select id="sa-emp-select" class="form-control" onchange="loadSaLedger()"></select>
+      </div>
+      <div id="sa-ledger-section" class="hidden">
+        <div id="sa-ledger"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN: EXPENSE REPORTS ═══════════════════════════════ -->
+  <div id="screen-admin-expense-reports" class="screen hidden">
+    <div class="page-header"><div class="page-title">Company Expense Reports</div></div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>Employee</label>
+          <select id="exp-rpt-emp" class="form-control"><option value="">All Employees</option></select></div>
+        <div class="form-group"><label>Category</label>
+          <select id="exp-rpt-cat" class="form-control">
+            <option value="">All</option>
+            <option>Travel</option><option>Food</option><option>Local Conveyance</option>
+            <option>Parts/Components</option><option>Accommodation</option><option>Other</option>
+          </select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>From Date</label><input id="exp-rpt-from" type="date" class="form-control"></div>
+        <div class="form-group"><label>To Date</label><input id="exp-rpt-to" type="date" class="form-control"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Client</label>
+          <select id="exp-rpt-client" class="form-control"><option value="">All Clients</option></select></div>
+        <div class="form-group"><label>Status</label>
+          <select id="exp-rpt-status" class="form-control">
+            <option value="">All</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="loadExpenseReport()">Load Report</button>
+    </div>
+    <div id="exp-report-output"></div>
+  </div>
+
+  <!-- ═══ ADMIN: PAYROLL ════════════════════════════════════════ -->
+  <div id="screen-admin-payroll" class="screen hidden">
+    <div class="page-header"><div class="page-title">Payroll</div></div>
+    <div class="card">
+      <div class="form-group">
+        <label>Payroll Month</label>
+        <input id="payroll-month-picker" type="month" class="form-control" onchange="onPayrollMonthChange()">
+      </div>
+      <div id="payroll-lock-notice" class="hidden" style="background:#FEF9E7;color:#9A7D0A;padding:10px;border-radius:8px;font-size:13px;">
+        ⚠️ This month is locked (payment date has passed). Admin can Reopen individual records if correction is needed.
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <div id="payroll-grid"></div>
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN: PAYROLL SUMMARY ═══════════════════════════════ -->
+  <div id="screen-admin-payroll-summary" class="screen hidden">
+    <div class="page-header"><div class="page-title">Payroll Summary</div></div>
+    <div class="card">
+      <div class="form-group">
+        <label>Financial Year</label>
+        <select id="pay-summary-year" class="form-control" onchange="loadPayrollSummary()"></select>
+      </div>
+    </div>
+    <div id="pay-summary-output"></div>
+  </div>
+
+  <!-- ═══ ADMIN: SALARY SLIPS ═══════════════════════════════════ -->
+  <div id="screen-admin-salary-slips" class="screen hidden">
+    <div class="page-header"><div class="page-title">Salary Slips</div></div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Employee</label>
+          <select id="slip-emp" class="form-control"></select>
+        </div>
+        <div class="form-group">
+          <label>Month</label>
+          <input id="slip-month" type="month" class="form-control">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="generateSlip('pdf')">📥 Download PDF</button>
+        <button class="btn btn-outline" onclick="generateSlip('word')">📄 Download Word</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px;">
+      Salary slips are generated directly in your browser and not stored on the server.
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN: SETTINGS ═══════════════════════════════════════ -->
+  <div id="screen-admin-settings" class="screen hidden">
+    <div class="page-header"><div class="page-title">Payroll Settings</div></div>
+
+    <div class="card">
+      <div class="card-title">Company Information</div>
+      <div class="form-group"><label>Company Name</label><input id="set-company-name" type="text" class="form-control"></div>
+      <div class="form-group"><label>Registered Address</label><textarea id="set-address" class="form-control" rows="2"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>CIN</label><input id="set-cin" type="text" class="form-control"></div>
+        <div class="form-group"><label>GST Number</label><input id="set-gst" type="text" class="form-control"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>PT Monthly (₹)</label><input id="set-pt-monthly" type="number" class="form-control"></div>
+        <div class="form-group"><label>PT February (₹)</label><input id="set-pt-february" type="number" class="form-control"></div>
+      </div>
+      <div class="form-group"><label>Salary Payment Day (of following month)</label><input id="set-payment-day" type="number" class="form-control" min="1" max="28"></div>
+      <button class="btn btn-primary" onclick="saveCompanySettings()">Save Settings</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Allowance Rules</div>
+      <div id="allowance-rules-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Company Holidays</div>
+      <div id="holidays-list" style="margin-bottom:12px;"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Date</label><input id="new-holiday-date" type="date" class="form-control"></div>
+        <div class="form-group"><label>Holiday Name</label><input id="new-holiday-name" type="text" class="form-control" placeholder="e.g. Diwali"></div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="addHoliday()">+ Add Holiday</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Client Companies</div>
+      <div id="clients-list" style="margin-bottom:12px;"></div>
+      <div class="form-group"><label>New Client Name</label><input id="new-client-name" type="text" class="form-control" placeholder="Client name…"></div>
+      <button class="btn btn-outline btn-sm" onclick="addClient()">+ Add Client</button>
+    </div>
+  </div>
+
+  <!-- ═══ ATTENDANCE AUDIT MODAL ══════════════════════════════ -->
+  <div id="audit-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeAuditModal()">×</button>
+      <div class="modal-title">Attendance Change History</div>
+      <div id="audit-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ═══ BOTTOM NAV ═════════════════════════════════════════=== -->
+  <nav id="nav-bar" class="hidden">
+    <!-- Employee Nav -->
+    <div id="nav-emp" class="hidden" style="display:contents">
+      <button class="nav-item" data-screen="attendance"    onclick="showScreen('attendance')">
+        <span class="nav-icon">📋</span><span>Attendance</span>
+      </button>
+      <button class="nav-item" data-screen="leave-history" onclick="showScreen('leave-history')">
+        <span class="nav-icon">🗓️</span><span>Leave</span>
+      </button>
+      <button class="nav-item" data-screen="my-expenses"   onclick="showScreen('my-expenses')">
+        <span class="nav-icon">💸</span><span>Expenses</span>
+      </button>
+    </div>
+    <!-- Admin Nav -->
+    <div id="nav-admin" class="hidden" style="display:contents">
+      <button class="nav-item" data-screen="admin-dashboard"  onclick="showScreen('admin-dashboard')">
+        <span class="nav-icon">🏠</span><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-screen="admin-employees"  onclick="showScreen('admin-employees')">
+        <span class="nav-icon">👥</span><span>Employees</span>
+      </button>
+      <button class="nav-item" data-screen="admin-payroll"    onclick="showScreen('admin-payroll')">
+        <span class="nav-icon">💰</span><span>Payroll</span>
+      </button>
+      <button class="nav-item" data-screen="admin-attendance" onclick="showScreen('admin-attendance')">
+        <span class="nav-icon">📊</span><span>Attendance</span>
+      </button>
+      <button class="nav-item" onclick="toggleAdminMore()">
+        <span class="nav-icon">⋯</span><span>More</span>
+      </button>
+    </div>
+
+    <!-- Admin More Menu (slides up) -->
+    <div id="admin-more-menu" class="hidden more-menu">
+      <div class="more-menu-grid">
+        <button class="more-item" onclick="showScreen('admin-leave-approval');toggleAdminMore()">🗓️ Leave Approvals</button>
+        <button class="more-item" onclick="showScreen('admin-expense-approval');toggleAdminMore()">💸 Expense Approvals</button>
+        <button class="more-item" onclick="showScreen('admin-advance-ledger');toggleAdminMore()">💵 Company Advance</button>
+        <button class="more-item" onclick="showScreen('admin-salary-advance');toggleAdminMore()">🏦 Salary Advance</button>
+        <button class="more-item" onclick="showScreen('admin-expense-reports');toggleAdminMore()">📋 Expense Reports</button>
+        <button class="more-item" onclick="showScreen('admin-payroll-summary');toggleAdminMore()">📈 Payroll Summary</button>
+        <button class="more-item" onclick="showScreen('admin-salary-slips');toggleAdminMore()">📄 Salary Slips</button>
+        <button class="more-item" onclick="showScreen('admin-settings');toggleAdminMore()">⚙️ Settings</button>
+      </div>
+    </div>
+  </nav>
+
+</div><!-- #app -->
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- ── External Libraries ────────────────────────────────────── -->
+<!-- Supabase -->
+<script src="js/config.js"></script>
+<!-- jsPDF for PDF salary slips -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- docx.js for Word salary slips -->
+<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+
+<!-- App Modules (loaded as regular scripts for GitHub Pages compatibility) -->
+<script type="module" src="js/app.js"></script>
+<script src="js/screens/attendance.js" defer></script>
+<script src="js/screens/admin-dashboard.js" defer></script>
+<script src="js/screens/admin-employees.js" defer></script>
+<script src="js/screens/admin-payroll.js" defer></script>
+<script src="js/screens/leave-expense.js" defer></script>
+<script src="js/screens/salary-slips.js" defer></script>
+<script src="js/screens/admin-settings.js" defer></script>
+<script src="js/screens/admin-attendance.js" defer></script>
+<script src="js/screens/admin-leave-approval.js" defer></script>
+<script src="js/screens/admin-expense-approval.js" defer></script>
+<script src="js/screens/admin-expense-reports.js" defer></script>
+<script src="js/screens/admin-salary-advance.js" defer></script>
+<script src="js/screens/admin-payroll-summary.js" defer></script>
+
+<!-- Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(console.error);
   }
-  function view(){const rows=allRows.filter(r=>(!fTech.value||rTech(r)===fTech.value)&&(!fCo.value||rCo(r)===fCo.value)&&(!fLoc.value||rLoc(r)===fLoc.value));
-    const val=r=>({cycle_date:r.cycle_date||'',time:rTimeVal(r),tech:rTech(r),co:rCo(r),loc:rLoc(r),train:r.train||'',status:r.status||''}[sortKey]);
-    const dir=sortDir==='asc'?1:-1;return rows.slice().sort((a,b)=>{const x=val(a),y=val(b);return x<y?-dir:x>y?dir:0;});}
-  function render(){const rows=view();const sum=f=>rows.reduce((a,x)=>a+(+f(x)||0),0);out.innerHTML='';
-    const kp=el('div','kpis');kp.innerHTML=
-      '<div class="kpi"><div class="v mono">'+rows.length+'</div><div class="l">Cycles</div></div>'+
-      '<div class="kpi a4"><div class="v mono">'+rows.filter(x=>x.status==='completed').length+'</div><div class="l">Completed</div></div>';
-    out.appendChild(kp);
-    const ex=el('div','row');ex.style.margin='14px 0';
-    const b1=el('button','btn sm g','HTML report');b1.onclick=()=>htmlReport(rows,from.value,to.value);
-    const b2=el('button','btn sm g','Print / PDF');b2.onclick=()=>htmlReport(rows,from.value,to.value,true);
-    const b3=el('button','btn sm g','Excel export');b3.onclick=()=>excelExport(rows,from.value,to.value);
-    const b4=el('button','btn sm g','JSON export');b4.onclick=()=>jsonExport(rows,from.value,to.value);
-    ex.append(b1,b2,b3,b4);out.appendChild(ex);
-    if(!rows.length){out.appendChild(el('div','note','No cycles match the current filters.'));return;}
-    const cols=[['cycle_date','Date'],['time','Time'],['tech','Technician'],['co','Company'],['loc','Location'],['train','Train'],['status','Status'],['chromic_processed_l','Chromic L','m'],['cro3_recovered_kg','CrO₃ rec','m'],['recovery_pct','Recovery','m'],['h2so4_50_kg','H₂SO₄ 50%','m'],['naoh_100_kg','NaOH','m']];
-    const w=el('div','hwrap'),t=el('table','rep');const thead=el('thead'),htr=el('tr');
-    cols.forEach(cc=>{const th=el('th',cc[2]==='m'?'m':null);const sortable=SORTABLE[cc[0]];th.innerHTML=esc(cc[1])+(sortable&&sortKey===cc[0]?' <span class="ar">'+(sortDir==='asc'?'▲':'▼')+'</span>':'');if(sortable){th.classList.add('sortable');th.onclick=()=>{if(sortKey===cc[0])sortDir=sortDir==='asc'?'desc':'asc';else{sortKey=cc[0];sortDir='asc';}render();};}htr.appendChild(th);});
-    thead.appendChild(htr);t.appendChild(thead);const tb=el('tbody');
-    rows.forEach(r=>{const tr=el('tr','clk');tr.innerHTML='<td>'+(r.cycle_date||'')+'</td><td>'+rTimeDisp(r)+'</td><td>'+esc(rTech(r))+'</td><td>'+esc(rCo(r))+'</td><td>'+esc(rLoc(r))+'</td><td>'+esc(r.train||'')+'</td><td><span class="pill '+(r.status==='completed'?'done':'draft')+'">'+r.status+'</span></td><td class="m">'+fmt(r.chromic_processed_l,0)+'</td><td class="m">'+fmt(r.cro3_recovered_kg,1)+'</td><td class="m">'+fmt(r.recovery_pct,0)+'%</td><td class="m">'+fmt(r.h2so4_50_kg,1)+'</td><td class="m">'+fmt(r.naoh_100_kg,1)+'</td>';tr.onclick=()=>htmlReport([r]);tb.appendChild(tr);});
-    t.appendChild(tb);w.appendChild(t);out.appendChild(w);
-  }
-  load();
-}
-
-/* ---- admin helpers ---- */
-async function callFn(action,payload){const {data:{session}}=await sb.auth.getSession();
-  const r=await fetch(CFG.fnBase+'/manage-technician',{method:'POST',headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(Object.assign({action},payload))});
-  const j=await r.json().catch(()=>({error:'bad response'}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j;}
-async function loadCL(){const {data:cl}=await sb.from('clients').select('id,name,active').order('name');const {data:lo}=await sb.from('locations').select('id,name,client_id,active').order('name');return{clients:cl||[],locations:lo||[]};}
-
-/* ---- admin: technicians ---- */
-async function screenTechs(m){
-  const c=el('div','card');c.innerHTML='<h2>Employees</h2><p class="note" style="margin:2px 0 10px">Company &amp; Location apply to CARS technicians. Module access controls which sections the employee can use.</p>';
-  const {clients,locations}=await loadCL();
-  const fn=inp('text'),ln=inp('text'),dg=inp('text'),pn=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');fn.placeholder='first name (optional)';ln.placeholder='last name (optional)';dg.placeholder='e.g. Technician, Engineer';pn.placeholder='PAN (optional)';un.placeholder='login username';em.placeholder='optional contact email';pw.placeholder='temp password';const acCars=inp('checkbox'),acAtt=inp('checkbox');acCars.checked=true;acAtt.checked=true;
-  const cSel=document.createElement('select');clients.filter(x=>x.active!==false).forEach(x=>cSel.append(opt(x.id,x.name)));
-  const lSel=document.createElement('select');function fillLoc(){lSel.innerHTML='';lSel.append(opt('','—'));locations.filter(l=>l.client_id===cSel.value&&l.active!==false).forEach(l=>lSel.append(opt(l.id,l.name)));}
-  cSel.onchange=fillLoc;if(cSel.options.length)cSel.value=cSel.options[0].value;fillLoc();
-  [fn,ln,dg,pn,un,em,pw,cSel,lSel].forEach(x=>x.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc');
-  const f=el('div','grid g3');f.append(lw('First name (optional)',fn),lw('Last name (optional)',ln),lw('Designation (optional)',dg),lw('PAN (optional)',pn),lw('Username',un),lw('Contact email (optional)',em),lw('Temp password',pw),lw('Company',cSel),lw('Location',lSel));
-  c.appendChild(f);
-  const macc=el('div');macc.style.marginTop='10px';const ml=el('label',null,'Module access');ml.style.cssText='display:block;font-size:12px;color:var(--wink-dim);margin-bottom:6px';const mrow=el('div','row');mrow.append(cbx('Attendance',acAtt),cbx('CARS',acCars));macc.append(ml,mrow);c.appendChild(macc);
-  const bAdd=el('button','btn primary','Create employee');bAdd.style.marginTop='12px';
-  bAdd.onclick=async()=>{if(!un.value.trim()||!pw.value){toast('Username and password required');return;}
-    if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){toast('Enter a valid contact email, or leave it blank');return;}
-    bAdd.disabled=true;bAdd.textContent='Creating…';
-    try{await callFn('create',{username:un.value.trim(),first_name:fn.value.trim(),last_name:ln.value.trim(),designation:dg.value.trim(),pan:pn.value.trim(),access_cars:acCars.checked,access_attendance:acAtt.checked,email_contact:em.value.trim()||null,password:pw.value,client_id:cSel.value||null,location_id:lSel.value||null});toast('Employee created');fn.value=ln.value=dg.value=pn.value=un.value=em.value=pw.value='';acCars.checked=true;acAtt.checked=true;list();}catch(e){toast('Failed: '+e.message);}
-    bAdd.disabled=false;bAdd.textContent='Create employee';};
-  c.appendChild(bAdd);const lb=el('div');lb.style.marginTop='16px';c.appendChild(lb);m.appendChild(c);
-  async function list(){lb.innerHTML='<div class="note">Loading…</div>';
-    try{const {technicians}=await callFn('list',{});
-      if(!technicians.length){lb.innerHTML='<div class="note">No employees yet.</div>';return;}
-      const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Name</th><th>Designation</th><th>Username</th><th>Contact email</th><th>Access</th><th>Company</th><th>Location</th><th>Status</th><th></th></tr></thead>';const tb=el('tbody');
-      technicians.forEach(u=>{const tr=el('tr');
-        tr.innerHTML='<td>'+esc(u.full_name||'')+'</td><td>'+esc(u.designation||'')+'</td><td class="mono">'+esc(u.username||'')+'</td><td>'+esc(u.email_contact||'')+'</td><td>'+accBadges(u)+'</td><td>'+esc(u.clients?.name||'')+'</td><td>'+esc(u.locations?.name||'')+'</td><td><span class="pill '+(u.active?'done':'off')+'">'+(u.active?'active':'inactive')+'</span></td><td></td>';
-        const act=tr.lastChild;const be=el('button','btn sm g','Edit');be.onclick=()=>editTech(u,clients,locations,list);
-        const ba=el('button','btn sm g',u.active?'Deactivate':'Activate');ba.onclick=async()=>{try{await callFn('set_active',{user_id:u.id,active:!u.active});list();}catch(e){toast('Failed: '+e.message);}};
-        const bd=el('button','btn sm danger','Delete');bd.onclick=async()=>{if(!confirm('Delete '+(u.full_name||u.username)+'? Only possible if they have no cycle records.'))return;try{await callFn('delete',{user_id:u.id});toast('Deleted');list();}catch(e){toast(e.message);}};
-        act.append(be,document.createTextNode(' '),ba,document.createTextNode(' '),bd);tb.appendChild(tr);});
-      t.appendChild(tb);w.appendChild(t);lb.innerHTML='';lb.appendChild(w);
-    }catch(e){lb.innerHTML='<div class="note">'+esc(e.message)+'</div>';}}
-  list();
-}
-function editTech(u,clients,locations,after){
-  const md=el('div','modal');const fn=inp('text'),ln=inp('text'),dg=inp('text'),pn=inp('text'),un=inp('text'),em=inp('email'),pw=inp('text');const acCars=inp('checkbox'),acAtt=inp('checkbox');
-  const cS=document.createElement('select'),lS=document.createElement('select');
-  clients.filter(x=>x.active!==false).forEach(x=>cS.append(opt(x.id,x.name)));function fl(){lS.innerHTML='';lS.append(opt('','—'));locations.filter(l=>l.client_id===cS.value&&l.active!==false).forEach(l=>lS.append(opt(l.id,l.name)));}
-  cS.onchange=fl;fn.value=u.first_name||'';ln.value=u.last_name||'';dg.value=u.designation||'';pn.value=u.pan||'';un.value=u.username||'';em.value=u.email_contact||'';acCars.checked=!!u.access_cars;acAtt.checked=!!u.access_attendance;cS.value=u.client_id||(cS.options[0]&&cS.options[0].value);fl();if(u.location_id)lS.value=u.location_id;
-  const mc=el('div','mc');mc.innerHTML='<h3>Edit employee</h3><p>Display name is First + Last name if given, otherwise the username. Username is the login. Contact email is optional and not used for login.</p>';
-  const g=el('div','grid g2');g.append(lw('First name (optional)',fn),lw('Last name (optional)',ln),lw('Designation (optional)',dg),lw('PAN (optional)',pn),lw('Username',un),lw('Contact email (optional)',em),lw('New password (optional)',pw),lw('Company',cS),lw('Location',lS));mc.appendChild(g);const macc=el('div');macc.style.marginTop='10px';const ml=el('label',null,'Module access');ml.style.cssText='display:block;font-size:12px;color:var(--wink-dim);margin-bottom:6px';const mrow=el('div','row');mrow.append(cbx('Attendance',acAtt),cbx('CARS',acCars));macc.append(ml,mrow);mc.appendChild(macc);
-  const err=el('div','err');mc.appendChild(err);
-  const rr=el('div','row');rr.style.cssText='justify-content:flex-end;margin-top:16px';
-  const bc=el('button','btn g','Cancel');bc.onclick=()=>md.remove();
-  const bs=el('button','btn primary','Save');bs.onclick=async()=>{err.textContent='';if(em.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){err.textContent='Enter a valid contact email, or leave it blank.';return;}bs.disabled=true;try{await callFn('update',{user_id:u.id,first_name:fn.value.trim(),last_name:ln.value.trim(),designation:dg.value.trim(),pan:pn.value.trim(),access_cars:acCars.checked,access_attendance:acAtt.checked,username:un.value.trim()||undefined,email_contact:em.value.trim(),client_id:cS.value||null,location_id:lS.value||null,password:pw.value||undefined});toast('Saved');md.remove();after();}catch(e){err.textContent=e.message;}bs.disabled=false;};
-  rr.append(bc,bs);mc.appendChild(rr);md.appendChild(mc);document.body.appendChild(md);
-}
-
-/* ---- admin: payroll settings (owner company + rules + holidays) ---- */
-async function screenPayrollSettings(m){
-  const c=el('div','card');c.innerHTML='<h2>Payroll Settings</h2><p class="note" style="margin:2px 0 12px">Owner company details for salary slips, the working calendar, Professional Tax, allowance/bonus rules, and company holidays (paid).</p>';
-  m.appendChild(c);
-  let org={},ps={};
-  try{const o=await sb.from('org_profile').select('*').maybeSingle();org=o.data||{};}catch(e){}
-  try{const pr=await sb.from('payroll_settings').select('data').maybeSingle();ps=pr.data?.data||{};}catch(e){}
-  const rules=ps.rules||{};
-  const sec=(t)=>{const h=el('div');h.style.cssText='font-weight:700;color:var(--ink,#12203a);margin:18px 0 8px;font-size:14px';h.textContent=t;c.appendChild(h);};
-  const style='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
-  const numI=(v)=>{const i=inp('number');i.step='any';i.value=(v==null?'':v);i.style.cssText=style;return i;};
-  const txtI=(v)=>{const i=inp('text');i.value=v||'';i.style.cssText=style;return i;};
-  // Owner company
-  sec('Owner Company (for Salary Slips)');
-  const coName=txtI(org.company_name),coCin=txtI(org.cin),coGst=txtI(org.gst);
-  const coAddr=document.createElement('textarea');coAddr.value=org.registered_address||'';coAddr.rows=2;coAddr.style.cssText=style;
-  const g1=el('div','grid g2');g1.append(lw('Company Name',coName),lw('CIN',coCin),lw('GST Number',coGst));c.appendChild(g1);
-  const ga=el('div');ga.style.marginTop='10px';ga.append(lw('Registered Address',coAddr));c.appendChild(ga);
-  // Working calendar
-  sec('Working Calendar');
-  const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const wd=Array.isArray(ps.workingDays)?ps.workingDays:[1,2,3,4,5,6];const dayCbx=[];
-  const wrow=el('div');wrow.style.cssText='display:flex;flex-wrap:wrap;gap:12px';
-  for(let d=0;d<7;d++){const cb=inp('checkbox');cb.checked=wd.indexOf(d)>=0;dayCbx.push(cb);wrow.append(cbx(dayNames[d],cb));}
-  c.appendChild(wrow);
-  const woPaid=inp('checkbox');woPaid.checked=ps.weeklyOffPaid!==false;const wpr=el('div');wpr.style.marginTop='8px';wpr.append(cbx('Weekly off is a Paid Day',woPaid));c.appendChild(wpr);
-  // Professional tax
-  sec('Professional Tax');
-  const ptN=numI(ps.ptNormal!=null?ps.ptNormal:200),ptF=numI(ps.ptFeb!=null?ps.ptFeb:300);
-  const g2=el('div','grid g2');g2.append(lw('Normal month (₹)',ptN),lw('February (₹)',ptF));c.appendChild(g2);
-  // Allowance/bonus rules
-  sec('Allowance / Bonus Rules (% of applicable salary)');
-  const rAtt=numI(rules.attendanceBonusPct!=null?rules.attendanceBonusPct:1),
-        rON=numI(rules.outdoorOvernightPct!=null?rules.outdoorOvernightPct:2.5),
-        rEm=numI(rules.emergencyPct!=null?rules.emergencyPct:1),
-        rDVmin=numI(rules.outdoorDayVisitPctMin!=null?rules.outdoorDayVisitPctMin:1.5),
-        rDVmax=numI(rules.outdoorDayVisitPctMax!=null?rules.outdoorDayVisitPctMax:3),
-        rSCmin=numI(rules.siteCompletionPctMin!=null?rules.siteCompletionPctMin:2),
-        rSCmax=numI(rules.siteCompletionPctMax!=null?rules.siteCompletionPctMax:5);
-  const g3=el('div','grid g3');g3.append(lw('Attendance Bonus',rAtt),lw('Outdoor Overnight / night',rON),lw('Emergency / Weekend / day',rEm),lw('Outdoor Day Visit — min',rDVmin),lw('Outdoor Day Visit — max',rDVmax),lw('Site Completion — min',rSCmin),lw('Site Completion — max',rSCmax));c.appendChild(g3);
-  // Company holidays
-  sec('Company Holidays (treated as Paid Days)');
-  let holidays=Array.isArray(ps.holidays)?ps.holidays.slice():[];
-  const hlist=el('div');c.appendChild(hlist);
-  function renderH(){hlist.innerHTML='';if(!holidays.length){hlist.innerHTML='<div class="note">No holidays added.</div>';return;}
-    holidays.forEach((h,i)=>{const r=el('div','row');r.style.cssText='align-items:center;gap:10px;margin:4px 0';
-      r.innerHTML='<span class="mono">'+esc(h.date||'')+'</span><span>'+esc(h.name||'')+'</span>';
-      const x=el('button','btn sm danger','Remove');x.onclick=()=>{holidays.splice(i,1);renderH();};r.append(x);hlist.append(r);});}
-  renderH();
-  const hd=inp('date');hd.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
-  const hn=txtI('');hn.placeholder='Holiday name';hn.style.maxWidth='260px';
-  const addRow=el('div','row');addRow.style.cssText='gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap';
-  const bAddH=el('button','btn g','Add holiday');bAddH.onclick=()=>{if(!hd.value){toast('Pick a date');return;}holidays.push({date:hd.value,name:hn.value.trim()});holidays.sort((a,b)=>(a.date<b.date?-1:a.date>b.date?1:0));hd.value='';hn.value='';renderH();};
-  addRow.append(hd,hn,bAddH);c.appendChild(addRow);
-  // Save
-  const berr=el('div','err');berr.style.marginTop='12px';c.appendChild(berr);
-  const bSave=el('button','btn primary','Save payroll settings');bSave.style.marginTop='8px';
-  bSave.onclick=async()=>{berr.textContent='';bSave.disabled=true;bSave.textContent='Saving…';
-    const workingDays=[];for(let d=0;d<7;d++)if(dayCbx[d].checked)workingDays.push(d);
-    let weeklyOff=0;for(let d=0;d<7;d++){if(workingDays.indexOf(d)<0){weeklyOff=d;break;}}
-    const data={workingDays,weeklyOff,weeklyOffPaid:woPaid.checked,ptNormal:+ptN.value||0,ptFeb:+ptF.value||0,
-      rules:{attendanceBonusPct:+rAtt.value||0,outdoorOvernightPct:+rON.value||0,outdoorDayVisitPctMin:+rDVmin.value||0,outdoorDayVisitPctMax:+rDVmax.value||0,emergencyPct:+rEm.value||0,siteCompletionPctMin:+rSCmin.value||0,siteCompletionPctMax:+rSCmax.value||0},
-      holidays};
-    try{
-      const e1=await sb.from('org_profile').update({company_name:coName.value.trim(),registered_address:coAddr.value.trim(),cin:coCin.value.trim(),gst:coGst.value.trim(),updated_at:new Date().toISOString()}).eq('id',true);
-      if(e1.error)throw e1.error;
-      const e2=await sb.from('payroll_settings').update({data,updated_at:new Date().toISOString()}).eq('id',true);
-      if(e2.error)throw e2.error;
-      toast('Payroll settings saved');
-    }catch(e){berr.textContent=(e&&e.message)||String(e);}
-    bSave.disabled=false;bSave.textContent='Save payroll settings';};
-  c.appendChild(bSave);
-}
-
-/* ---- admin: locations ---- */
-/* Locations are managed inside Companies & stock (screenCompany). */
-
-/* ---- admin: companies & stock ---- */
-async function screenCompany(m){
-  const GEO=['Pune','Pimpri-Chinchwad','Chakan','Ranjangaon','Talegaon','Mumbai','Navi Mumbai','Thane','Airoli','Taloja','Nashik','Aurangabad','Chennai','Sriperumbudur','Oragadam','Hosur','Bengaluru','Peenya','Hyderabad','Delhi','Gurugram','Manesar','Noida','Greater Noida','Faridabad','Bhiwadi','Rudrapur','Pantnagar','Haridwar','Baddi','Kurali','Mohali','Ludhiana','Ahmedabad','Sanand','Vadodara','Ankleshwar','Vapi','Silvassa','Surat','Rajkot','Coimbatore','Jamshedpur','Kolkata','Pithampur','Indore','Jaipur'];
-  const c=el('div','card');c.innerHTML='<h2>Companies &amp; locations</h2>';
-  const dlLoc=el('datalist');dlLoc.id='dlLoc';GEO.forEach(x=>dlLoc.append(opt(x,x)));c.appendChild(dlLoc);
-  const dlCo=el('datalist');dlCo.id='dlCo';c.appendChild(dlCo);
-  const nn=inp('text');nn.placeholder='Company name';nn.setAttribute('list','dlCo');nn.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';
-  const locWrap=el('div');const locRows=[];
-  function addLocRow(val){const row=el('div','locrow');const i=inp('text');i.placeholder='Location (city / plant)';i.setAttribute('list','dlLoc');i.style.cssText='padding:8px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';if(val)i.value=val;
-    const rm=el('button','btn sm g','–');rm.onclick=()=>{row.remove();const k=locRows.indexOf(i);if(k>=0)locRows.splice(k,1);};
-    row.append(i,rm);locWrap.appendChild(row);locRows.push(i);}
-  addLocRow('');
-  const addMore=el('button','btn sm g','+ location');addMore.onclick=()=>addLocRow('');
-  const lc=el('div','f');lc.appendChild(el('label',null,'Locations'));lc.appendChild(locWrap);lc.appendChild(addMore);
-  const form=el('div','grid g2');form.append(lw('Company name',nn),lc);c.appendChild(form);
-  const addErr=el('div','err');
-  const bAdd=el('button','btn primary','Add company + locations');bAdd.style.marginTop='12px';
-  bAdd.onclick=async()=>{addErr.textContent='';const name=nn.value.trim();const locs=locRows.map(i=>i.value.trim()).filter(Boolean);
-    if(!name){addErr.textContent='Enter a company name.';return;}if(!locs.length){addErr.textContent='Add at least one location.';return;}
-    bAdd.disabled=true;
-    let {data:existing}=await sb.from('clients').select('id,name').ilike('name',name);
-    let cid=existing&&existing.length?existing[0].id:null;
-    if(!cid){const {data:ins,error}=await sb.from('clients').insert({name}).select('id').single();if(error){addErr.textContent=error.message;bAdd.disabled=false;return;}cid=ins.id;}
-    let added=0,dups=[];
-    for(const ln of locs){const {data:ex}=await sb.from('locations').select('id').eq('client_id',cid).ilike('name',ln);if(ex&&ex.length){dups.push(ln);continue;}const {error}=await sb.from('locations').insert({client_id:cid,name:ln});if(!error)added++;}
-    bAdd.disabled=false;nn.value='';locWrap.innerHTML='';locRows.length=0;addLocRow('');
-    toast(added+' location(s) added'+(dups.length?'; skipped duplicates: '+dups.join(', '):''));listCo();};
-  c.appendChild(bAdd);c.appendChild(addErr);
-  const lb=el('div');lb.style.marginTop='16px';c.appendChild(lb);m.appendChild(c);
-  const sc=el('div','card');sc.innerHTML='<h2>Chemical stock (per company / location)</h2>';
-  const coSel=document.createElement('select');coSel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;margin-bottom:12px';
-  sc.appendChild(lw('Company',coSel));const stbox=el('div');sc.appendChild(stbox);m.appendChild(sc);
-  coSel.onchange=loadStock;
-  async function listCo(){lb.innerHTML='';coSel.innerHTML='';dlCo.innerHTML='';
-    const {data:cos}=await sb.from('clients').select('*').order('name');
-    const {data:locs}=await sb.from('locations').select('*').order('name');
-    (cos||[]).forEach(x=>{coSel.append(opt(x.id,x.name));dlCo.append(opt(x.name,x.name));});
-    if(!cos||!cos.length){lb.appendChild(el('div','note','No companies yet — add one above.'));loadStock();return;}
-    cos.forEach(x=>{const card=el('div','card');card.style.cssText='padding:12px;margin-bottom:10px;background:#fafbfc';
-      const head=el('div','row');head.style.justifyContent='space-between';
-      const nameI=inp('text');nameI.value=x.name;nameI.style.cssText='padding:7px;border:1px solid var(--line-l);border-radius:6px;font-weight:600;min-width:200px';
-      const badge=el('span','pill '+(x.active!==false?'done':'off'),x.active!==false?'active':'inactive');
-      const left=el('div','row');left.append(nameI,badge);
-      const rgt=el('div','row');
-      const bSave=el('button','btn sm g','Rename');bSave.onclick=async()=>{const {error}=await sb.from('clients').update({name:nameI.value.trim()}).eq('id',x.id);toast(error?error.message:'Renamed');listCo();};
-      const bAct=el('button','btn sm g',x.active!==false?'Deactivate':'Activate');bAct.onclick=async()=>{const {error}=await sb.from('clients').update({active:!(x.active!==false)}).eq('id',x.id);toast(error?error.message:'Updated');listCo();};
-      const bDel=el('button','btn sm danger','Delete');bDel.onclick=async()=>{const {count}=await sb.from('cars_cycles').select('id',{count:'exact',head:true}).eq('client_id',x.id);
-        if(count&&count>0){alert('“'+x.name+'” has '+count+' historical cycle record(s) and cannot be deleted.\n\nPlease Deactivate it instead — historical reports must stay intact and keep showing the correct company & location.');return;}
-        if(!confirm('Delete company “'+x.name+'” and its locations? This cannot be undone.'))return;
-        const {error}=await sb.from('clients').delete().eq('id',x.id);toast(error?('Cannot delete: '+error.message):'Deleted');listCo();};
-      rgt.append(bSave,bAct,bDel);head.append(left,rgt);card.appendChild(head);
-      const clocs=(locs||[]).filter(l=>l.client_id===x.id);
-      const chips=el('div');chips.style.marginTop='8px';
-      clocs.forEach(l=>{const chip=el('span','chip');chip.innerHTML='<span>'+esc(l.name)+(l.active===false?' (inactive)':'')+'</span>';
-        const del=el('button',null,'×');del.title='Remove location';del.onclick=async()=>{const {count}=await sb.from('cars_cycles').select('id',{count:'exact',head:true}).eq('location_id',l.id);
-          if(count&&count>0){alert('Location “'+l.name+'” has '+count+' cycle record(s) and cannot be deleted.\n\nLeave it in place — history must stay intact.');return;}
-          if(!confirm('Remove location “'+l.name+'”?'))return;const {error}=await sb.from('locations').delete().eq('id',l.id);toast(error?error.message:'Removed');listCo();};
-        chip.appendChild(del);chips.appendChild(chip);});
-      if(!clocs.length)chips.appendChild(el('span','note','No locations yet.'));
-      card.appendChild(chips);
-      const addRow=el('div','locrow');addRow.style.marginTop='8px';const ni=inp('text');ni.placeholder='Add a location';ni.setAttribute('list','dlLoc');ni.style.cssText='padding:7px;border:1px solid var(--line-l);border-radius:6px';
-      const nb=el('button','btn sm primary','Add');nb.onclick=async()=>{const ln=ni.value.trim();if(!ln)return;const {data:ex}=await sb.from('locations').select('id').eq('client_id',x.id).ilike('name',ln);if(ex&&ex.length){toast('That location already exists for this company.');return;}const {error}=await sb.from('locations').insert({client_id:x.id,name:ln});toast(error?error.message:'Location added');listCo();};
-      addRow.append(ni,nb);card.appendChild(addRow);
-      lb.appendChild(card);});
-    loadStock();
-  }
-  async function loadStock(){stbox.innerHTML='';if(!coSel.value){stbox.appendChild(el('div','note','Add a company to manage stock.'));return;}
-    const {data:inv}=await sb.from('inventory').select('*, locations(name)').eq('client_id',coSel.value).order('chemical');
-    if(!inv||!inv.length){stbox.appendChild(el('div','note','No locations/stock yet for this company. Add a location above.'));return;}
-    const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Location</th><th>Chemical</th><th>Basis</th><th class="m">On hand kg</th><th class="m">Low alert kg</th><th></th></tr></thead>';const tb=el('tbody');
-    inv.forEach(r=>{const oh=inp('number'),lo=inp('number');oh.value=r.on_hand_kg;lo.value=r.low_limit_kg;[oh,lo].forEach(e=>e.style.cssText='width:100px;padding:6px;border:1px solid var(--line-l);border-radius:6px;text-align:right');
-      const tr=el('tr');tr.append(el('td',null,esc(r.locations?.name||'')),el('td',null,r.chemical==='H2SO4_50'?'H₂SO₄ (50%)':'NaOH (100%)'),el('td',null,r.basis||''));
-      const c4=el('td');c4.appendChild(oh);const c5=el('td');c5.appendChild(lo);const c6=el('td');
-      const b=el('button','btn sm g','Save');b.onclick=async()=>{const {error}=await sb.from('inventory').update({on_hand_kg:num(oh.value),low_limit_kg:num(lo.value),updated_at:new Date().toISOString()}).eq('id',r.id);toast(error?error.message:'Stock updated');};
-      c6.appendChild(b);tr.append(c4,c5,c6);tb.appendChild(tr);});
-    t.appendChild(tb);w.appendChild(t);stbox.appendChild(w);
-    stbox.appendChild(el('div','note','Each company/location keeps its own stock. Completing a cycle auto-deducts H₂SO₄ (50%) and NaOH (100%).'));}
-  listCo();
-}
-
-/* ---- admin: settings ---- */
-async function screenSettings(m){
-  const c=el('div','card');c.innerHTML='<h2>Formula &amp; setpoint settings</h2>';
-  const {data:full}=await sb.from('clients').select('id,name').order('name');
-  const sel=document.createElement('select');sel.append(opt('__default__','Default (all companies)'));(full||[]).forEach(x=>sel.append(opt(x.id,x.name)));
-  sel.style.cssText='padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;margin-bottom:6px';
-  c.appendChild(lw('Applies to',sel));
-  const hint=el('div','note');c.appendChild(hint);const body=el('div');body.style.marginTop='10px';c.appendChild(body);m.appendChild(c);
-  async function load(){
-    const isDef=sel.value==='__default__';
-    hint.textContent=isDef?'Global defaults applied to every company unless a company-specific override is saved.':'Company override. Companies without an override use the Default settings.';
-    const {data:gs}=await sb.from('settings').select('data').is('client_id',null).maybeSingle();
-    let base=Object.assign({},DEFAULTS,gs?.data||{}),cur=base;
-    if(!isDef){const {data:cs}=await sb.from('settings').select('data').eq('client_id',sel.value).maybeSingle();cur=Object.assign({},base,cs?.data||{});}
-    body.innerHTML='';
-    const keys=[['workingCapKg','Working capacity (kg)'],['feedCrO3','Spent CrO₃ (g/L)'],['feedFe','Spent Fe (g/L)'],['feedCr3','Spent Cr³⁺ (g/L)'],['ct2TargetL','CT2 recovered (L)'],['ct2TargetCrO3','CT2 CrO₃ (g/L)'],['diluteCutL','Dilute cut (L)'],['bedL','Resin bed (L)'],['voidL','Void (L)'],['regenBV','Regen BV'],['regenPct','Regen H₂SO₄ %'],['chromeRinseCond','Chrome-rinse end'],['h2so4RinseCond','H₂SO₄-rinse end'],['bathCeilingFe','Bath Fe ceiling'],['acidStockPct','Acid stock (%)'],['carwarsThreshKg','CARWARS CrO₃ threshold (kg)'],['rwrsThreshL','RWRS throughput (L)'],['rinseToWT1PerCycle','Rinse→WT1 per cycle (L)']];
-    const g=el('div','grid g3'),inps={};keys.forEach(([k,l])=>{const i=inp('number');i.value=cur[k];i.style.cssText='width:100%;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc';inps[k]=i;g.appendChild(lw(l,i));});body.appendChild(g);
-    body.appendChild(el('div','sec','Density tables <em>(concentration % : density kg/L, one pair per line)</em>'));
-    const g2=el('div','grid g2'),h2ta=document.createElement('textarea'),nata=document.createElement('textarea');
-    [h2ta,nata].forEach(x=>x.style.cssText='width:100%;min-height:150px;padding:9px;border:1px solid var(--line-l);border-radius:7px;background:#fafbfc;font-family:monospace;font-size:12px');
-    h2ta.value=(cur.h2so4_density||[]).map(pp=>pp.join(', ')).join('\n');nata.value=(cur.naoh_density||[]).map(pp=>pp.join(', ')).join('\n');
-    g2.append(lw('H₂SO₄ density',h2ta),lw('NaOH density',nata));body.appendChild(g2);
-    const row=el('div','row');row.style.marginTop='12px';
-    const b=el('button','btn primary',isDef?'Save default settings':'Save company override');
-    b.onclick=async()=>{const parse=t=>t.split('\n').map(l=>l.split(',').map(x=>num(x))).filter(pp=>pp.length>=2&&pp[0]>0);const data=Object.assign({},cur);keys.forEach(([k])=>data[k]=num(inps[k].value));data.h2so4_density=parse(h2ta.value);data.naoh_density=parse(nata.value);
-      let error;
-      if(isDef){const {data:exist}=await sb.from('settings').select('id').is('client_id',null).maybeSingle();
-        if(exist){({error}=await sb.from('settings').update({data,updated_at:new Date().toISOString()}).is('client_id',null));}
-        else{({error}=await sb.from('settings').insert({client_id:null,data}));}}
-      else{({error}=await sb.from('settings').upsert({client_id:sel.value,data,updated_at:new Date().toISOString()},{onConflict:'client_id'}));}
-      toast(error?error.message:(isDef?'Default settings saved':'Company override saved'));};
-    row.append(b);
-    if(!isDef){const bClr=el('button','btn g','Remove override (use Default)');bClr.onclick=async()=>{if(!confirm('Remove this company’s override and fall back to Default settings?'))return;const {error}=await sb.from('settings').delete().eq('client_id',sel.value);toast(error?error.message:'Override removed');load();};row.append(bClr);}
-    body.appendChild(row);
-  }
-  sel.onchange=load;load();
-}
-
-/* ---- exports ---- */
-function labelOf(k){return({flow:'Flow (LPH)',cond:'Conductivity',spentFe:'Spent Fe',spentCr3:'Spent Cr³⁺',treatFe:'Treated Fe (live)',treatCr3:'Treated Cr³⁺ (live)',feedVol:'Chromic processed (L)',feedCrO3:'Feed CrO₃',feedFe:'Feed Fe',feedCr3:'Feed Cr³⁺',feedCu:'Feed Cu',ct2:'CT2 recovered (L)',treatCrO3:'Treated CrO₃',treatFeL:'Treated Fe',treatCr3L:'Treated Cr³⁺',treatCu:'Treated Cu',carsPct:'CARS H₂SO₄ %',carsVol:'CARS H₂SO₄ vol',recyc:'H₂SO₄ recycled L',cw1Pct:'CARWARS cat-1 %',cw1Vol:'CARWARS cat-1 vol',cwAnPct:'CARWARS anion %',cwAnVol:'CARWARS anion vol',cw2Pct:'CARWARS cat-2 %',cw2Vol:'CARWARS cat-2 vol',rwCatPct:'RWRS cation %',rwCatVol:'RWRS cation vol',rwAnPct:'RWRS WBA %',rwAnVol:'RWRS WBA vol',bathFe:'Bath Fe',reuseCount:'H₂SO₄ reuse #'}[k]||k);}
-function rTech(r){return (r.data&&r.data.technician_name)||'';}
-function rCo(r){return (r.data&&r.data.client_name)||(r.clients&&r.clients.name)||'';}
-function rLoc(r){return (r.data&&r.data.location_name)||(r.locations&&r.locations.name)||'';}
-function reportDoc(rows,meta){
-  meta=meta||{};
-  var payload=JSON.stringify(rows).replace(/</g,'\u003c');
-  var css="body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:0;background:#eef1f5;color:#1a2230}"+
-   ".lh{display:flex;align-items:center;gap:14px;padding:14px 20px 8px}.lh img{width:54px;height:54px;border-radius:50%}"+
-   ".lhn{font-size:20px;font-weight:800;color:#E8825A;letter-spacing:.5px}.lht{font-size:11px;color:#1B3A6B;margin-top:2px}"+
-   ".lhs{margin-left:auto;text-align:right;font-size:11px;color:#5a6678;line-height:1.5}.lhrule{border-top:3px solid #E8825A;margin:8px 20px 10px}"+
-   ".nav{display:flex;gap:8px;align-items:center;padding:8px 20px;background:#171d29;color:#cdd6e4;flex-wrap:wrap}"+
-   ".nav button{background:#1e2735;color:#cdd6e4;border:0;padding:7px 13px;border-radius:7px;font-weight:600;cursor:pointer}"+
-   ".nav button:hover{background:#28324a}.nav .np{background:#f2820c;color:#1a1206}.nav .cnt{font-size:12px;margin-left:auto}"+
-   ".tabs{display:flex;gap:6px;padding:10px 20px 0}.tabs button{background:#e7ebf1;border:0;padding:8px 14px;border-radius:8px 8px 0 0;font-weight:600;color:#5a6678;cursor:pointer}.tabs button.on{background:#fff;color:#c9640a}"+
-   ".wrap{max-width:900px;margin:0 auto;padding:0 20px 24px}.card{background:#fff;border:1px solid #dde3ea;border-top:0;border-radius:0 0 12px 12px;padding:16px}"+
-   ".board{background:#10141d;color:#e9eef6;border-radius:11px;padding:14px;margin-bottom:12px}"+
-   ".rail{display:flex;gap:5px;overflow-x:auto;background:#171d29;border-radius:9px;padding:5px}"+
-   ".step{min-width:88px;padding:8px 9px;border-radius:7px;border:1px solid transparent}.step.on{background:#241a09;border-color:#f2820c}.step .n{font-size:10px;color:#5f6c81;font-family:monospace}.step .m{font-size:11px;color:#8f9db1;font-weight:600}.step.on .m{color:#ffb84d}"+
-   ".rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin-top:11px}.rd .k{font-size:10px;color:#5f6c81;text-transform:uppercase}.rd .v{font-family:monospace;font-size:15px;color:#e9eef6}"+
-   ".tanks{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:11px}.tk{background:#171d29;border-radius:8px;padding:8px}.tk .n{font-size:11px;font-weight:600}.tk .vis{height:26px;background:#10141d;border-radius:5px;margin-top:5px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08)}.tk .vis i{position:absolute;left:0;right:0;bottom:0}.tk .val{font-family:monospace;font-size:10px;color:#8f9db1;margin-top:3px}"+
-   ".flds{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}@media(max-width:600px){.flds{grid-template-columns:1fr}}"+
-   ".fl{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #eef1f4;padding:4px 0;font-size:12.5px}.fl .k{color:#5a6678}.fl .v{font-family:monospace;font-weight:600}"+
-   ".sec{grid-column:1/-1;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#c9640a;border-bottom:1px solid #dde3ea;padding:8px 0 4px;margin-top:6px}"+
-   ".kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:11px}.kpi{border-left:3px solid #f2820c;padding-left:10px}.kpi .v{font-family:monospace;font-size:20px;font-weight:600}.kpi .l{font-size:10px;color:#5a6678;text-transform:uppercase}"+
-   ".rems{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}"+
-   ".rmi{border:1px solid #dde3ea;border-left:4px solid #22ab57;border-radius:9px;padding:8px 10px;background:#fafbfc}.rmi.wn{border-left-color:#f0a41c}.rmi.al{border-left-color:#e53a3a}"+
-   ".rmh{display:flex;justify-content:space-between;gap:8px;align-items:center}.rmh b{font-size:12px}"+
-   ".rmg{font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:rgba(34,171,87,.12);color:#1a8f47}.rmg.wn{background:rgba(240,164,28,.14);color:#a9700a}.rmg.al{background:rgba(229,58,58,.12);color:#c62828}"+
-   ".rmb{font-size:11px;color:#5a6678;margin-top:3px}"+
-   ".blk{margin-top:14px}.blkh{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#c9640a;margin-bottom:6px}"+
-   "#printAll{display:none}"+
-   "@media print{@page{size:A4;margin:0}#screen{display:none!important}#printAll{display:block}"+
-   "body{background:#fff;color:#2a3342;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-family:Arial,Helvetica,sans-serif;margin:0}"+
-   ".preport{page-break-after:always;padding:12mm 12mm 14mm}.preport:last-child{page-break-after:auto}"+
-   ".plh{display:flex;align-items:center;gap:14px}.plh .lg{width:54px;height:54px;flex:none;border-radius:50%}.plh .co{flex:1}.plh .nm{font-size:22px;font-weight:800;letter-spacing:.3px;color:#1B3A6B}.plh .tg{font-size:11px;color:#6b7686;margin-top:2px}.plh .ct{text-align:right;font-size:10.5px;color:#3a4453}.plh .ct .r{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin:3px 0}"+
-   ".plhrule{border-top:2px solid #E8825A;margin-top:9px}"+
-   ".prh{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px 0 14px;color:#5a6472;font-size:15px;font-weight:600;letter-spacing:2px}.prh .ln{width:46px;border-top:1px solid #c7cfd9}"+
-   ".card2{border:1px solid #e2e7ee;border-radius:10px;padding:11px 16px}.tcard{margin-top:12px}"+
-   ".metac{margin-bottom:12px}.metagrid{display:grid;grid-template-columns:1fr 1fr;gap:0 44px}"+
-   ".prow2{display:grid;grid-template-columns:150px 10px 1fr;align-items:baseline;padding:5px 0;font-size:12px}.prow2 .k{color:#3a4453}.prow2 .cln{color:#8a94a3}.prow2 .v{color:#2a3342}.metac .prow2 .k{font-weight:700}"+
-   ".secgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}"+
-   ".sh{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#E8825A;margin-bottom:7px}.sh2{margin:16px 0 8px}"+
-   ".totrow{display:flex;text-align:center}.totc{flex:1}.tv{font-size:22px;font-weight:800;color:#1B3A6B}.tl{font-size:10px;color:#7a8496;margin-top:3px}"+
-   ".rnwrap{display:grid;grid-template-columns:2.3fr 1fr;gap:12px}"+
-   ".rems{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}"+
-   ".rmi{border:1px solid #e2e7ee;border-left:4px solid #35b06a;border-radius:8px;padding:8px 10px;background:#fff}.rmi.wn{border-left-color:#E8825A}.rmi.al{border-left-color:#d1493a}"+
-   ".rmh{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}.rmh b{font-size:11px;color:#2a3342}"+
-   ".rmg{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:2px 6px;border-radius:9px;background:rgba(53,176,106,.12);color:#2f9d5e}.rmg.wn{background:rgba(232,130,90,.15);color:#c56a3a}.rmg.al{background:rgba(209,73,58,.12);color:#c0392b}"+
-   ".rmb{font-size:9px;color:#5a6472;margin-top:4px;line-height:1.4}"+
-   ".notesc{border:1px solid #e2e7ee;border-radius:10px;padding:11px 14px}.notesc .nh{font-size:11px;color:#7a8496;margin-bottom:8px}.notesc .nt{font-size:10px;color:#3a4453;margin-bottom:8px;line-height:1.45}.notesc .nl{border-bottom:1px solid #e6eaef;height:19px}"+
-   ".pfoot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #e2e7ee;margin-top:40px;padding-top:18px}.sig{text-align:center}.sig .sl{width:210px;border-top:1px solid #3a4453;margin-top:36px;margin-bottom:5px}.sig .st{font-size:11px;color:#3a4453}.cc{display:flex;align-items:center;gap:11px}.cc .l{font-size:10px;color:#7a8496}.cc .d{font-size:12.5px;font-weight:700;color:#2a3342;margin-top:1px}"+
-   ".disc{font-size:9px;color:#9aa4b2;margin-top:10px}}";
-  var doc="<!doctype html><html><head><meta charset='utf-8'><title>CARS cycle report</title><style>"+css+"</style></head><body>"+
-   "<div id='screen'><div id='lhScreen'></div>"+
-   "<div class='nav'><button class='np' id='prev'>\u2039 Prev</button><button class='np' id='next'>Next \u203a</button><button id='prn'>Print</button><span class='cnt' id='cnt'></span></div>"+
-   "<div class='tabs' id='tabs'></div><div class='wrap'><div class='card' id='body'></div></div></div>"+
-   "<div id='printAll'></div>"+
-   "<scr"+"ipt>var ROWS="+payload+",STEPS="+JSON.stringify(STEPS)+",TANKS="+JSON.stringify(TANKS)+",CAPS="+JSON.stringify(DEFAULTS.tankCaps)+",META="+JSON.stringify(meta)+",EST=META.est||{};"+
-   "var idx=0,tab='board';"+
-   "function E(i){return document.getElementById(i);}"+
-   "function f(v,d){d=d==null?1:d;v=parseFloat(v);return isNaN(v)?'\u2014':v.toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});}"+
-   "function g(r,k,d){var x=(r.data||{})[k];return (x===''||x==null)?'\u2014':f(x,d);}"+
-   "function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}"+
-   "function dt(x){if(!x)return '\u2014';var d=new Date(x);return isNaN(d.getTime())?'\u2014':d.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}"+
-   "function co(r){return (r.data&&r.data.client_name)||(r.clients&&r.clients.name)||'';}"+
-   "function lo(r){return (r.data&&r.data.location_name)||(r.locations&&r.locations.name)||'';}"+
-   "function te(r){return (r.data&&r.data.technician_name)||'';}"+
-   "function fl(k,v){return \"<div class='fl'><span class='k'>\"+k+\"</span><span class='v'>\"+v+\"</span></div>\";}"+
-   "function scope(){var s=META.from?('Cycle report \u00b7 '+META.from+' to '+META.to):'Cycle report';return s;}"+
-   "function letterhead(){return \"<div class='lh'><img src='\"+(META.logo||'')+\"'><div><div class='lhn'>POLYFILL MICRONS PVT. LTD.</div><div class='lht'>Air &amp; Water Pollution Control Systems \u00b7 Chromic Acid Recycling (CARS)</div></div><div class='lhs'>\"+scope()+\"<br>Generated \"+dt(new Date().toISOString())+\"</div></div><div class='lhrule'></div>\";}"+
-   "function boardHTML(r){var d=r.data||{},st=(typeof d.step==='number'?d.step:0);"+
-   "var rail=STEPS.map(function(s,i){return \"<div class='step\"+(i===st?' on':'')+\"'><div class='n'>\"+(i+1)+\"</div><div class='m'>\"+s.m+\"</div></div>\";}).join('');"+
-   "var rd=[['Train',d.train||r.train||'\u2014'],['Step',(st+1)+'. '+(STEPS[st]?STEPS[st].m:'')],['Flow LPH',g(r,'flow',0)],['Conductivity',g(r,'cond')],['Spent Fe',g(r,'spentFe')],['Spent Cr\u00b3\u207a',g(r,'spentCr3')],['Treated Fe',g(r,'treatFe')],['Treated Cr\u00b3\u207a',g(r,'treatCr3')]].map(function(p){return \"<div><div class='k'>\"+p[0]+\"</div><div class='v'>\"+p[1]+\"</div></div>\";}).join('');"+
-   "var tanks=TANKS.map(function(a){var k=a[0],cap=CAPS[k]||1000,lv=parseFloat((d.tanks||{})[k])||0,pct=Math.min(100,lv/cap*100);return \"<div class='tk'><div class='n'>\"+(k==='H2'?'H\u2082SO\u2084':(k==='SP'?'Spent H\u2082SO\u2084':k))+\"</div><div class='vis'><i style='height:\"+pct+\"%;background:\"+a[2]+\"'></i></div><div class='val'>\"+f(lv,0)+' / '+f(cap,0)+\" L</div></div>\";}).join('');"+
-   "return \"<div class='board'><div class='rail'>\"+rail+\"</div><div class='rd'>\"+rd+\"</div></div><div class='board'><div style=\\\"font-size:11px;color:#5f6c81;text-transform:uppercase;margin-bottom:6px\\\">Tank board</div><div class='tanks'>\"+tanks+\"</div></div>\";}"+
-   "function logHTML(r){var out=\"<div class='flds'>\";"+
-   "out+=\"<div class='sec'>Header</div>\"+fl('Date',r.cycle_date||'\u2014')+fl('Train',(r.data&&r.data.train)||r.train||'\u2014')+fl('Status',r.status)+fl('Completed',dt(r.completed_at))+fl('Chromic processed L',g(r,'feedVol',0));"+
-   "out+=\"<div class='sec'>Feed (spent)</div>\"+fl('Feed CrO\u2083',g(r,'feedCrO3'))+fl('Feed Fe',g(r,'feedFe'))+fl('Feed Cr\u00b3\u207a',g(r,'feedCr3'))+fl('Feed Cu',g(r,'feedCu'));"+
-   "out+=\"<div class='sec'>Treated (CT2)</div>\"+fl('CT2 recovered L',g(r,'ct2',0))+fl('Treated CrO\u2083',g(r,'treatCrO3'))+fl('Treated Fe',g(r,'treatFeL'))+fl('Treated Cr\u00b3\u207a',g(r,'treatCr3L'))+fl('Treated Cu',g(r,'treatCu'));"+
-   "out+=\"<div class='sec'>CARS / CARWARS / RWRS regeneration</div>\"+fl('CARS H\u2082SO\u2084',g(r,'carsPct')+'% \u00b7 '+g(r,'carsVol',0)+' L')+fl('H\u2082SO\u2084 recycled L',g(r,'recyc',0))+fl('CARWARS cat-1',g(r,'cw1Pct')+'% \u00b7 '+g(r,'cw1Vol',0)+' L')+fl('CARWARS anion',g(r,'cwAnPct')+'% \u00b7 '+g(r,'cwAnVol',0)+' L')+fl('CARWARS cat-2',g(r,'cw2Pct')+'% \u00b7 '+g(r,'cw2Vol',0)+' L')+fl('RWRS cation',g(r,'rwCatPct')+'% \u00b7 '+g(r,'rwCatVol',0)+' L')+fl('RWRS WBA',g(r,'rwAnPct')+'% \u00b7 '+g(r,'rwAnVol',0)+' L');"+
-   "out+=\"</div>\";out+=\"<div class='blk'><div class='blkh'>Notes</div><div style='font-size:12.5px'>\"+(r.data&&r.data.notes?esc(r.data.notes):'\u2014')+\"</div></div>\";return out;}"+
-   "function totHTML(r){return \"<div class='blk'><div class='blkh'>Reminders &amp; Flags (current status)</div>\"+remCards(r)+\"</div>\";}"+
-   "function remCards(r){var ls=r._ls||{},inv=r._inv||{};"+
-   "var reuse=+ls.reuse||0,metals=reuse*5,freeAcid=Math.max(0,15-reuse*1.4),bleed=reuse>=5;"+
-   "var cwK=+ls.carwarsKg||0,cthr=+EST.carwarsThresh||15,cdue=cwK>=cthr;"+
-   "var rL=+ls.rwrsL||0,rthr=+EST.rwrsThresh||5000,rdue=rL>=rthr;"+
-   "var h2=inv['H2SO4_50']||{},hOn=+h2.on_hand_kg||0,hLo=+h2.low_limit_kg||200,hlo=hOn<=hLo;"+
-   "var na=inv['NaOH_100']||{},nOn=+na.on_hand_kg||0,nLo=+na.low_limit_kg||40,nlo=nOn<=nLo;"+
-   "var bf=+ls.bathFe||0,ceil=+EST.bathCeil||0,over=ceil>0&&bf>ceil;"+
-   "function c(cls,t,tag,b){return \"<div class='rmi \"+cls+\"'><div class='rmh'><b>\"+t+\"</b><span class='rmg \"+cls+\"'>\"+tag+\"</span></div><div class='rmb'>\"+b+\"</div></div>\";}"+
-   "return \"<div class='rems'>\"+c(bleed?'al':'ok','H\u2082SO\u2084 regenerant',bleed?'Bleed now':(reuse?'Reuse #'+reuse:'Fresh'),'Reuse #'+reuse+' \u00b7 free acid ~'+f(freeAcid,1)+'% \u00b7 metals ~'+f(metals,0)+' kg/1000 L')+"+
-   "c(cdue?'al':'ok','CARWARS anion regen',cdue?'Due':'Building','CrO\u2083 in CT3 '+f(cwK,1)+' / '+f(cthr,0)+' kg')+"+
-   "c(rdue?'al':'ok','RWRS regen',rdue?'Due':'Building','Rinse treated '+f(rL,0)+' / '+f(rthr,0)+' L')+"+
-   "c(hlo?'wn':'ok','H\u2082SO\u2084 stock',hlo?'Reorder':'OK','On hand '+f(hOn,0)+' kg (50%) \u00b7 ~'+f(+EST.h2||0,0)+' kg/regen \u00b7 alert '+f(hLo,0))+"+
-   "c(nlo?'wn':'ok','NaOH stock',nlo?'Reorder':'OK','On hand '+f(nOn,0)+' kg \u00b7 ~'+f(+EST.na||0,0)+' kg/regen \u00b7 alert '+f(nLo,0))+"+
-   "c(over?'al':'ok','Bath iron',ceil>0?(over?'Above':'In range'):'No ceiling','Bath Fe '+f(bf,1)+' g/L'+(ceil>0?' vs '+f(ceil,1):''))+\"</div>\";}"+
-   "function render(){var r=ROWS[idx];E('lhScreen').innerHTML=letterhead();"+
-   "E('cnt').textContent=(idx+1)+' / '+ROWS.length+'  \u00b7  '+(r.cycle_date||'')+' \u00b7 '+te(r)+' \u00b7 '+co(r)+' / '+lo(r)+' \u00b7 '+r.status;"+
-   "var single=ROWS.length<=1;E('prev').style.display=single?'none':'';E('next').style.display=single?'none':'';E('cnt').style.display=single?'none':'';"+
-   "E('tabs').innerHTML=[['board','Operator board'],['log','Cycle log'],['tot','Reminders & flags']].map(function(t){return \"<button class='\"+(tab===t[0]?'on':'')+\"' onclick=\\\"setTab('\"+t[0]+\"')\\\">\"+t[1]+\"</button>\";}).join('');"+
-   "E('body').innerHTML=tab==='board'?boardHTML(r):(tab==='log'?logHTML(r):totHTML(r));"+
-   "if(!single){E('prev').disabled=idx===0;E('next').disabled=idx===ROWS.length-1;}}"+
-   "window.setTab=function(t){tab=t;render();};"+
-   "E('prev').onclick=function(){if(idx>0){idx--;render();}};E('next').onclick=function(){if(idx<ROWS.length-1){idx++;render();}};E('prn').onclick=function(){window.print();};"+
-   "var ICG=\"<svg viewBox='0 0 24 24' width='12' height='12' style='vertical-align:middle'><circle cx='12' cy='12' r='9.2' fill='none' stroke='#1B3A6B' stroke-width='1.5'/><ellipse cx='12' cy='12' rx='4' ry='9.2' fill='none' stroke='#1B3A6B' stroke-width='1.1'/><path d='M3 12h18' stroke='#1B3A6B' stroke-width='1.1'/></svg>\";"+
-   "var ICM=\"<svg viewBox='0 0 24 24' width='12' height='12' style='vertical-align:middle'><rect x='2.5' y='5' width='19' height='14' rx='2.2' fill='none' stroke='#1B3A6B' stroke-width='1.5'/><path d='M3.5 6.5l8.5 6 8.5-6' fill='none' stroke='#1B3A6B' stroke-width='1.3'/></svg>\";"+
-   "var ICC=\"<svg viewBox='0 0 24 24' width='26' height='26'><rect x='3' y='4.5' width='18' height='16.5' rx='2.2' fill='none' stroke='#1B3A6B' stroke-width='1.5'/><path d='M3 9.5h18M8 2.5v4M16 2.5v4' stroke='#1B3A6B' stroke-width='1.5' fill='none'/><circle cx='16.6' cy='15.4' r='3.7' fill='#fff' stroke='#1B3A6B' stroke-width='1.2'/><path d='M16.6 13.6v1.9l1.3.9' stroke='#1B3A6B' stroke-width='1' fill='none'/></svg>\";"+
-   "function dd(x){if(!x)return '\u2014';var d=new Date(x);return isNaN(d.getTime())?String(x):d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}"+
-   "function cap(s){s=String(s||'');return s?s.charAt(0).toUpperCase()+s.slice(1):'\u2014';}"+
-   "function fr(k,v){return \"<div class='prow2'><span class='k'>\"+k+\"</span><span class='cln'>:</span><span class='v'>\"+v+\"</span></div>\";}"+
-   "function sc(t,b){return \"<div class='card2'><div class='sh'>\"+t+\"</div>\"+b+\"</div>\";}"+
-   "function plh(){return \"<div class='plh'><img class='lg' width='54' height='54' src='\"+(META.logo||'')+\"'><div class='co'><div class='nm'>POLYFILL MICRONS PVT. LTD.</div><div class='tg'>Air &amp; Water Pollution Control Systems \u00b7 Chromic Acid Recycling (CARS)</div></div><div class='ct'><div class='r'>\"+ICG+\"<span>www.polyfillmicrons.in</span></div><div class='r'>\"+ICM+\"<span>info@polyfillmicrons.in</span></div></div></div><div class='plhrule'></div>\";}"+
-   "function metaCard(r){return \"<div class='card2 metac'><div class='metagrid'><div>\"+fr('Cycle Date',dd(r.cycle_date))+fr('Completed On',dt(r.completed_at))+fr('Train',esc((r.data&&r.data.train)||r.train||'\u2014'))+fr('Technician',esc(te(r))||'\u2014')+\"</div><div>\"+fr('Company',esc(co(r))||'\u2014')+fr('Location',esc(lo(r))||'\u2014')+fr('Cycle Status',cap(r.status))+\"</div></div></div>\";}"+
-   "function notesCard(r){var n=r.data&&r.data.notes?esc(r.data.notes):'';return \"<div class='notesc'><div class='nh'>Notes (if any)</div>\"+(n?\"<div class='nt'>\"+n+\"</div>\":'')+\"<div class='nl'></div><div class='nl'></div><div class='nl'></div>\"+(n?'':\"<div class='nl'></div><div class='nl'></div>\")+\"</div>\";}"+
-   "function pfoot(r){var done=(r.status==='completed'&&r.completed_at);return \"<div class='pfoot'><div class='sig'><div class='sl'></div><div class='st'>FOR POLYFILL MICRONS PVT. LTD.</div></div>\"+(done?\"<div class='cc'>\"+ICC+\"<div><div class='l'>Cycle Completed On</div><div class='d'>\"+dd(r.completed_at)+\"</div></div></div>\":'')+\"</div><div class='disc'>This is a system generated report and does not require any signature.</div>\";}"+
-   "E('printAll').innerHTML=ROWS.map(function(r){return \"<div class='preport'>\"+plh()+"+
-   "\"<div class='prh'><span class='ln'></span>CARS CYCLE REPORT<span class='ln'></span></div>\"+"+
-   "metaCard(r)+"+
-   "\"<div class='secgrid'>\"+"+
-   "sc('Readings',fr('Flow LPH',g(r,'flow',0))+fr('Conductivity',g(r,'cond'))+fr('Spent Fe / Cr\u00b3\u207a (g/L)',g(r,'spentFe')+' / '+g(r,'spentCr3'))+fr('Completed',dt(r.completed_at)))+"+
-   "sc('Feed',fr('Chromic L',g(r,'feedVol',0))+fr('Feed CrO\u2083',g(r,'feedCrO3'))+fr('Feed Fe / Cr\u00b3\u207a (g/L)',g(r,'feedFe')+' / '+g(r,'feedCr3'))+fr('Feed Cu (g/L)',g(r,'feedCu')))+"+
-   "sc('Treated',fr('CT2 L',g(r,'ct2',0))+fr('Treated CrO\u2083 (g/L)',g(r,'treatCrO3'))+fr('Treated Fe / Cr\u00b3\u207a (g/L)',g(r,'treatFeL')+' / '+g(r,'treatCr3L')))+"+
-   "sc('Regeneration',fr('CARS H\u2082SO\u2084',g(r,'carsPct')+'% \u2022 '+g(r,'carsVol',0)+' L')+fr('CARWARS anion',g(r,'cwAnPct')+'% \u2022 '+g(r,'cwAnVol',0)+' L')+fr('RWRS cation',g(r,'rwCatPct')+'% \u2022 '+g(r,'rwCatVol',0)+' L'))+"+
-   "\"</div>\"+"+
-   "\"<div class='sh sh2'>Reminders &amp; Flags (current status)</div><div class='rnwrap'>\"+remCards(r)+notesCard(r)+\"</div>\"+"+
-   "pfoot(r)+"+
-   "\"</div>\";}).join('');"+
-   "render();"+
-   "<\/scr"+"ipt></body></html>";
-  return doc;
-}
-function htmlReport(rows,from,to,print){
-  if(!rows||!rows.length){toast('No cycles to show');return;}
-  var est={h2:h2PerRegen50(),na:naPerCarwars(),carwarsThresh:SETTINGS.carwarsThreshKg,rwrsThresh:SETTINGS.rwrsThreshL,bathCeil:SETTINGS.bathCeilingFe};
-  var meta={from:from,to:to,logo:(location.origin||'')+'/pmpl-logo.jpg',est:est};
-  var md=el('div','modal');md.style.cssText='padding:0;align-items:stretch;justify-content:stretch;z-index:70';
-  var box=el('div');box.style.cssText='background:#eef1f5;width:100%;height:100%;display:flex;flex-direction:column';
-  var bar=el('div');bar.style.cssText='display:flex;align-items:center;gap:10px;background:#10141d;color:#fff;padding:10px 16px;flex:none';
-  bar.innerHTML='<b style="font-size:14px">CARS cycle report</b><span style="font-size:12px;color:#9fbfae">'+rows.length+' cycle(s)</span>';
-  var sp=el('div');sp.style.flex='1';bar.appendChild(sp);
-  var bPrint=el('button','btn sm','Print');bPrint.style.cssText='background:#f2820c;color:#1a1206';
-  var bClose=el('button','btn sm g','✕ Close');
-  bar.append(bPrint,bClose);box.appendChild(bar);
-  var ifr=document.createElement('iframe');ifr.style.cssText='flex:1;border:0;width:100%;background:#eef1f5';ifr.setAttribute('title','CARS report');ifr.srcdoc=reportDoc(rows,meta);box.appendChild(ifr);
-  md.appendChild(box);document.body.appendChild(md);
-  function close(){md.remove();document.removeEventListener('keydown',onKey);}
-  function onKey(e){if(e.key==='Escape')close();}
-  document.addEventListener('keydown',onKey);
-  bClose.onclick=close;
-  bPrint.onclick=function(){try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){window.print();}};
-  if(print)ifr.addEventListener('load',function(){setTimeout(function(){try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){}},350);});
-}
-function excelExport(rows,from,to){
-  const detail=rows.map(r=>{const d=r.data||{};const base={Date:r.cycle_date,Technician:rTech(r),Company:rCo(r),Location:rLoc(r),Train:r.train,Status:r.status,
-    'Chromic L':+r.chromic_processed_l||0,'CrO3 recovered kg':+r.cro3_recovered_kg||0,'Fe removed kg':+r.fe_removed_kg||0,'Recovery %':+r.recovery_pct||0,'H2SO4 50% kg':+r.h2so4_50_kg||0,'NaOH 100% kg':+r.naoh_100_kg||0};
-    ['flow','cond','spentFe','spentCr3','feedCrO3','feedFe','feedCr3','feedCu','ct2','treatCrO3','treatFeL','treatCr3L','treatCu','carsPct','carsVol','recyc','cw1Pct','cw1Vol','cwAnPct','cwAnVol','cw2Pct','cw2Vol','rwCatPct','rwCatVol','rwAnPct','rwAnVol'].forEach(k=>base[labelOf(k)]=d[k]!==''&&d[k]!=null?+d[k]:'');base.Notes=d.notes||'';return base;});
-  const sum=f=>rows.reduce((a,x)=>a+(+f(x)||0),0);
-  const summary=[['Cycles',rows.length],['Completed',rows.filter(x=>x.status==='completed').length]].map(([Metric,Value])=>({Metric,Value}));
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(summary),'Summary');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(detail),'Cycles');XLSX.writeFile(wb,'CARS_'+(from||'all')+'_'+(to||'')+'.xlsx');
-}
-function jsonExport(rows,from,to){const blob=new Blob([JSON.stringify({owner:'Polyfill Microns Pvt Ltd',from,to,exported:new Date().toISOString(),cycles:rows},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='CARS_'+(from||'all')+'.json';a.click();URL.revokeObjectURL(a.href);}
-
-/* ---- tiny helpers ---- */
-function cbx(label,input){const l=el('label');l.style.cssText='display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-size:13px;cursor:pointer';input.style.cssText='width:16px;height:16px';l.append(input,document.createTextNode(label));return l;}
-function accBadges(u){var b='';if(u.access_attendance)b+='<span class="pill done" style="margin-right:4px">Att</span>';if(u.access_cars)b+='<span class="pill done">CARS</span>';return b||'<span class="note">\u2014</span>';}
-function lw(label,control){const w=el('div','f');w.appendChild(el('label',null,label));w.appendChild(control);return w;}
-function add(p,cls,html){p.appendChild(el('div',cls,html));}
-function inp(type){const i=document.createElement('input');i.type=type;return i;}
-function opt(v,t){const o=document.createElement('option');o.value=v;o.textContent=t;return o;}
 </script>
 </body>
 </html>
