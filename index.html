@@ -168,6 +168,28 @@ footer{text-align:center;color:var(--wink-dim);font-size:11px;padding:18px;line-
 .whobar .wb.loc b{font-size:13px;color:var(--wink-dim);font-weight:600}
 table.rep td,table.rep th{padding:11px 12px}
 table.rep tbody tr{border-bottom:1px solid var(--line-l)}
+.stockmx{width:100%;border-collapse:collapse;cursor:default}
+.stockmx:hover{color:inherit}
+.stockmx th,.stockmx td{padding:8px 10px;vertical-align:middle}
+.stockmx thead th{border-bottom:1.5px solid var(--line-l)}
+.stockmx thead tr:nth-child(1) th.grp{text-align:center;text-transform:none;letter-spacing:0;font-size:12px;font-weight:700;color:var(--wink);border-bottom:1px solid #eef1f4}
+.stockmx thead tr:nth-child(2) th{font-size:10px;color:var(--wink-dim);font-weight:600;text-transform:none;letter-spacing:.2px;text-align:center}
+.stockmx td.locname{font-weight:700;color:var(--wink);white-space:nowrap;font-size:13px}
+.stockmx .gsep{border-left:1px solid var(--line-l)}
+.stockmx tbody td{border-bottom:1px solid var(--line-l)}
+.stockmx tbody tr:last-child td{border-bottom:none}
+.stockmx input{width:88px;padding:6px;border:1px solid var(--line-l);border-radius:6px;text-align:right;background:#fafbfc;font-size:12.5px}
+.stockmx input:disabled{background:#f3f5f8;color:#aeb6c2}
+.stockmx td.lowcell input{border-color:#e8a48f;background:#fdf3ef;color:#b4482a;font-weight:700}
+.stockmx .lowtag,.stockmx .oktag{display:inline-block;margin-left:7px;font-size:8.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 6px;border-radius:9px;vertical-align:middle}
+.stockmx .lowtag{background:rgba(232,130,90,.15);color:#c05a2e}
+.stockmx .oktag{background:rgba(34,171,87,.12);color:#1f8f4b}
+.stockmx .uwrap{position:relative;display:inline-block}
+.stockmx .uwrap input{padding-right:26px}
+.stockmx .uwrap .u{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:#9aa4b2;pointer-events:none}
+.stockmx tfoot td{border-top:1.5px solid var(--line-l);font-weight:700;color:var(--wink);font-size:12.5px;padding-top:10px}
+.stockmx tfoot .tv{font-family:'IBM Plex Mono',monospace}
+.stockmx tfoot .tlbl{color:var(--wink-dim);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
 </style>
 </head>
 <body>
@@ -746,14 +768,36 @@ async function screenCompany(m){
   async function loadStock(){stbox.innerHTML='';if(!coSel.value){stbox.appendChild(el('div','note','Add a company to manage stock.'));return;}
     const {data:inv}=await sb.from('inventory').select('*, locations(name)').eq('client_id',coSel.value).order('chemical');
     if(!inv||!inv.length){stbox.appendChild(el('div','note','No locations/stock yet for this company. Add a location above.'));return;}
-    const w=el('div','hwrap'),t=el('table');t.innerHTML='<thead><tr><th>Location</th><th>Chemical</th><th>Basis</th><th class="m">On hand kg</th><th class="m">Low alert kg</th><th></th></tr></thead>';const tb=el('tbody');
-    inv.forEach(r=>{const oh=inp('number'),lo=inp('number');oh.value=r.on_hand_kg;lo.value=r.low_limit_kg;[oh,lo].forEach(e=>e.style.cssText='width:100px;padding:6px;border:1px solid var(--line-l);border-radius:6px;text-align:right');
-      const tr=el('tr');tr.append(el('td',null,esc(r.locations?.name||'')),el('td',null,r.chemical==='H2SO4_50'?'H₂SO₄ (50%)':'NaOH (100%)'),el('td',null,r.basis||''));
-      const c4=el('td');c4.appendChild(oh);const c5=el('td');c5.appendChild(lo);const c6=el('td');
-      const b=el('button','btn sm g','Save');b.onclick=async()=>{const {error}=await sb.from('inventory').update({on_hand_kg:num(oh.value),low_limit_kg:num(lo.value),updated_at:new Date().toISOString()}).eq('id',r.id);toast(error?error.message:'Stock updated');};
-      c6.appendChild(b);tr.append(c4,c5,c6);tb.appendChild(tr);});
-    t.appendChild(tb);w.appendChild(t);stbox.appendChild(w);
-    stbox.appendChild(el('div','note','Each company/location keeps its own stock. Completing a cycle auto-deducts H₂SO₄ (50%) and NaOH (100%).'));}
+    const CHEMLABEL={H2SO4_50:'H₂SO₄ (50% solution)',NaOH_100:'NaOH (100%)'},CHEMORDER=['H2SO4_50','NaOH_100'];
+    const chems=[];CHEMORDER.forEach(c=>{if(inv.some(r=>r.chemical===c))chems.push(c);});inv.forEach(r=>{if(chems.indexOf(r.chemical)<0)chems.push(r.chemical);});
+    const locOrder=[],byLoc={};inv.forEach(r=>{const lid=r.location_id;if(!byLoc[lid]){byLoc[lid]={name:(r.locations&&r.locations.name)||'',chems:{}};locOrder.push(lid);}byLoc[lid].chems[r.chemical]=r;});locOrder.sort((x,y)=>String(byLoc[x].name).localeCompare(String(byLoc[y].name)));
+    const w=el('div','hwrap'),t=el('table','stockmx');
+    let h1='<tr><th rowspan="2">Location</th>';chems.forEach((c,i)=>{h1+='<th colspan="2" class="grp'+(i>0?' gsep':'')+'">'+(CHEMLABEL[c]||esc(c))+'</th>';});h1+='<th rowspan="2"></th></tr>';
+    let h2='<tr>';chems.forEach((c,i)=>{h2+='<th class="'+(i>0?'gsep':'')+'">On hand</th><th>Low alert</th>';});h2+='</tr>';
+    t.innerHTML='<thead>'+h1+h2+'</thead>';const tb=el('tbody');
+    function uw(input){const sp=el('span','uwrap');sp.appendChild(input);sp.appendChild(el('span','u','kg'));return sp;}
+    const totals={};chems.forEach(c=>totals[c]=0);
+    locOrder.forEach(lid=>{const L=byLoc[lid];const tr=el('tr');tr.appendChild(el('td','locname',esc(L.name)));const items=[];
+      chems.forEach((c,i)=>{const rec=L.chems[c];const oh=inp('number'),lo=inp('number');
+        const c1=el('td',(i>0?'gsep':''));const c2=el('td');
+        if(rec){oh.value=rec.on_hand_kg;lo.value=rec.low_limit_kg;
+          const tag=el('span','oktag','OK');
+          const mark=()=>{const low=num(oh.value)<=num(lo.value);c1.classList.toggle('lowcell',low);tag.className=low?'lowtag':'oktag';tag.textContent=low?'Reorder':'OK';};
+          oh.oninput=lo.oninput=mark;
+          c1.appendChild(uw(oh));c1.appendChild(tag);c2.appendChild(uw(lo));mark();
+          items.push({rec,oh,lo,c});
+        }else{oh.disabled=lo.disabled=true;oh.placeholder=lo.placeholder='\u2014';c1.appendChild(uw(oh));c2.appendChild(uw(lo));}
+        tr.append(c1,c2);});
+      const cS=el('td');const b=el('button','btn sm g','Save');b.onclick=async()=>{if(!items.length)return;b.disabled=true;var err=null;for(const it of items){const {error}=await sb.from('inventory').update({on_hand_kg:num(it.oh.value),low_limit_kg:num(it.lo.value),updated_at:new Date().toISOString()}).eq('id',it.rec.id);if(error){err=error;break;}}if(!err){items.forEach(it=>{it.rec.on_hand_kg=num(it.oh.value);it.rec.low_limit_kg=num(it.lo.value);});retotal();}toast(err?err.message:'Stock updated \u2014 '+L.name);b.disabled=false;};
+      cS.appendChild(b);tr.appendChild(cS);tb.appendChild(tr);});
+    t.appendChild(tb);
+    const tf=el('tfoot'),ftr=el('tr');ftr.appendChild(el('td','tlbl','Company total'));const totCells={};
+    chems.forEach((c,i)=>{const td=el('td','tv'+(i>0?' gsep':''));totCells[c]=td;ftr.append(td,el('td'));});
+    ftr.appendChild(el('td'));tf.appendChild(ftr);t.appendChild(tf);
+    function retotal(){chems.forEach(c=>{let sum=0;locOrder.forEach(lid=>{const rec=byLoc[lid].chems[c];if(rec)sum+=num(rec.on_hand_kg);});totCells[c].textContent=fmt(sum,0)+' kg';});}
+    retotal();
+    w.appendChild(t);stbox.appendChild(w);
+    stbox.appendChild(el('div','note','Each company / location keeps its own stock. Completing a cycle auto-deducts H₂SO₄ (50%) and NaOH (100%).'));}
   listCo();
 }
 
@@ -807,6 +851,13 @@ function reportDoc(rows,meta){
    ".lh{display:flex;align-items:center;gap:14px;padding:14px 20px 8px}.lh img{width:54px;height:54px;border-radius:50%}"+
    ".lhn{font-size:20px;font-weight:800;color:#E8825A;letter-spacing:.5px}.lht{font-size:11px;color:#1B3A6B;margin-top:2px}"+
    ".lhs{margin-left:auto;text-align:right;font-size:11px;color:#5a6678;line-height:1.5}.lhrule{border-top:3px solid #E8825A;margin:8px 20px 10px}"+
+   ".smeta{margin:0 20px 10px;font-size:12.5px;line-height:1.5;color:#1a2230;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 7px}"+
+   ".smeta .sd{color:#5a6678;font-weight:600}"+
+   ".smeta .sv{font-weight:700}"+
+   ".smeta .ssep{color:#c3cbd6}"+
+   ".smeta .sst{text-transform:capitalize}"+
+   "@media(max-width:640px){.smeta{margin:0 12px 8px;font-size:12px}}"+
+   "@media print{.smeta{display:none!important}}"+
    ".nav{display:flex;gap:8px;align-items:center;padding:8px 20px;background:#171d29;color:#cdd6e4;flex-wrap:wrap}"+
    ".nav button{background:#1e2735;color:#cdd6e4;border:0;padding:7px 13px;border-radius:7px;font-weight:600;cursor:pointer}"+
    ".nav button:hover{background:#28324a}.nav .np{background:#f2820c;color:#1a1206}.nav .cnt{font-size:12px;margin-left:auto}"+
@@ -850,7 +901,7 @@ function reportDoc(rows,meta){
    ".pfoot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #e2e7ee;margin-top:40px;padding-top:18px}.sig{text-align:center}.sig .sl{width:210px;border-top:1px solid #3a4453;margin-top:36px;margin-bottom:5px}.sig .st{font-size:11px;color:#3a4453}.cc{display:flex;align-items:center;gap:11px}.cc .l{font-size:10px;color:#7a8496}.cc .d{font-size:12.5px;font-weight:700;color:#2a3342;margin-top:1px}"+
    ".disc{font-size:9px;color:#9aa4b2;margin-top:10px}}";
   var doc="<!doctype html><html><head><meta charset='utf-8'><title>CARS cycle report</title><style>"+css+"</style></head><body>"+
-   "<div id='screen'><div id='lhScreen'></div>"+
+   "<div id='screen'><div id='lhScreen'></div><div class='smeta' id='smeta'></div>"+
    "<div class='nav'><button class='np' id='prev'>\u2039 Prev</button><button class='np' id='next'>Next \u203a</button><button id='prn'>Print</button><span class='cnt' id='cnt'></span></div>"+
    "<div class='tabs' id='tabs'></div><div class='wrap'><div class='card' id='body'></div></div></div>"+
    "<div id='printAll'></div>"+
@@ -893,8 +944,16 @@ function reportDoc(rows,meta){
    "c(hlo?'wn':'ok','H\u2082SO\u2084 stock',hlo?'Reorder':'OK','On hand '+f(hOn,0)+' kg (50%) \u00b7 ~'+f(+EST.h2||0,0)+' kg/regen \u00b7 alert '+f(hLo,0))+"+
    "c(nlo?'wn':'ok','NaOH stock',nlo?'Reorder':'OK','On hand '+f(nOn,0)+' kg \u00b7 ~'+f(+EST.na||0,0)+' kg/regen \u00b7 alert '+f(nLo,0))+"+
    "c(over?'al':'ok','Bath iron',ceil>0?(over?'Above':'In range'):'No ceiling','Bath Fe '+f(bf,1)+' g/L'+(ceil>0?' vs '+f(ceil,1):''))+\"</div>\";}"+
-   "function render(){var r=ROWS[idx];E('lhScreen').innerHTML=letterhead();"+
-   "E('cnt').textContent=(idx+1)+' / '+ROWS.length+'  \u00b7  '+(r.cycle_date||'')+' \u00b7 '+te(r)+' \u00b7 '+co(r)+' / '+lo(r)+' \u00b7 '+r.status;"+
+   "function smetaHTML(r){var d=r.data||{},SEP=\"<span class='ssep'>\\u00b7</span>\";"+
+   "var coloc=[esc(co(r)),esc(lo(r))].filter(Boolean).join(' / ')||'\u2014';"+
+   "var parts=[\"<span class='sd'>\"+(esc(r.cycle_date)||'\u2014')+\"</span>\","+
+   "\"<span class='sv'>\"+(esc(d.train||r.train)||'\u2014')+\"</span>\","+
+   "\"<span class='sv'>\"+(esc(te(r))||'\u2014')+\"</span>\","+
+   "\"<span class='sv'>\"+coloc+\"</span>\","+
+   "\"<span class='sd sst'>\"+(esc(r.status)||'\u2014')+\"</span>\"];"+
+   "return parts.join(SEP);}"+
+   "function render(){var r=ROWS[idx];E('lhScreen').innerHTML=letterhead();E('smeta').innerHTML=smetaHTML(r);"+
+   "E('cnt').textContent=(idx+1)+' / '+ROWS.length;"+
    "var single=ROWS.length<=1;E('prev').style.display=single?'none':'';E('next').style.display=single?'none':'';E('cnt').style.display=single?'none':'';"+
    "E('tabs').innerHTML=[['board','Operator board'],['log','Cycle log'],['tot','Reminders & flags']].map(function(t){return \"<button class='\"+(tab===t[0]?'on':'')+\"' onclick=\\\"setTab('\"+t[0]+\"')\\\">\"+t[1]+\"</button>\";}).join('');"+
    "E('body').innerHTML=tab==='board'?boardHTML(r):(tab==='log'?logHTML(r):totHTML(r));"+
