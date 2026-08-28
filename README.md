@@ -88,6 +88,12 @@ Service worker cache: cars-cloud-v6.
 - ONLY change vs v8: the loadStock() renderer inside screenCompany + a scoped .stockmx CSS block.
   No database change; no change to any other CARS screen, report, print, or data.
   
+## v8-2 (Chemical Stock matrix + tweaks)
+- Matrix layout (one row per location, grouped chemical columns, one Save per location),
+  low-stock REORDER/OK badges, "kg" unit hints, and a company total row.
+
+Scope: front-end only. NO database change. All other CARS functions are byte-identical to v8.
+
 ## v8-4 (Report viewer: single-line identity strip)
 - The on-screen report viewer shows ONE compact line under the letterhead:
   Date · Train/Process · Technician · Company / Location · Status
@@ -100,8 +106,9 @@ Service worker cache: cars-cloud-v6.
 - PRINT UNCHANGED: strip hidden via @media print; print CSS block and printAll builder
   are byte-identical to the v8 baseline.
 
-## v8-2 (Chemical Stock matrix + tweaks)
-- Matrix layout (one row per location, grouped chemical columns, one Save per location),
-  low-stock REORDER/OK badges, "kg" unit hints, and a company total row.
-
-Scope: front-end only. NO database change. All other CARS functions are byte-identical to v8.
+## v8-5 (Report viewer: remove redundant nav Print button)
+- Removed the Print button from the report viewer's dark navigation bar (id 'prn') and its
+  now-orphaned window.print() handler. The nav bar keeps Prev / Next and the position counter.
+- KEPT unchanged: the Print and Close buttons on the modal top bar (these print the report
+  iframe), and the "Print / PDF" button in the Reports screen.
+- Printing functionality and report layout unchanged.
